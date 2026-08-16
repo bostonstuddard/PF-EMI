@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "emi",
+  "version": "${version}",
+  "name": "PF-EMI",
+  "description": "ProjectFlint-maintained EMI fork for Minecraft 1.21.11, based on EMI by Emi.",
+  "authors": [
+    "Emi"
+  ],
+  "contributors": [
+    "ProjectFlint"
+  ],
+  "contact": {
+    "sources": "https://github.com/bostonstuddard/PF-EMI"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.emi.emi.platform.fabric.EmiMainFabric"
+    ],
+    "client": [
+      "dev.emi.emi.platform.fabric.EmiClientFabric"
+    ],
+    "server": [],
+    "emi": [
+      "dev.emi.emi.VanillaPlugin"
+    ],
+    "modmenu": [
+      "dev.emi.emi.compat.EmiModMenu"
+    ],
+    "jei_mod_plugin": [
+      "dev.emi.emi.jemi.JemiPlugin"
+    ]
+  },
+  "custom": {
+    "polymer:disable_mixin": {
+      "polymer-core:client.compat.emi_ItemEmiStackMixin": "Please stop mixing into impl"
+    }
+  },
+  "mixins": [
+    "emi.mixins.json",
+    "emi-fabric.mixins.json"
+  ],
+  "accessWidener": "emi.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric": "*",
+    "minecraft": "1.21.11"
+  }
+}

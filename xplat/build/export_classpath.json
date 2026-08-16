@@ -1,0 +1,14 @@
+{
+  "projectPath": ":xplat",
+  "classpaths": {
+    "test": [
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\xplat\\build\\classes\\java\\test",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\xplat\\build\\resources\\test"
+    ],
+    "main": [
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\xplat\\build\\classes\\java\\main",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\xplat\\build\\resources\\main",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\xplat\\build\\devlibs\\pf-emi-1.1.23-pf.1+1.21.11+xplat-dev.jar"
+    ]
+  }
+}
