@@ -1,3 +1,9 @@
+While developing my 1.21.11 mod, noticed EMI didn't have a 1.21.11 port forward, so I went ahead and did it myself. That's all.
+
+I will fix any bugs if they're reported, but that's it. As long as it works for me, there won't be any feature updates.
+
+AI usage: Used to help locate some dependencies, but most of the work was already done in the EMI GitHub repo anyway, so no code was generated with AI.
+
 # EMI
 EMI is a featureful and accessible item and recipe viewer for Minecraft.
 
