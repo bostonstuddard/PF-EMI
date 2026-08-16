@@ -1,0 +1,12 @@
+FIVE-PROJECT HOMEPAGE UPDATE
+
+Changes:
+- Added LegendsJEI as the fifth showcased project.
+- Desktop homepage now displays all five project cards side by side.
+- Project-card gradients stay colored all the way to the bottom instead of fading to black.
+- Service-icon buttons have a subtle translucent background for better visibility.
+- Added a dedicated LegendsJEI page using the project icon/screenshots from its GitHub repository.
+- Added LegendsJEI to the site sidebar and About page.
+- CSS cache version bumped to v8.
+
+Upload/replace the files in this ZIP at the root of the landingpage repository.
