@@ -1,0 +1,140 @@
+plugins {
+	id "dev.architectury.loom"
+	id "com.gradleup.shadow" version "8.3.6"
+}
+
+evaluationDependsOn ':xplat'
+
+architectury {
+	platformSetupLoomIde()
+	fabric()
+}
+
+loom {
+	accessWidenerPath = project(":xplat").loom.accessWidenerPath
+
+	mods {
+		main {
+			sourceSet sourceSets.main
+			sourceSet project(':xplat').sourceSets.main
+		}
+	}
+}
+
+configurations {
+	common {
+		canBeResolved = true
+		canBeConsumed = false
+	}
+	compileClasspath.extendsFrom common
+	runtimeClasspath.extendsFrom common
+	developmentFabric.extendsFrom common
+
+	shadowBundle {
+		canBeResolved = true
+		canBeConsumed = false
+	}
+}
+
+repositories {
+	maven {
+		url = "https://maven.terraformersmc.com/"
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+
+	modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+	modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+
+	common(project(path: ":xplat", configuration: "namedElements")) { transitive = false }
+	shadowBundle(project(path: ":xplat", configuration: "transformProductionFabric"))
+
+	modCompileOnly("mezz.jei:${rootProject.jei_version}") {
+		transitive = false
+	}
+	modCompileOnly "com.terraformersmc:modmenu:6.1.0-rc.4"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+shadowJar {
+	exclude "architectury.common.json"
+	configurations = [project.configurations.shadowBundle]
+	archiveClassifier = 'dev-shadow'
+}
+
+remapJar {
+	dependsOn shadowJar
+	inputFile.convention(shadowJar.archiveFile)
+	injectAccessWidener = true
+}
+
+sourcesJar {
+	def commonSources = project(":xplat").tasks.named("sourcesJar", Jar)
+	dependsOn commonSources
+	from zipTree(commonSources.flatMap { it.archiveFile })
+}
+
+def filteredSourcesJar = tasks.register('filteredSourcesJar', Jar, {
+	archiveClassifier = 'filtered-sources'
+	dependsOn tasks.remapSourcesJar
+	from zipTree(tasks.remapSourcesJar.archiveFile)
+	exclude 'dev/emi/emi/jemi/**'
+})
+
+def apiJar = tasks.register('apiJar', Jar, {
+	archiveClassifier = 'api'
+	dependsOn tasks.remapJar
+	from zipTree(remapJar.archiveFile)
+	include 'fabric.mod.json'
+	include 'emi.mixins.json'
+	include 'emi-fabric.mixins.json'
+	include 'emi.accesswidener'
+	include 'dev/emi/emi/api/**'
+	exclude 'dev/emi/emi/api/EmiRecipeHandler**'
+	exclude 'dev/emi/emi/api/stack/FluidEmiStack**'
+	exclude 'dev/emi/emi/api/stack/ItemEmiStack**'
+	exclude 'dev/emi/emi/api/stack/EmptyEmiStack**'
+	exclude 'dev/emi/emi/api/stack/TagEmiIngredient**'
+	exclude 'dev/emi/emi/api/stack/ListEmiIngredient**'
+})
+
+build {
+	dependsOn(filteredSourcesJar, apiJar)
+}
+
+components.java {
+	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+		skip()
+	}
+}
+
+publishing {
+	publications {
+		register('maven', MavenPublication) {
+			artifactId = "${rootProject.name}-${project.name}"
+			version = project.ext.mavenVersion
+			artifact(remapJar) {
+				builtBy remapJar
+				classifier ''
+			}
+			artifact(filteredSourcesJar) {
+				builtBy filteredSourcesJar
+				classifier 'sources'
+			}
+			artifact(apiJar) {
+				builtBy apiJar
+				classifier 'api'
+			}
+		}
+	}
+}

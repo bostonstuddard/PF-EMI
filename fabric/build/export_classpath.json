@@ -1,0 +1,14 @@
+{
+  "projectPath": ":fabric",
+  "classpaths": {
+    "test": [
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\fabric\\build\\classes\\java\\test",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\fabric\\build\\resources\\test"
+    ],
+    "main": [
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\fabric\\build\\classes\\java\\main",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\fabric\\build\\resources\\main",
+      "C:\\Users\\Boston\\Downloads\\ProjectFlint sourceCode\\PF-EMI\\PF-EMI\\fabric\\build\\devlibs\\pf-emi-1.1.23-pf.1+1.21.11+fabric-dev.jar"
+    ]
+  }
+}
