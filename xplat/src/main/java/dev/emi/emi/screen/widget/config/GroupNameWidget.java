@@ -1,40 +1,39 @@
 package dev.emi.emi.screen.widget.config;
 
 import java.util.List;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import com.google.common.collect.Lists;
 
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.runtime.EmiDrawContext;
 import dev.emi.emi.screen.widget.config.ListWidget.Entry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 
 public class GroupNameWidget extends Entry {
-	protected static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+	protected static final Minecraft CLIENT = Minecraft.getInstance();
 	public final String id;
-	public final Text text;
+	public final Component text;
 	public final List<ConfigEntryWidget> children = Lists.newArrayList();
 	public boolean collapsed = false;
 
-	public GroupNameWidget(String id, Text text) {
+	public GroupNameWidget(String id, Component text) {
 		this.id = id;
 		this.text = text;
 	}
 
 	@Override
-	public void render(DrawContext raw, int index, int y, int x, int width, int height, int mouseX, int mouseY,
+	public void render(GuiGraphicsExtractor raw, int index, int y, int x, int width, int height, int mouseX, int mouseY,
 			boolean hovered, float delta) {
 		EmiDrawContext context = EmiDrawContext.wrap(raw);
 		context.drawCenteredTextWithShadow(text, x + width / 2, y + 3, -1);
 		if (hovered || collapsed) {
 			String collapse = "[-]";
-			int cx = x + width / 2 - CLIENT.textRenderer.getWidth(text) / 2 - 20;
+			int cx = x + width / 2 - CLIENT.font.width(text) / 2 - 20;
 			if (collapsed) {
 				collapse = "[+]";
 			}
@@ -52,18 +51,18 @@ public class GroupNameWidget extends Entry {
 		return 0;
 	}
 
-    @Override
-	public boolean mouseClicked(Click click, boolean doubled) {
-		if (isMouseOver(click.x(), click.y())) {
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		if (isMouseOver(event.x(), event.y())) {
 			collapsed = !collapsed;
-			MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public List<? extends Element> children() {
+	public List<? extends GuiEventListener> children() {
 		return List.of();
 	}
 }

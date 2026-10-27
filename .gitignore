@@ -21,3 +21,9 @@ bin/
 run/
 
 .architectury-transformer/
+/temp_extract/
+/temp_*/
+# Generated releases, local logs and Gradle reports
+/release/
+*.log
+FORGE_BUILD_LOG_*.txt

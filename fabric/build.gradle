@@ -1,8 +1,26 @@
-plugins {
-	id "dev.architectury.loom"
-	id "com.gradleup.shadow" version "8.3.6"
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath 'com.modrinth.minotaur:Minotaur:2.4.3'
+		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+	}
 }
 
+plugins {
+	id "dev.architectury.loom-no-remap"
+	id "com.gradleup.shadow" version "9.4.1"
+}
+if (System.getenv("MODRINTH_TOKEN")) {
+	apply plugin: "com.modrinth.minotaur"
+}
+if (System.getenv("CURSEFORGE_TOKEN")) {
+	apply plugin: "com.matthewprenger.cursegradle"
+}
 evaluationDependsOn ':xplat'
 
 architectury {
@@ -22,40 +40,47 @@ loom {
 }
 
 configurations {
-	common {
-		canBeResolved = true
-		canBeConsumed = false
-	}
+	common
+	shadowCommon
 	compileClasspath.extendsFrom common
 	runtimeClasspath.extendsFrom common
 	developmentFabric.extendsFrom common
-
-	shadowBundle {
-		canBeResolved = true
-		canBeConsumed = false
-	}
 }
 
 repositories {
 	maven {
 		url = "https://maven.terraformersmc.com/"
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
 
-	modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-	modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+	implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+	api "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-	common(project(path: ":xplat", configuration: "namedElements")) { transitive = false }
-	shadowBundle(project(path: ":xplat", configuration: "transformProductionFabric"))
+	common(project(path: ":xplat")) { transitive = false }
+	shadowCommon(project(path: ":xplat", configuration: "transformProductionFabric")) { transitive = false }
 
-	modCompileOnly("mezz.jei:${rootProject.jei_version}") {
+	compileOnly("mezz.jei:${rootProject.jei_version}") {
 		transitive = false
 	}
-	modCompileOnly "com.terraformersmc:modmenu:6.1.0-rc.4"
+	compileOnly "com.terraformersmc:modmenu:20.0.3"
+	// Optional JEI integration is compiled against Minecraft 26.3.
+
+
+
 }
 
 processResources {
@@ -66,35 +91,37 @@ processResources {
 	}
 }
 
-shadowJar {
-	exclude "architectury.common.json"
-	configurations = [project.configurations.shadowBundle]
-	archiveClassifier = 'dev-shadow'
+def shadowJar = tasks.named('shadowJar', ShadowJar)
+
+shadowJar.configure { ShadowJar jar ->
+	jar.exclude "architectury.common.json"
+
+	jar.configurations = [project.configurations.shadowCommon]
+	jar.archiveClassifier = ""
 }
 
-remapJar {
-	dependsOn shadowJar
-	inputFile.convention(shadowJar.archiveFile)
-	injectAccessWidener = true
+tasks.named('jar', Jar).configure {
+	archiveClassifier = "dev"
 }
 
-sourcesJar {
+tasks.named('sourcesJar', Jar).configure { Jar jar ->
 	def commonSources = project(":xplat").tasks.named("sourcesJar", Jar)
 	dependsOn commonSources
-	from zipTree(commonSources.flatMap { it.archiveFile })
+	jar.from zipTree(commonSources.get().archiveFile)
 }
 
 def filteredSourcesJar = tasks.register('filteredSourcesJar', Jar, {
 	archiveClassifier = 'filtered-sources'
-	dependsOn tasks.remapSourcesJar
-	from zipTree(tasks.remapSourcesJar.archiveFile)
+	dependsOn sourcesJar
+	from zipTree(sourcesJar.archiveFile)
 	exclude 'dev/emi/emi/jemi/**'
 })
 
 def apiJar = tasks.register('apiJar', Jar, {
 	archiveClassifier = 'api'
-	dependsOn tasks.remapJar
-	from zipTree(remapJar.archiveFile)
+	dependsOn shadowJar
+	from zipTree(shadowJar.get().archiveFile)
+	include 'LICENSE'
 	include 'fabric.mod.json'
 	include 'emi.mixins.json'
 	include 'emi-fabric.mixins.json'
@@ -108,7 +135,7 @@ def apiJar = tasks.register('apiJar', Jar, {
 	exclude 'dev/emi/emi/api/stack/ListEmiIngredient**'
 })
 
-build {
+tasks.named("build").configure {
 	dependsOn(filteredSourcesJar, apiJar)
 }
 
@@ -123,18 +150,71 @@ publishing {
 		register('maven', MavenPublication) {
 			artifactId = "${rootProject.name}-${project.name}"
 			version = project.ext.mavenVersion
-			artifact(remapJar) {
-				builtBy remapJar
-				classifier ''
+			artifact(shadowJar) {
+				builtBy shadowJar
+				classifier = ''
 			}
 			artifact(filteredSourcesJar) {
 				builtBy filteredSourcesJar
-				classifier 'sources'
+				classifier = 'sources'
 			}
 			artifact(apiJar) {
 				builtBy apiJar
-				classifier 'api'
+				classifier = 'api'
 			}
+		}
+	}
+	setupRepositories(repositories)
+}
+
+void setupRepositories(RepositoryHandler repositories) {
+	if (project.hasProperty("mavenUrl")) {
+		repositories.maven {
+			url project.mavenUrl
+			credentials {
+				username project.mavenUsername
+				password project.mavenPassword
+			}
+		}
+	}
+}
+
+if (System.getenv("MODRINTH_TOKEN")) {
+	modrinth {
+		token = System.getenv("MODRINTH_TOKEN")
+		projectId = 'emi'
+		versionNumber = project.version
+		versionName = project.version
+		versionType = 'release'
+		uploadFile = shadowJar
+		gameVersions = [rootProject.minecraft_version]
+		loaders = ['fabric', 'quilt']
+		detectLoaders = false
+		changelog = file('../CHANGELOG.md').text
+	}
+}
+
+if (System.getenv("CURSEFORGE_TOKEN")) {
+	curseforge {
+		apiKey = System.getenv("CURSEFORGE_TOKEN")
+		project {
+			id = '580555'
+			releaseType = 'release'
+			changelogType = 'markdown'
+			changelog = file('../CHANGELOG.md')
+
+			addGameVersion rootProject.minecraft_version
+			addGameVersion 'Fabric'
+			addGameVersion 'Quilt'
+
+			mainArtifact(shadowJar.get().archiveFile) {
+				displayName = 'emi-' + project.version
+			}
+		}
+		options {
+			javaIntegration = false
+			forgeGradleIntegration = false
+			javaVersionAutoDetect = false
 		}
 	}
 }

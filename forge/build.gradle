@@ -1,205 +1,79 @@
-import net.fabricmc.loom.task.RemapJarTask
-import net.fabricmc.loom.task.RemapSourcesJarTask
-
-buildscript {
-	repositories {
-		mavenCentral()
-		gradlePluginPortal()
-	}
-	dependencies {
-		classpath 'com.modrinth.minotaur:Minotaur:2.4.3'
-		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
-	}
-}
-
 plugins {
-	id "dev.architectury.loom"
-	id "com.github.johnrengelman.shadow" version "7.1.2"
-}
-if (System.getenv("MODRINTH_TOKEN")) {
-	apply plugin: "com.modrinth.minotaur"
-}
-if (System.getenv("CURSEFORGE_TOKEN")) {
-	apply plugin: "com.matthewprenger.cursegradle"
-}
-evaluationDependsOn ':xplat'
-
-architectury {
-	platformSetupLoomIde()
-	forge()
+    id 'java'
+    id 'net.minecraftforge.gradle' version '7.0.40'
 }
 
-loom {
-	accessWidenerPath = project(":xplat").loom.accessWidenerPath
+group = 'dev.emi'
+version = "${project.mod_version}+${project.minecraft_version}+forge"
+base.archivesName = 'PF-EMI'
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-	mods {
-		main {
-			sourceSet project(':xplat').sourceSets.main
-		}
-	}
-
-	forge {
-		convertAccessWideners = true
-		extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-
-		mixinConfig "emi.mixins.json"
-		mixinConfig "emi-forge.mixins.json"
-	}
+minecraft {
+    // Minecraft 26.3 uses Mojang-named symbols directly.
+    mappings channel: 'official', version: minecraft_version
+    accessTransformer = true
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            args '--mixin.config=emi-forge26.mixins.json'
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+        register('client')
+        register('server') { args '--nogui' }
+    }
 }
 
-configurations {
-	common
-	shadowCommon
-	compileClasspath.extendsFrom common
-	runtimeClasspath.extendsFrom common
-	developmentForge.extendsFrom common
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+    // Only used to compile @Environment annotations still present in the
+    // shared (Fabric/NeoForge-compatible) API. Not shipped in the Forge JAR.
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.blamejared.com/' }
+}
+
+// ForgeGradle builds the shared 26.3 Mojang-named Java sources directly.
+sourceSets.main.java {
+    srcDir '../xplat/src/main/java'
+}
+sourceSets.main.resources {
+    srcDir '../xplat/src/main/resources'
+    exclude('fabric.mod.json', 'architectury.common.json', 'emi.accesswidener', 'emi-fabric.mixins.json',
+            'emi-neoforge.mixins.json', 'emi-forge-common.mixins.json')
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
-
-	forge "net.minecraftforge:forge:${rootProject.forge_version}"
-
-	common(project(path: ":xplat", configuration: "namedElements")) { transitive = false }
-	shadowCommon(project(path: ":xplat", configuration: "transformProductionForge")) { transitive = false }
-
-	modCompileOnly("mezz.jei:${rootProject.jei_version}") {
-		transitive = false
-	}
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
+    // This project's shared EmiStackConvertible interface still uses the two
+    // Fabric-only @Environment/EnvType *annotations*. This dependency is
+    // compile-only, and MUST NOT be shipped with the Forge mod.
+    compileOnly('net.fabricmc:fabric-loader:0.19.5') { transitive = false }
+    // Minecraft 26.3 ships unobfuscated: there are no obfuscation maps
+    // for the Sponge Mixin annotation processor to resolve. Forge loads
+    // the named mixin targets directly from emi-forge26.mixins.json.
+    // JEMI API is compiled against the same official-name JEI API used by xplat on 26.3.
+    compileOnly("mezz.jei:jei-26.3-fabric:${jei_version}") { transitive = false }
 }
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("META-INF/mods.toml") {
-		expand "version": project.version
-	}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
 }
 
-shadowJar {
-	exclude "fabric.mod.json"
-	exclude "architectury.common.json"
-
-	configurations = [project.configurations.shadowCommon]
-	archiveClassifier = "dev-shadow"
+tasks.named('processResources', ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property('portVersion', project.version)
+    filesMatching('META-INF/mods.toml') {
+        expand(version: project.version)
+    }
 }
 
-remapJar {
-	inputFile.set shadowJar.archiveFile
-	dependsOn shadowJar
-}
-
-tasks.named('sourcesJar', Jar).configure { Jar jar ->
-	def commonSources = project(":xplat").tasks.named("sourcesJar", Jar)
-	dependsOn commonSources
-	jar.from zipTree(commonSources.flatMap { it.archiveFile })
-}
-
-def filteredSourcesJar = tasks.register('filteredSourcesJar', Jar, {
-	archiveClassifier = 'filtered-sources'
-	def remapSourcesJar = tasks.named('remapSourcesJar', RemapSourcesJarTask)
-	dependsOn remapSourcesJar
-	from zipTree(remapSourcesJar.flatMap { it.archiveFile })
-	exclude 'dev/emi/emi/jemi/**'
-})
-
-def apiJar = tasks.register('apiJar', Jar, {
-	archiveClassifier = 'api'
-	def remapJar = tasks.named('remapJar', RemapJarTask)
-	dependsOn remapJar
-	from zipTree(remapJar.flatMap { it.archiveFile })
-	include 'emi.mixins.json'
-	include 'emi-forge.mixins.json'
-	include 'emi.accesswidener'
-	include 'dev/emi/emi/api/**'
-	exclude 'dev/emi/emi/api/EmiRecipeHandler**'
-	exclude 'dev/emi/emi/api/stack/FluidEmiStack**'
-	exclude 'dev/emi/emi/api/stack/ItemEmiStack**'
-	exclude 'dev/emi/emi/api/stack/EmptyEmiStack**'
-	exclude 'dev/emi/emi/api/stack/TagEmiIngredient**'
-	exclude 'dev/emi/emi/api/stack/ListEmiIngredient**'
-})
-
-tasks.named("build").configure {
-	dependsOn(filteredSourcesJar, apiJar)
-}
-
-components.java {
-	withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-		skip()
-	}
-}
-
-publishing {
-	publications {
-		register('maven', MavenPublication) {
-			artifactId = "${rootProject.name}-${project.name}"
-			version = project.ext.mavenVersion
-			artifact(remapJar) {
-				builtBy remapJar
-				classifier ''
-			}
-			artifact(filteredSourcesJar) {
-				builtBy filteredSourcesJar
-				classifier 'sources'
-			}
-			artifact(apiJar) {
-				builtBy apiJar
-				classifier 'api'
-			}
-		}
-	}
-	setupRepositories(repositories)
-}
-
-void setupRepositories(RepositoryHandler repositories) {
-	if (project.hasProperty("mavenUrl")) {
-		repositories.maven {
-			url project.mavenUrl
-			credentials {
-				username project.mavenUsername
-				password project.mavenPassword
-			}
-		}
-	}
-}
-
-if (System.getenv("MODRINTH_TOKEN")) {
-	modrinth {
-		token = System.getenv("MODRINTH_TOKEN")
-		projectId = 'emi'
-		versionNumber = project.version
-		versionName = project.version
-		versionType = 'release'
-		uploadFile = remapJar
-		gameVersions = [rootProject.minecraft_version]
-		loaders = ['forge']
-		detectLoaders = false
-		changelog = file('../CHANGELOG.md').text
-	}
-}
-
-if (System.getenv("CURSEFORGE_TOKEN")) {
-	curseforge {
-		apiKey = System.getenv("CURSEFORGE_TOKEN")
-		project {
-			id = '580555'
-			releaseType = 'release'
-			changelogType = 'markdown'
-			changelog = file('../CHANGELOG.md')
-
-			addGameVersion rootProject.minecraft_version
-			addGameVersion 'Forge'
-
-			mainArtifact(remapJar) {
-				displayName = 'emi-' + project.version
-			}
-		}
-		options {
-			javaIntegration = false
-			forgeGradleIntegration = false
-			javaVersionAutoDetect = false
-		}
-	}
+tasks.named('jar', Jar) {
+    archiveClassifier = ''
+    from(rootProject.file('../LICENSE'))
+    manifest { attributes['MixinConfigs'] = 'emi-forge26.mixins.json' }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

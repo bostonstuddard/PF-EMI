@@ -16,41 +16,36 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.runtime.IRecipesGui;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 public class JemiRecipesGui implements IRecipesGui {
 
-    @Override
-    public <V> void show(IFocus<V> focus) {
-        EmiStack stack = JemiUtil.getStack(focus.getTypedValue());
-        if (!stack.isEmpty()) {
-            RecipeIngredientRole role = focus.getRole();
-            if (role == RecipeIngredientRole.OUTPUT) {
-                EmiApi.displayRecipes(stack);
-            } else {
-                EmiApi.displayUses(stack);
-            }
-        }
-    }
-
-    @Override
+	@Override
 	public void show(List<IFocus<?>> focuses) {
 		for (IFocus<?> focus : focuses) {
-			show(focus);
+			EmiStack stack = JemiUtil.getStack(focus.getTypedValue());
+			if (!stack.isEmpty()) {
+				RecipeIngredientRole role = focus.getRole();
+				if (role == RecipeIngredientRole.OUTPUT) {
+					EmiApi.displayRecipes(stack);
+				} else {
+					EmiApi.displayUses(stack);
+				}
+			}
 		}
 	}
 
-    @Override
-    public void showTypes(List<IRecipeType<?>> recipeTypes) {
-        for (IRecipeType<?> type : recipeTypes) {
+	@Override
+	public void showTypes(List<IRecipeType<?>> recipeTypes) {
+		for (IRecipeType<?> type : recipeTypes) {
 			for (EmiRecipeCategory category : EmiApi.getRecipeManager().getCategories()) {
 				if (category.getId().equals(type.getUid())) {
 					EmiApi.displayRecipeCategory(category);
 				}
 			}
 		}
-    }
+	}
 
 	@Override
 	public <T> void showRecipes(IRecipeCategory<T> recipeCategory, List<T> recipes, List<IFocus<?>> focuses) {
@@ -59,8 +54,8 @@ public class JemiRecipesGui implements IRecipesGui {
 
 	@Override
 	public <T> Optional<T> getIngredientUnderMouse(IIngredientType<T> ingredientType) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.currentScreen instanceof RecipeScreen screen) {
+		Minecraft client = Minecraft.getInstance();
+		if (client.gui.screen() instanceof RecipeScreen screen) {
 			EmiIngredient stack = screen.getHoveredStack();
 			if (!stack.isEmpty()) {
 				Optional<ITypedIngredient<?>> opt = JemiUtil.getTyped(stack.getEmiStacks().get(0));

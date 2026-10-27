@@ -2,6 +2,8 @@ package dev.emi.emi.recipe;
 
 import java.util.List;
 
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
@@ -10,17 +12,15 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.recipe.StonecuttingRecipe;
-import net.minecraft.util.Identifier;
 
 public class EmiStonecuttingRecipe implements EmiRecipe {
 	private final Identifier id;
 	private final EmiIngredient input;
 	private final EmiStack output;
 	
-	public EmiStonecuttingRecipe(StonecuttingRecipe recipe) {
+	public EmiStonecuttingRecipe(StonecutterRecipe recipe) {
 		this.id = EmiPort.getId(recipe);
-		input = EmiIngredient.of(recipe.ingredient());
+		input = EmiIngredient.of(recipe.input());
 		output = EmiStack.of(EmiPort.getOutput(recipe));
 	}
 

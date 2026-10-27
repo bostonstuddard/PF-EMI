@@ -1,9 +1,9 @@
 package dev.emi.emi.input;
 
-import org.lwjgl.glfw.GLFW;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.input.SystemKeycodes;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.InputQuirks;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class EmiInput {
 	public static final int CONTROL_MASK = 1;
@@ -11,28 +11,30 @@ public class EmiInput {
 	public static final int SHIFT_MASK = 4;
 
 	public static boolean isControlDown() {
-		return MinecraftClient.getInstance().isCtrlPressed();
+		return Minecraft.getInstance().hasControlDown();
 	}
 
 	public static boolean isAltDown() {
-		return MinecraftClient.getInstance().isAltPressed();
+		return InputConstants.isKeyDown(InputConstants.KEY_LALT)
+			|| InputConstants.isKeyDown(InputConstants.KEY_RALT);
 	}
 
 	public static boolean isShiftDown() {
-		return MinecraftClient.getInstance().isShiftPressed();
+		return InputConstants.isKeyDown(InputConstants.KEY_LSHIFT)
+			|| InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
 	}
 
 	public static int maskFromCode(int keyCode) {
-		if (SystemKeycodes.IS_MAC_OS) {
-			if (keyCode == GLFW.GLFW_KEY_LEFT_SUPER || keyCode == GLFW.GLFW_KEY_RIGHT_SUPER) {
+		if (InputQuirks.REPLACE_CTRL_KEY_WITH_CMD_KEY) {
+			if (keyCode == InputConstants.KEY_LGUI || keyCode == InputConstants.KEY_RGUI) {
 				return CONTROL_MASK;
 			}
 		}
-		if (keyCode == GLFW.GLFW_KEY_LEFT_CONTROL || keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL) {
+		if (keyCode == InputConstants.KEY_LCONTROL || keyCode == InputConstants.KEY_RCONTROL) {
 			return CONTROL_MASK;
-		} else if (keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT) {
+		} else if (keyCode == InputConstants.KEY_LALT || keyCode == InputConstants.KEY_RALT) {
 			return ALT_MASK;
-		} else if (keyCode == GLFW.GLFW_KEY_LEFT_SHIFT || keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT) {
+		} else if (keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT) {
 			return SHIFT_MASK;
 		}
 		return 0;

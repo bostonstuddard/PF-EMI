@@ -1,8 +1,5 @@
 package dev.emi.emi.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
-
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,41 +9,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.emi.emi.runtime.EmiLog;
 import dev.emi.emi.screen.EmiScreenManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.client.util.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 
-@Mixin(Mouse.class)
-public abstract class MouseMixin {
+@Mixin(MouseHandler.class)
+public class MouseMixin {
 	@Shadow @Final
-	private MinecraftClient client;
+	private Minecraft minecraft;
 	@Shadow
-	private double x, y;
-    @Shadow
-    private double cursorDeltaX;
-    @Shadow
-    private double cursorDeltaY;
-    @Shadow
-    private @Nullable MouseInput activeButton;
+	private double xpos, ypos;
+	@Shadow
+	private MouseButtonInfo activeButton;
 
-    @Shadow
-    public abstract double getScaledX(Window window);
+	@Shadow private double accumulatedDX;
 
-    @Shadow
-    public abstract double getScaledY(Window window);
+	@Shadow private double accumulatedDY;
 
-    @Inject(at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(Lnet/minecraft/client/gui/Click;Z)Z"),
-            method = "onMouseButton", cancellable = true)
-	private void onMouseDown(long window, MouseInput input, int action, CallbackInfo info, @Local(ordinal = 0) Click click, @Local(ordinal = 1) boolean bl2) {
+	@Inject(at = @At(value = "INVOKE", ordinal = 0,
+			target = "Lnet/minecraft/client/gui/screens/Screen;mouseClicked(Lnet/minecraft/client/input/MouseButtonEvent;Z)Z"),
+			method = "onButton(JLnet/minecraft/client/input/MouseButtonInfo;I)V", cancellable = true)
+	private void onMouseDown(long window, MouseButtonInfo buttonInfo, int action, CallbackInfo info) {
 		try {
-			Screen screen = client.currentScreen;
-			if (screen instanceof HandledScreen<?>) {
-				if (EmiScreenManager.mouseClicked(click, bl2)) {
+			Screen screen = minecraft.gui.screen();
+			if (screen instanceof AbstractContainerScreen<?> hs) {
+				double mx = this.xpos * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth();
+				double my = this.ypos * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight();
+				if (EmiScreenManager.mouseClicked(new MouseButtonEvent(mx, my, buttonInfo))) {
 					info.cancel();
 				}
 			}
@@ -55,14 +47,16 @@ public abstract class MouseMixin {
 		}
 	}
 
-    @Inject(at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(Lnet/minecraft/client/gui/Click;)Z"),
-            method = "onMouseButton", cancellable = true)
-	private void onMouseUp(long window, MouseInput input, int action, CallbackInfo info, @Local(ordinal = 0) Click click) {
+	@Inject(at = @At(value = "INVOKE", ordinal = 0,
+			target = "Lnet/minecraft/client/gui/screens/Screen;mouseReleased(Lnet/minecraft/client/input/MouseButtonEvent;)Z"),
+			method = "onButton(JLnet/minecraft/client/input/MouseButtonInfo;I)V", cancellable = true)
+	private void onMouseUp(long window, MouseButtonInfo buttonInfo, int action, CallbackInfo info) {
 		try {
-			Screen screen = client.currentScreen;
-			if (screen instanceof HandledScreen<?>) {
-				if (EmiScreenManager.mouseReleased(click)) {
+			Screen screen = minecraft.gui.screen();
+			if (screen instanceof AbstractContainerScreen<?> hs) {
+				double mx = this.xpos * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth();
+				double my = this.ypos * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight();
+				if (EmiScreenManager.mouseReleased(new MouseButtonEvent(mx, my, buttonInfo))) {
 					info.cancel();
 				}
 			}
@@ -71,34 +65,34 @@ public abstract class MouseMixin {
 		}
 	}
 
-    @Inject(at = @At(value = "INVOKE", target =
-            "Lnet/minecraft/client/gui/screen/Screen;mouseDragged(Lnet/minecraft/client/gui/Click;DD)Z"),
-            method = "tick", cancellable = true)
+	@Inject(at = @At("HEAD"),
+			method = "handleAccumulatedMovement")
 	private void onMouseDragged(CallbackInfo info) {
 		try {
-			Screen screen = client.currentScreen;
-			if (screen instanceof HandledScreen<?>) {
-                Window window = this.client.getWindow();
-                Click click = new Click(this.getScaledX(window), this.getScaledY(window), this.activeButton);
-                double dx = Mouse.scaleX(window, this.cursorDeltaX);
-                double dy = Mouse.scaleY(window, this.cursorDeltaY);
-				EmiScreenManager.mouseDragged(click, dx, dy);
+			Screen screen = minecraft.gui.screen();
+			if (screen instanceof AbstractContainerScreen<?> hs && activeButton != null) {
+				double mx = this.xpos * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth();
+				double my = this.ypos * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight();
+				double dx = this.accumulatedDX * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth();
+				double dy = this.accumulatedDY * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight();
+				if (dx != 0 || dy != 0) {
+					EmiScreenManager.mouseDragged(new MouseButtonEvent(mx, my, activeButton), dx, dy);
+				}
 			}
 		} catch (Exception e) {
 			EmiLog.error("Error while handling mouse drag", e);
 		}
 	}
 
-	@Inject(at = @At(value = "INVOKE", target =
-			"net/minecraft/client/gui/screen/Screen.mouseScrolled(DDDD)Z"),
-		method = "onMouseScroll(JDD)V", cancellable = true)
+	@Inject(at = @At("HEAD"),
+			method = "onScroll(JDD)V", cancellable = true)
 	private void onMouseScrolled(long window, double horizontal, double vertical, CallbackInfo info) {
 		try {
-			Screen screen = client.currentScreen;
-			if (screen instanceof HandledScreen<?> hs) {
-				double amount = (client.options.getDiscreteMouseScroll().getValue() ? Math.signum(vertical) : vertical) * client.options.getMouseWheelSensitivity().getValue();
-				double mx = x * client.getWindow().getScaledWidth() / client.getWindow().getWidth();
-				double my = y * client.getWindow().getScaledHeight() / client.getWindow().getHeight();
+			Screen screen = minecraft.gui.screen();
+			if (screen instanceof AbstractContainerScreen<?> hs) {
+				double amount = (minecraft.options.discreteMouseScroll().get() ? Math.signum(vertical) : vertical) * minecraft.options.mouseWheelSensitivity().get();
+				double mx = xpos * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth();
+				double my = ypos * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight();
 				if (EmiScreenManager.mouseScrolled(mx, my, amount)) {
 					info.cancel();
 				}

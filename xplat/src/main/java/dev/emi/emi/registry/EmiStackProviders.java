@@ -2,7 +2,16 @@ package dev.emi.emi.registry;
 
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -14,19 +23,6 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.EmiStackInteraction;
 import dev.emi.emi.mixin.accessor.CraftingResultSlotAccessor;
 import dev.emi.emi.mixin.accessor.HandledScreenAccessor;
-import dev.emi.emi.platform.EmiAgnos;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.screen.slot.CraftingResultSlot;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Identifier;
 
 public class EmiStackProviders {
 	public static Map<Class<?>, List<EmiStackProvider<?>>> fromClass = Maps.newHashMap();
@@ -56,16 +52,18 @@ public class EmiStackProviders {
 		if (notClick && screen instanceof HandledScreenAccessor handled) {
 			Slot s = handled.getFocusedSlot();
 			if (s != null) {
-				ItemStack stack = s.getStack();
+				ItemStack stack = s.getItem();
 				if (!stack.isEmpty()) {
-					if (s instanceof CraftingResultSlot craf) {
+					if (s instanceof ResultSlot craf) {
 						// Emi be making assumptions
 						try {
-							RecipeInputInventory inv = ((CraftingResultSlotAccessor) craf).getInput();
-							CraftingRecipeInput input = CraftingRecipeInput.create(inv.getWidth(), inv.getHeight(), inv.getHeldStacks());
-							MinecraftClient client = MinecraftClient.getInstance();
-                            List<CraftingRecipe> list
-								= EmiAgnos.getAllMatchesRecipe(client.world.getRecipeManager(), RecipeType.CRAFTING, input, client.world).map(RecipeEntry::value).toList();
+							CraftingContainer inv = ((CraftingResultSlotAccessor) craf).getInput();
+							CraftingInput input = CraftingInput.of(inv.getWidth(), inv.getHeight(), inv.getItems());
+							Minecraft client = Minecraft.getInstance();
+							List<CraftingRecipe> list
+								= EmiPort.getRecipeMap().values().stream()
+									.filter(h -> h.value() instanceof CraftingRecipe cr && cr.matches(input, client.level))
+									.map(RecipeHolder::value).map(r -> (CraftingRecipe) r).toList();
 							if (!list.isEmpty()) {
 								Identifier id = EmiPort.getId(list.get(0));
 								EmiRecipe recipe = EmiApi.getRecipeManager().getRecipe(id);

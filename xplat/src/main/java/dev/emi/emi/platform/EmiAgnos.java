@@ -4,30 +4,24 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import org.jetbrains.annotations.Nullable;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
 import dev.emi.emi.registry.EmiPluginContainer;
-import dev.emi.emi.runtime.EmiDrawContext;
-
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.input.RecipeInput;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 
 public abstract class EmiAgnos {
 	public static EmiAgnos delegate;
@@ -107,23 +101,23 @@ public abstract class EmiAgnos {
 
 	protected abstract void addBrewingRecipesAgnos(EmiRegistry registry);
 
-	public static List<TooltipComponent> getItemTooltip(ItemStack stack) {
+	public static List<ClientTooltipComponent> getItemTooltip(ItemStack stack) {
 		return delegate.getItemTooltipAgnos(stack);
 	}
 
-	protected abstract List<TooltipComponent> getItemTooltipAgnos(ItemStack stack);
+	protected abstract List<ClientTooltipComponent> getItemTooltipAgnos(ItemStack stack);
 
-	public static Text getFluidName(Fluid fluid, ComponentChanges componentChanges) {
+	public static Component getFluidName(Fluid fluid, DataComponentPatch componentChanges) {
 		return delegate.getFluidNameAgnos(fluid, componentChanges);
 	}
 
-	protected abstract Text getFluidNameAgnos(Fluid fluid, ComponentChanges componentChanges);
+	protected abstract Component getFluidNameAgnos(Fluid fluid, DataComponentPatch componentChanges);
 
-	public static List<Text> getFluidTooltip(Fluid fluid, ComponentChanges componentChanges) {
+	public static List<Component> getFluidTooltip(Fluid fluid, DataComponentPatch componentChanges) {
 		return delegate.getFluidTooltipAgnos(fluid, componentChanges);
 	}
 
-	protected abstract List<Text> getFluidTooltipAgnos(Fluid fluid, ComponentChanges componentChanges);
+	protected abstract List<Component> getFluidTooltipAgnos(Fluid fluid, DataComponentPatch componentChanges);
 
 	public static boolean isFloatyFluid(FluidEmiStack stack) {
 		return delegate.isFloatyFluidAgnos(stack);
@@ -131,15 +125,15 @@ public abstract class EmiAgnos {
 
 	protected abstract boolean isFloatyFluidAgnos(FluidEmiStack stack);
 
-	public static void renderFluid(FluidEmiStack stack, EmiDrawContext context, int x, int y, float delta) {
-		renderFluid(stack, context, x, y, delta, 0, 0, 16, 16);
+	public static void renderFluid(FluidEmiStack stack, GuiGraphicsExtractor draw, int x, int y, float delta) {
+		renderFluid(stack, draw, x, y, delta, 0, 0, 16, 16);
 	}
 
-	public static void renderFluid(FluidEmiStack stack, EmiDrawContext context, int x, int y, float delta, int xOff, int yOff, int width, int height) {
-		delegate.renderFluidAgnos(stack, context, x, y, delta, xOff, yOff, width, height);
+	public static void renderFluid(FluidEmiStack stack, GuiGraphicsExtractor draw, int x, int y, float delta, int xOff, int yOff, int width, int height) {
+		delegate.renderFluidAgnos(stack, draw, x, y, delta, xOff, yOff, width, height);
 	}
 
-	protected abstract void renderFluidAgnos(FluidEmiStack stack, EmiDrawContext context, int x, int y, float delta, int xOff, int yOff, int width, int height);
+	protected abstract void renderFluidAgnos(FluidEmiStack stack, GuiGraphicsExtractor draw, int x, int y, float delta, int xOff, int yOff, int width, int height);
 
 	public static EmiStack createFluidStack(Object object) {
 		return delegate.createFluidStackAgnos(object);
@@ -159,45 +153,15 @@ public abstract class EmiAgnos {
 
 	protected abstract Map<Item, Integer> getFuelMapAgnos();
 
-	public static ItemModel getBakedTagModel(Identifier id) {
-		return delegate.getBakedTagModelAgnos(id);
-	}
-
-	protected abstract ItemModel getBakedTagModelAgnos(Identifier id);
-
 	public static boolean isEnchantable(ItemStack stack, Enchantment enchantment) {
 		return delegate.isEnchantableAgnos(stack, enchantment);
 	}
-
+	
 	protected abstract boolean isEnchantableAgnos(ItemStack stack, Enchantment enchantment);
 
-    public static <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeEntry<T>> getAllRecipesOfType(RecipeManager recipeManager, RecipeType<T> recipeType) {
-        return delegate.getAllRecipesOfTypeAgnos(recipeManager, recipeType);
-    }
+	public static @Nullable RecipeMap getRecipeMap() {
+		return delegate.getRecipeMapAgnos();
+	}
 
-    protected abstract <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeEntry<T>> getAllRecipesOfTypeAgnos(RecipeManager recipeManager, RecipeType<T> recipeType);
-
-    public static <I extends RecipeInput, T extends Recipe<I>> Stream<RecipeEntry<T>> getAllMatchesRecipe(RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
-        return delegate.getAllMatchesRecipeAgnos(recipeManager, recipeType, input, world);
-    }
-
-    protected abstract <I extends RecipeInput, T extends Recipe<I>> Stream<RecipeEntry<T>> getAllMatchesRecipeAgnos(RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world);
-
-    public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeEntry<T>> getFirstMatchRecipe(RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
-        return delegate.getFirstMatchRecipeAgnos(recipeManager, recipeType, input, world);
-    }
-
-    protected abstract <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeEntry<T>> getFirstMatchRecipeAgnos(RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world);
-
-    public static Collection<RecipeEntry<?>> listAllRecipes(RecipeManager recipeManager) {
-        return delegate.getAllRecipesAgnos(recipeManager);
-    }
-
-    protected abstract Collection<RecipeEntry<?>> getAllRecipesAgnos(RecipeManager recipeManager);
-
-    public static RecipeEntry<?> getRecipe(RecipeManager recipeManager, Identifier id) {
-        return delegate.getRecipeAgnos(recipeManager, id);
-    }
-
-    protected abstract RecipeEntry<?> getRecipeAgnos(RecipeManager recipeManager, Identifier id);
+	protected @Nullable RecipeMap getRecipeMapAgnos() { return null; }
 }

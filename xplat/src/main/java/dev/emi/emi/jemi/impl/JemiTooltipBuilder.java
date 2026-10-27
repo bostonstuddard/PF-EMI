@@ -10,64 +10,72 @@ import dev.emi.emi.runtime.EmiLog;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.runtime.IJeiKeyMapping;
-
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.item.tooltip.TooltipData;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 
 public class JemiTooltipBuilder implements ITooltipBuilder {
-	public final List<TooltipComponent> tooltip = Lists.newArrayList();
-	public final List<Text> texts = Lists.newArrayList(); // TODO
+	public final List<ClientTooltipComponent> tooltip = Lists.newArrayList();
+	private final List<Component> legacyText = Lists.newArrayList();
 
 	@Override
-	public void add(StringVisitable component) {
+	public void add(FormattedText component) {
 		// JEI allows non-text StringVisitable... Minecraft's methods don't easily
-		if (component instanceof Text text) {
-			tooltip.add(TooltipComponent.of(text.asOrderedText()));
-			texts.add(text);
+		if (component instanceof Component text) {
+			tooltip.add(ClientTooltipComponent.create(text.getVisualOrderText()));
+			legacyText.add(text);
 		}
 	}
 
 	@Override
-	public void addAll(Collection<? extends StringVisitable> components) {
-		for (StringVisitable v : components) {
+	public void addAll(Collection<? extends FormattedText> components) {
+		for (FormattedText v : components) {
 			add(v);
 		}
 	}
 
 	@Override
-	public void add(TooltipData data) {
+	public void add(TooltipComponent data) {
 		try {
-			tooltip.add(TooltipComponent.of(data));
+			tooltip.add(ClientTooltipComponent.create(data));
 		} catch (Exception e) {
 			EmiLog.error("Error converting TooltipComponent", e);
 		}
 	}
 
-    @Override
-    public void addKeyUsageComponent(String s, IJeiKeyMapping iJeiKeyMapping) {
-
-    }
-
-    @Override
+	@Override
 	public void setIngredient(ITypedIngredient<?> typedIngredient) {
 		// EMI's methods bypass the vanilla tooltip render which accepts a stack, so this will do nothing
 	}
 
 	@Override
 	public void clear() {
-		// EMI does not support tooltip removeal, this will only clear the user's additions
+		// EMI does not support tooltip removal, this will only clear the user's additions
 	}
 
-    @Override
-    public void clearIngredient() {
+	@Override
+	public void clearIngredient() {
+		// EMI does not support tooltip removal
+	}
 
-    }
+	@Override
+	public void addKeyUsageComponent(String translationKey, IJeiKeyMapping keyMapping) {
+		// EMI does not use JEI key mappings
+	}
 
-    @Override
-    public List<Either<StringVisitable, TooltipData>> getLines() {
-        return List.of();
-    }
+	public List<Component> toLegacyToComponents() {
+		return legacyText;
+	}
 
+	public void removeAll(List<Component> components) {
+		// EMI does not support tooltip removal
+	}
+
+	@Override
+	public List<Either<FormattedText, TooltipComponent>> getLines() {
+		return legacyText.stream()
+			.<Either<FormattedText, TooltipComponent>>map(Either::left)
+			.toList();
+	}
 }

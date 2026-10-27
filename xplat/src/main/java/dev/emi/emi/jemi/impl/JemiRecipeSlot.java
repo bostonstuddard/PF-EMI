@@ -10,24 +10,29 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.api.widget.SlotWidget;
 import dev.emi.emi.jemi.JemiUtil;
+import mezz.jei.api.gui.builder.IIngredientAcceptor;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotRichTooltipCallback;
-import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.tags.TagKey;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
 
-@SuppressWarnings("unchecked")
-public class JemiRecipeSlot implements IRecipeSlotView {
+@SuppressWarnings({"unchecked", "removal"})
+public class JemiRecipeSlot implements IRecipeSlotDrawable {
 	public final RecipeIngredientRole role;
 	public final boolean large, defaultBackground;
-	public final int x, y;
+	public int x, y;
 	public final Optional<String> name;
-//	public final IRecipeSlotTooltipCallback tooltipCallback;
 	public final IRecipeSlotRichTooltipCallback richTooltipCallback;
 	public final OffsetDrawable background, overlay;
 	public final Map<IIngredientType<?>, IngredientRenderer<?>> renderers;
@@ -43,7 +48,6 @@ public class JemiRecipeSlot implements IRecipeSlotView {
 		this.x = builder.x;
 		this.y = builder.y;
 		this.name = builder.name;
-//		this.tooltipCallback = builder.tooltipCallback;
 		this.richTooltipCallback = builder.richTooltipCallback;
 		this.background = builder.background;
 		this.overlay = builder.overlay;
@@ -59,7 +63,6 @@ public class JemiRecipeSlot implements IRecipeSlotView {
 		this.x = 0;
 		this.y = 0;
 		this.name = Optional.empty();
-//		this.tooltipCallback = null;
 		this.richTooltipCallback = null;
 		this.background = null;
 		this.overlay = null;
@@ -99,8 +102,18 @@ public class JemiRecipeSlot implements IRecipeSlotView {
 
 	@Override
 	public Optional<ITypedIngredient<?>> getDisplayedIngredient() {
-		return JemiUtil.getTyped(stack.getEmiStacks().get(0));
+		// No displayed ingredient exists for an empty slot.
+		return stack.getEmiStacks().stream().findFirst().flatMap(JemiUtil::getTyped);
 	}
+
+	@Override
+	public Stream<ITypedIngredient<?>> getDisplayedIngredients() {
+		// JEI 30 supports multiple visible ingredients; EMI exposes its current display.
+		return getDisplayedIngredient().stream();
+	}
+
+    @Override
+    public Optional<TagKey<?>> getTagKey() { return Optional.empty(); }
 
 	@Override
 	public Optional<String> getSlotName() {
@@ -113,8 +126,70 @@ public class JemiRecipeSlot implements IRecipeSlotView {
 	}
 
 	@Override
-	public void drawHighlight(DrawContext raw, int color) {
+	public void drawHighlight(GuiGraphicsExtractor raw, int color) {
 		this.highlight = color;
+	}
+
+	@Override
+	public void setPosition(int xPos, int yPos) {
+		this.x = xPos;
+		this.y = yPos;
+	}
+
+	@Override
+	public Rect2i getAreaIncludingBackground() {
+		int size = large ? 26 : 18;
+		return new Rect2i(x - 1, y - 1, size, size);
+	}
+
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		if (widget != null) {
+			Bounds b = widget.getBounds();
+			return mouseX >= b.x() && mouseX < b.x() + b.width()
+				&& mouseY >= b.y() && mouseY < b.y() + b.height();
+		}
+		return false;
+	}
+
+	@Override
+	public void draw(GuiGraphicsExtractor raw) {
+		// EMI renders slot contents via JemiSlotWidget; nothing to do here.
+	}
+
+	@Override
+	public void draw(GuiGraphicsExtractor raw, boolean highlight) {
+		// EMI renders slot contents via JemiSlotWidget; nothing to do here.
+	}
+
+	@Override
+	public void drawHoverOverlays(GuiGraphicsExtractor raw) {
+		// No-op
+	}
+
+	@Override
+	public List<Component> getTooltip() {
+		return List.of();
+	}
+
+	@Override
+	public void getTooltip(ITooltipBuilder tooltipBuilder) {
+		// No-op; EMI handles tooltips via JemiSlotWidget.
+	}
+
+	@Override
+	public void drawTooltip(GuiGraphicsExtractor raw, int mouseX, int mouseY) {
+		// No-op
+	}
+
+	@Override
+	public IIngredientAcceptor<?> createDisplayOverrides() {
+		return new JemiIngredientAcceptor(role);
+	}
+
+	@Override
+	public void clearDisplayOverrides() {
+		// No-op
 	}
 
 	public static record OffsetDrawable(IDrawable drawable, int xOff, int yOff){

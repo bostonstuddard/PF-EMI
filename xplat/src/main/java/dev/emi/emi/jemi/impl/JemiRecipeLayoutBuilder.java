@@ -1,6 +1,7 @@
 package dev.emi.emi.jemi.impl;
 
 import java.util.List;
+import java.util.Collection;
 
 import com.google.common.collect.Lists;
 
@@ -49,7 +50,8 @@ public class JemiRecipeLayoutBuilder implements IRecipeLayoutBuilder {
 	}
 
 	@Override
-	public void createFocusLink(IIngredientAcceptor<?>... slots) {
-	}
+	public void createFocusLink(IIngredientAcceptor<?>... slots) { }
 
+    @Override
+    public void createFocusLink(Collection<? extends IIngredientAcceptor<?>> slots) { }
 }

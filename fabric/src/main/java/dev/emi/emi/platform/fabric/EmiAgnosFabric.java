@@ -1,19 +1,16 @@
 package dev.emi.emi.platform.fabric;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
-import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.enchantment.Enchantment;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.text.WordUtils;
 
 import com.google.common.collect.Lists;
-
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.EmiRenderHelper;
 import dev.emi.emi.EmiUtil;
@@ -23,52 +20,47 @@ import dev.emi.emi.api.FabricEmiStack;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.stack.FluidEmiStack;
-import dev.emi.emi.mixin.accessor.BrewingRecipeRegistryAccessor;
 import dev.emi.emi.platform.EmiAgnos;
 import dev.emi.emi.recipe.EmiBrewingRecipe;
 import dev.emi.emi.registry.EmiPluginContainer;
-import dev.emi.emi.runtime.EmiDrawContext;
 import dev.emi.emi.runtime.EmiLog;
 import dev.emi.emi.screen.FakeScreen;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mezz.jei.api.fabric.ingredients.fluids.IJeiFluidIngredient;
 
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PotionItem;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
-import net.minecraft.recipe.BrewingRecipeRegistry;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.display.SlotDisplayContexts;
-import net.minecraft.recipe.input.RecipeInput;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.context.ContextParameterMap;
-import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.material.Fluid;
 
 public class EmiAgnosFabric extends EmiAgnos {
+	private static RecipeMap receivedRecipeMap;
+
 	static {
 		EmiAgnos.delegate = new EmiAgnosFabric();
+	}
+
+	public static void setReceivedRecipeMap(RecipeMap recipeMap) {
+		receivedRecipeMap = recipeMap;
 	}
 
 	@Override
@@ -148,73 +140,21 @@ public class EmiAgnosFabric extends EmiAgnos {
 
 	@Override
 	protected void addBrewingRecipesAgnos(EmiRegistry registry) {
-        World world = MinecraftClient.getInstance().world;
-		BrewingRecipeRegistry brewingRegistry = world != null ? world.getBrewingRecipeRegistry() : BrewingRecipeRegistry.EMPTY;
-        ContextParameterMap paramMap = SlotDisplayContexts.createParameters(world);
-		BrewingRecipeRegistryAccessor brewingRegistryAccess = (BrewingRecipeRegistryAccessor)brewingRegistry;
-
-		for (Ingredient ingredient : brewingRegistryAccess.getPotionTypes()) {
-			for (ItemStack stack : ingredient.toDisplay().getStacks(paramMap)) {
-				String pid = EmiUtil.subId(stack.getItem());
-				for (BrewingRecipeRegistry.Recipe<Potion> recipe : brewingRegistryAccess.getPotionRecipes()) {
-					try {
-						Ingredient recipeIngredient = recipe.ingredient();
-						if (!recipeIngredient.toDisplay().getStacks(paramMap).isEmpty()) {
-							Identifier id = EmiPort.id("emi", "/brewing/" + pid
-								+ "/" + EmiUtil.subId(recipeIngredient.toDisplay().getStacks(paramMap).getFirst().getItem())
-								+ "/" + EmiUtil.subId(EmiPort.getPotionRegistry().getId(recipe.from().value()))
-								+ "/" + EmiUtil.subId(EmiPort.getPotionRegistry().getId(recipe.to().value())));
-							registry.addRecipe(new EmiBrewingRecipe(
-								EmiStack.of(EmiPort.setPotion(stack.copy(), recipe.from().value())), EmiIngredient.of(recipeIngredient),
-								EmiStack.of(EmiPort.setPotion(stack.copy(), recipe.to().value())), id));
-						}
-					} catch (Exception e) {
-						EmiLog.error("Error registering brewing recipe", e);
-					}
-				}
-			}
-		}
-
-		for (BrewingRecipeRegistry.Recipe<Item> recipe : brewingRegistryAccess.getItemRecipes()) {
-			try {
-				Ingredient recipeIngredient = recipe.ingredient();
-				if (!recipeIngredient.toDisplay().getStacks(paramMap).isEmpty()) {
-					String gid = EmiUtil.subId(recipeIngredient.toDisplay().getStacks(paramMap).getFirst().getItem());
-					String iid = EmiUtil.subId(recipe.from().value());
-					String oid = EmiUtil.subId(recipe.to().value());
-					Consumer<RegistryEntry<Potion>> potionRecipeGen = entry -> {
-						if (brewingRegistry.isBrewable(entry)) {
-							Identifier id = EmiPort.id("emi", "/brewing/item/"
-								+ EmiUtil.subId(entry.getKey().get().getValue()) + "/" + gid + "/" + iid + "/" + oid);
-							registry.addRecipe(new EmiBrewingRecipe(
-								EmiStack.of(EmiPort.setPotion(new ItemStack(recipe.from().value()), entry.value())), EmiIngredient.of(recipeIngredient),
-								EmiStack.of(EmiPort.setPotion(new ItemStack(recipe.to().value()), entry.value())), id));
-						}
-					};
-					if (recipe.from().value() instanceof PotionItem) {
-						EmiPort.getPotionRegistry().streamEntries().forEach(potionRecipeGen);
-					} else {
-						potionRecipeGen.accept(Potions.AWKWARD);
-					}
-				}
-			} catch (Exception e) {
-				EmiLog.error("Error registering brewing recipe", e);
-			}
-		}
+		dev.emi.emi.recipe.EmiBrewingRecipeDiscovery.register(registry);
 	}
 
 	@Override
-	protected List<TooltipComponent> getItemTooltipAgnos(ItemStack stack) {
+	protected List<ClientTooltipComponent> getItemTooltipAgnos(ItemStack stack) {
 		return FakeScreen.INSTANCE.getTooltipComponentListFromItem(stack);
 	}
 
 	@Override
-	protected Text getFluidNameAgnos(Fluid fluid, ComponentChanges componentChanges) {
+	protected Component getFluidNameAgnos(Fluid fluid, DataComponentPatch componentChanges) {
 		return FluidVariantAttributes.getName(FluidVariant.of(fluid, componentChanges));
 	}
 
 	@Override
-	protected List<Text> getFluidTooltipAgnos(Fluid fluid, ComponentChanges componentChanges) {
+	protected List<Component> getFluidTooltipAgnos(Fluid fluid, DataComponentPatch componentChanges) {
 		return FluidVariantRendering.getTooltip(FluidVariant.of(fluid, componentChanges));
 	}
 
@@ -225,16 +165,13 @@ public class EmiAgnosFabric extends EmiAgnos {
 	}
 
 	@Override
-	protected void renderFluidAgnos(FluidEmiStack stack, EmiDrawContext context, int x, int y, float delta, int xOff, int yOff, int width, int height) {
-		FluidVariant fluid = FluidVariant.of(stack.getKeyOfType(Fluid.class), stack.getComponentChanges());
-		Sprite[] sprites = FluidVariantRendering.getSprites(fluid);
-		if (sprites == null || sprites.length < 1 || sprites[0] == null) {
-			return;
-		}
-		Sprite sprite = sprites[0];
-		int color = FluidVariantRendering.getColor(fluid);
-		
-		EmiRenderHelper.drawTintedSprite(context, sprite, color, x, y, xOff, yOff, width, height);
+	protected void renderFluidAgnos(FluidEmiStack stack, GuiGraphicsExtractor draw, int x, int y, float delta, int xOff, int yOff, int width, int height) {
+		Fluid fluid = stack.getKeyOfType(Fluid.class);
+		net.minecraft.client.renderer.block.FluidModel fluidModel = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState());
+		TextureAtlasSprite sprite = fluidModel.stillMaterial().sprite();
+		FluidVariant fluidVariant = FluidVariant.of(fluid, stack.getComponentChanges());
+		int color = FluidVariantRendering.getColor(fluidVariant);
+		EmiRenderHelper.drawTintedSprite(draw, sprite, color, x, y, xOff, yOff, width, height);
 	}
 
 	@Override
@@ -247,60 +184,21 @@ public class EmiAgnosFabric extends EmiAgnos {
 
 	@Override
 	protected boolean canBatchAgnos(ItemStack stack) {
-		return false;//ColorProviderRegistry.ITEM.get(stack.getItem()) == null; TODO
+		return true;
 	}
 
 	@Override
 	protected Map<Item, Integer> getFuelMapAgnos() {
-		Object2IntMap<Item> fuelMap = new Object2IntOpenHashMap<>();
-		for (Item item : EmiPort.getItemRegistry()) {
-			if (!MinecraftClient.getInstance().world.getFuelRegistry().getFuelItems().contains(item)) {
-				continue;
-			}
-			int time = MinecraftClient.getInstance().world.getFuelRegistry().getFuelTicks(item.getDefaultStack());
-			if (time > 0) {
-				fuelMap.put(item, time);
-			}
-		}
-		return fuelMap;
-	}
-
-    @Override
-	protected ItemModel getBakedTagModelAgnos(Identifier id) {
-		return MinecraftClient.getInstance().getBakedModelManager().getItemModel(id);
-	}
+        return dev.emi.emi.recipe.EmiFuelDiscovery.getFuelMap();
+    }
 
 	@Override
 	protected boolean isEnchantableAgnos(ItemStack stack, Enchantment enchantment) {
 		return true;
 	}
 
-    @Override
-    protected <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeEntry<T>> getAllRecipesOfTypeAgnos(RecipeManager recipeManager,
-                                                                                     RecipeType<T> recipeType) {
-        return recipeManager.getSynchronizedRecipes().getAllOfType(recipeType);
-    }
-
-    @Override
-    protected <I extends RecipeInput, T extends Recipe<I>> Stream<RecipeEntry<T>> getAllMatchesRecipeAgnos(
-            RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
-        return recipeManager.getSynchronizedRecipes().getAllMatches(recipeType, input, world);
-    }
-
-    @Override
-    protected <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeEntry<T>> getFirstMatchRecipeAgnos(
-            RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
-        return recipeManager.getSynchronizedRecipes().getFirstMatch(recipeType, input, world);
-    }
-
-    @Override
-    protected Collection<RecipeEntry<?>> getAllRecipesAgnos(RecipeManager recipeManager) {
-        return recipeManager.getSynchronizedRecipes().recipes();
-    }
-
-    @Override
-    protected RecipeEntry<?> getRecipeAgnos(RecipeManager recipeManager, Identifier id) {
-        return recipeManager.getSynchronizedRecipes().get(RegistryKey.of(RegistryKeys.RECIPE, id));
-    }
-
+	@Override
+	protected @Nullable RecipeMap getRecipeMapAgnos() {
+		return receivedRecipeMap;
+	}
 }

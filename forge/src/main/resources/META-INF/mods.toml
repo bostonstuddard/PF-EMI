@@ -1,14 +1,25 @@
-modLoader = "javafml"
-loaderVersion = "[40,)"
-#issueTrackerURL = ""
-license = "MIT"
+modLoader="javafml"
+loaderVersion="[66,)"
+license="MIT"
 
 [[mods]]
-modId = "emi"
-version = "${version}"
-displayName = "EMI"
-authors = "Emi"
-description = '''
-A featureful and accessible item and recipe viewer
-'''
-logoFile = "icon.png"
+modId="emi"
+version="${version}"
+displayName="PF-EMI"
+authors="Emi; PF-EMI contributors"
+description='''EMI recipe viewer, PF-EMI 26.3 Forge port'''
+logoFile="icon.png"
+
+[[dependencies.emi]]
+modId="forge"
+mandatory=true
+versionRange="[66.0.12,67)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.emi]]
+modId="minecraft"
+mandatory=true
+versionRange="[26.3,26.4)"
+ordering="NONE"
+side="BOTH"

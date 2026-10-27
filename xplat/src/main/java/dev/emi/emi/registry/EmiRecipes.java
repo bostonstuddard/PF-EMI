@@ -1,13 +1,18 @@
 package dev.emi.emi.registry;
 
 import java.util.Comparator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Iterables;
@@ -28,7 +33,6 @@ import dev.emi.emi.api.stack.ListEmiIngredient;
 import dev.emi.emi.config.EmiConfig;
 import dev.emi.emi.data.EmiData;
 import dev.emi.emi.data.EmiRecipeCategoryProperties;
-import dev.emi.emi.platform.EmiAgnos;
 import dev.emi.emi.runtime.EmiHidden;
 import dev.emi.emi.runtime.EmiLog;
 import dev.emi.emi.runtime.EmiReloadLog;
@@ -38,12 +42,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.util.Identifier;
 
 public class EmiRecipes {
 	public static volatile Worker activeWorker = null;
@@ -70,14 +68,11 @@ public class EmiRecipes {
 		byWorkstation.clear();
 		decorators.clear();
 		manager = Manager.EMPTY;
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.world != null) {
-			RecipeManager manager = client.world.getRecipeManager();
-			recipeIds = new Reference2ObjectOpenHashMap<>();
-			if (manager != null) {
-				for (RecipeEntry<?> entry : EmiAgnos.listAllRecipes(manager)) {
-					recipeIds.put(entry.value(), entry.id().getValue());
-				}
+		RecipeMap map = EmiPort.getRecipeMap();
+		recipeIds = new Reference2ObjectOpenHashMap<>();
+		if (map != null) {
+			for (RecipeHolder<?> entry : map.values()) {
+				recipeIds.put(entry.value(), entry.id().identifier());
 			}
 		}
 	}
@@ -202,7 +197,7 @@ public class EmiRecipes {
 
 			for (EmiRecipeCategory category : byCategory.keySet()) {
 				String key = EmiUtil.translateId("emi.category.", category.getId());
-				if (category.getName().equals(EmiPort.translatable(key)) && !I18n.hasTranslation(key)) {
+				if (category.getName().equals(EmiPort.translatable(key)) && !net.minecraft.locale.Language.getInstance().has(key)) {
 					EmiReloadLog.warn("Untranslated recipe category " + category.getId());
 				}
 				List<EmiRecipe> cRecipes = byCategory.get(category);

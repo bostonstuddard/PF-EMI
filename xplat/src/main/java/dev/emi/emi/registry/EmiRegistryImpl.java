@@ -5,9 +5,15 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.crafting.RecipeMap;
 import com.google.common.collect.Lists;
 
+import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.EmiDragDropHandler;
 import dev.emi.emi.api.EmiExclusionArea;
 import dev.emi.emi.api.EmiRegistry;
@@ -25,15 +31,9 @@ import dev.emi.emi.data.EmiAlias;
 import dev.emi.emi.runtime.EmiHidden;
 import dev.emi.emi.runtime.EmiReloadLog;
 import dev.emi.emi.screen.EmiScreenBase;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
 
 public class EmiRegistryImpl implements EmiRegistry {
-	private static final MinecraftClient client = MinecraftClient.getInstance();
+	private static final Minecraft client = Minecraft.getInstance();
 
 	@Override
 	public <T extends Screen> void addScreenBoundsProvider(Class<T> clazz, EmiScreenBoundsProvider<T> provider) {
@@ -51,8 +51,8 @@ public class EmiRegistryImpl implements EmiRegistry {
 	}
 
 	@Override
-	public RecipeManager getRecipeManager() {
-		return client.world.getRecipeManager();
+	public RecipeMap getRecipeMap() {
+		return EmiPort.getRecipeMap();
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class EmiRegistryImpl implements EmiRegistry {
 	}
 	
 	@Override
-	public <T extends ScreenHandler> void addRecipeHandler(ScreenHandlerType<T> type, EmiRecipeHandler<T> handler) {
+	public <T extends AbstractContainerMenu> void addRecipeHandler(MenuType<T> type, EmiRecipeHandler<T> handler) {
 		EmiRecipeFiller.handlers.computeIfAbsent(type, (c) -> Lists.newArrayList()).add(handler);
 	}
 
@@ -155,7 +155,7 @@ public class EmiRegistryImpl implements EmiRegistry {
 	}
 
 	@Override
-	public void addAlias(EmiIngredient stack, Text text) {
+	public void addAlias(EmiIngredient stack, Component text) {
 		EmiStackList.registryAliases.add(new EmiAlias.Baked(List.of(stack), List.of(text)));
 	}
 

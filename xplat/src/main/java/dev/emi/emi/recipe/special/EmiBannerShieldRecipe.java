@@ -4,31 +4,26 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.recipe.EmiPatternCraftingRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.GeneratedSlotWidget;
 import dev.emi.emi.api.widget.SlotWidget;
-import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BannerPatternsComponent;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
 
 public class EmiBannerShieldRecipe extends EmiPatternCraftingRecipe {
 	public static final List<Item> BANNERS = List.of(
-		Items.WHITE_BANNER, Items.ORANGE_BANNER, Items.MAGENTA_BANNER, Items.LIGHT_BLUE_BANNER,
-		Items.YELLOW_BANNER, Items.LIME_BANNER, Items.PINK_BANNER, Items.GRAY_BANNER,
-		Items.LIGHT_GRAY_BANNER, Items.CYAN_BANNER, Items.PURPLE_BANNER, Items.BLUE_BANNER,
-		Items.BROWN_BANNER, Items.GREEN_BANNER, Items.RED_BANNER, Items.BLACK_BANNER
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "white_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "orange_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "magenta_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "light_blue_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "yellow_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "lime_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "pink_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "gray_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "light_gray_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "cyan_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "purple_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "blue_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "brown_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "green_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "red_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "black_banner"))
 	);
 	private static final List<EmiStack> EMI_BANNERS = BANNERS.stream().map(i -> EmiStack.of(i)).collect(Collectors.toList());
 	public static final EmiStack SHIELD = EmiStack.of(Items.SHIELD);
@@ -60,12 +55,16 @@ public class EmiBannerShieldRecipe extends EmiPatternCraftingRecipe {
 		}
 		ItemStack stack = new ItemStack(item);
 		int patterns = 1 + Math.max(random.nextInt(5), random.nextInt(3));
-		BannerPatternsComponent pattern = BannerPatternsComponent.DEFAULT;
+		BannerPatternLayers pattern = BannerPatternLayers.EMPTY;
 		for (int i = 0; i < patterns; i++) {
 			pattern = EmiPort.addRandomBanner(pattern, random);
 		}
 
-		stack.set(DataComponentTypes.BANNER_PATTERNS, pattern);
+		stack.set(DataComponents.BANNER_PATTERNS, pattern);
+		// Match vanilla ShieldDecorationRecipe, which copies the banner's
+		// base color onto the shield result so the displayed stack matches
+		// the actual crafting output.
+		stack.set(DataComponents.BASE_COLOR, DyeColor.byId(base));
 
 		return EmiStack.of(stack);
 	}

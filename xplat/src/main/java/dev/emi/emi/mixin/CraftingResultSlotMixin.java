@@ -1,7 +1,14 @@
 package dev.emi.emi.mixin;
 
 import java.util.Optional;
-
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,29 +19,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.EmiApi;
 import dev.emi.emi.api.recipe.EmiRecipe;
-import dev.emi.emi.platform.EmiAgnos;
 import dev.emi.emi.runtime.EmiSidebars;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.screen.slot.CraftingResultSlot;
-import net.minecraft.world.World;
 
-@Mixin(CraftingResultSlot.class)
+@Mixin(ResultSlot.class)
 public class CraftingResultSlotMixin {
 	@Shadow @Final
-	private RecipeInputInventory input;
+	private CraftingContainer craftSlots;
 	@Shadow @Final
-	private PlayerEntity player;
+	private Player player;
 	
-	@Inject(at = @At("HEAD"), method = "onCrafted(Lnet/minecraft/item/ItemStack;)V")
+	@Inject(at = @At("HEAD"), method = "checkTakeAchievements(Lnet/minecraft/world/item/ItemStack;)V")
 	private void onCrafted(ItemStack stack, CallbackInfo info) {
-		World world = player.getEntityWorld();
-		if (world.isClient()) {
-			Optional<CraftingRecipe> opt = EmiAgnos.getFirstMatchRecipe(world.getRecipeManager(), RecipeType.CRAFTING, input.createPositionedRecipeInput().input(), world).map(RecipeEntry::value);
+		Level world = player.level();
+		if (world.isClientSide()) {
+			Optional<CraftingRecipe> opt = EmiPort.getRecipeMap().values().stream()
+				.filter(h -> h.value() instanceof CraftingRecipe cr && cr.matches(craftSlots.asPositionedCraftInput().input(), world))
+				.findFirst().map(RecipeHolder::value).map(r -> (CraftingRecipe) r);
 			if (opt.isPresent()) {
 				EmiRecipe recipe = EmiApi.getRecipeManager().getRecipe(EmiPort.getId(opt.get()));
 				if (recipe != null) {

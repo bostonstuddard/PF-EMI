@@ -1,14 +1,14 @@
 package dev.emi.emi.api.widget;
 
 import java.util.function.BooleanSupplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 
 import dev.emi.emi.EmiRenderHelper;
 import dev.emi.emi.runtime.EmiDrawContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
 
 public class ButtonWidget extends Widget {
 	protected final int x, y, width, height, u, v;
@@ -38,7 +38,7 @@ public class ButtonWidget extends Widget {
 	}
 	
 	@Override
-	public void render(DrawContext draw, int mouseX, int mouseY, float delta) {
+	public void extractRenderState(GuiGraphicsExtractor draw, int mouseX, int mouseY, float delta) {
 		EmiDrawContext context = EmiDrawContext.wrap(draw);
 		int v = this.v;
 		boolean active = this.isActive.getAsBoolean();
@@ -54,7 +54,7 @@ public class ButtonWidget extends Widget {
 	@Override
 	public boolean mouseClicked(int mouseX, int mouseY, int button) {
 		action.click(mouseX, mouseY, button);
-		MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 		return true;
 	}
 

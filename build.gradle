@@ -1,6 +1,6 @@
 plugins {
-	id "architectury-plugin" version "3.4-SNAPSHOT"
-	id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
+	id "architectury-plugin" version "3.5-SNAPSHOT"
+	id "dev.architectury.loom-no-remap" version "1.17-SNAPSHOT" apply false
 }
 
 architectury {
@@ -9,6 +9,22 @@ architectury {
 
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.tree.ClassNode
+
+static def getGitCommitHash() {
+	try {
+		def process = new ProcessBuilder('git', 'rev-parse', '--short', 'HEAD')
+				.start()
+		process.waitForOrKill(5000)
+		if (process.exitValue() == 0) {
+			return process.inputStream.text.trim()
+		} else {
+			return "SNAPSHOT"
+		}
+	} catch (ignored) {
+		return "SNAPSHOT"
+	}
+}
 
 allprojects {
 	apply plugin: "java"
@@ -22,7 +38,7 @@ allprojects {
 	base.archivesName = rootProject.archives_base_name
 	ext.mavenVersion = "${rootProject.mod_version}"
 	if (System.getenv("RELEASE") == null) {
-		ext.mavenVersion += "-SNAPSHOT"
+		ext.mavenVersion += "-" + getGitCommitHash()
 	}
 	ext.mavenVersion += "+${rootProject.minecraft_version}"
 	version = "${project.ext.mavenVersion}+${project.name}"
@@ -36,16 +52,26 @@ allprojects {
 
 	tasks.withType(JavaCompile).configureEach({
 		options.encoding = "UTF-8"
-		options.release = 21
+		options.release = 25
 	})
 
 	java {
-		sourceCompatibility = JavaVersion.VERSION_21
-		targetCompatibility = JavaVersion.VERSION_21
 		withSourcesJar()
+	}
+	tasks.withType(Jar).configureEach {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+		from(rootProject.file('LICENSE')) {
+			into('')
+		}
 	}
 
 	def synthMixinDir = layout.buildDirectory.dir("generated-class")
+
+	tasks.named('jar') {
+		from(synthMixinDir) {
+			include "**/*.class"
+		}
+	}
 
 	tasks.register('generateClassLists') {
 		inputs.files(sourceSets.main.output.classesDirs)
@@ -147,5 +173,24 @@ allprojects {
 				output.dir(synthMixinDir, builtBy: generateClassLists)
 			}
 		}
+	}
+}
+
+// build-26x scripts use this task to confirm the selected target.
+// Task.project must not be used by actions at execution time (Gradle 9+).
+tasks.register('printPortTarget') {
+	group = 'verification'
+	description = 'Print the Minecraft and loader dependencies selected for the 26.x build.'
+	inputs.property('portTarget', providers.gradleProperty('mcTarget').orElse(providers.gradleProperty('minecraft_version')))
+	inputs.property('minecraftVersion', providers.gradleProperty('minecraft_version'))
+	inputs.property('fabricApiVersion', providers.gradleProperty('fabric_api_version'))
+	inputs.property('neoForgeVersion', providers.gradleProperty('neoforge_version'))
+	doLast {
+		def targets = inputs.properties
+		println "PF-EMI port target: ${targets['portTarget']}"
+		println "  Minecraft:  ${targets['minecraftVersion']}"
+		println "  Fabric API: ${targets['fabricApiVersion']}"
+		println "  NeoForge:   ${targets['neoForgeVersion']}"
+		println "  Java:       ${JavaVersion.current()} (Java 25 required)"
 	}
 }

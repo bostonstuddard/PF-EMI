@@ -1,6 +1,7 @@
 {
   "pack": {
-    "description": "EMI",
-    "pack_format": 8
+    "description": "PF-EMI 26.3 Forge",
+    "min_format": 97.1,
+    "max_format": 97.1
   }
 }

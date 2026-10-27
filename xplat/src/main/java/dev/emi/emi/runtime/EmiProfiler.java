@@ -1,17 +1,17 @@
 package dev.emi.emi.runtime;
 
-import net.minecraft.util.profiler.Profilers;
+import net.minecraft.util.profiling.Profiler;
 
 public class EmiProfiler {
-    public static void push(String name) {
-        Profilers.get().push(name);
+	public static void push(String name) {
+		Profiler.get().push(name);
 	}
 
 	public static void pop() {
-        Profilers.get().pop();
+		Profiler.get().pop();
 	}
 
 	public static void swap(String name) {
-        Profilers.get().swap(name);
+		Profiler.get().popPush(name);
 	}
 }

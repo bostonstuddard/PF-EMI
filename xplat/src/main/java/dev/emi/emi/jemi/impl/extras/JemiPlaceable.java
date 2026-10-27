@@ -1,6 +1,8 @@
 package dev.emi.emi.jemi.impl.extras;
 
 import mezz.jei.api.gui.placement.IPlaceable;
+import mezz.jei.api.gui.placement.HorizontalAlignment;
+import mezz.jei.api.gui.placement.VerticalAlignment;
 
 public class JemiPlaceable<T extends IPlaceable<T>> implements IPlaceable<T> {
 	public int x = 0, y = 0;
@@ -11,12 +13,20 @@ public class JemiPlaceable<T extends IPlaceable<T>> implements IPlaceable<T> {
 		this.height = height;
 	}
 
+	// The self-referential IPlaceable generic requires this cast in the legacy adapter.
+	@SuppressWarnings("unchecked")
 	@Override
 	public T setPosition(int xPos, int yPos) {
 		this.x = xPos;
 		this.y = yPos;
 		return (T) this;
 	}
+
+	@Override
+    public T setPosition(int areaX, int areaY, int areaWidth, int areaHeight,
+            HorizontalAlignment h, VerticalAlignment v) {
+        return setPosition(areaX + h.getXPos(areaWidth, width), areaY + v.getYPos(areaHeight, height));
+    }
 
 	@Override
 	public int getWidth() {

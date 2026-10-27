@@ -5,10 +5,10 @@ import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.runtime.EmiDrawContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 
 public class RecipeButtonWidget extends Widget {
 	protected final EmiRecipe recipe;
@@ -31,7 +31,7 @@ public class RecipeButtonWidget extends Widget {
 	}
 
 	public void playButtonSound() {
-		MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class RecipeButtonWidget extends Widget {
 	}
 
 	@Override
-	public void render(DrawContext raw, int mouseX, int mouseY, float delta) {
+	public void extractRenderState(GuiGraphicsExtractor raw, int mouseX, int mouseY, float delta) {
 		EmiDrawContext context = EmiDrawContext.wrap(raw);
 		context.resetColor();
 		context.drawTexture(EmiRenderHelper.BUTTONS, x, y, 12, 12, u, v + getTextureOffset(mouseX, mouseY), 12, 12, 256, 256);

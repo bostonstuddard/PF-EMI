@@ -1,19 +1,10 @@
 package dev.emi.emi.mixin.accessor;
 
-import java.util.Map;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ShovelItem;
-
-@Mixin(ShovelItem.class)
-public interface ShovelItemAccessor {
-
-	@Accessor("PATH_STATES")
-	static Map<Block, BlockState> getPathStates() {
-		throw new UnsupportedOperationException();
-	}
+/**
+ * Retained only as a source compatibility placeholder. Minecraft 26.3 removed
+ * the corresponding item class and moved tool transformations into data-driven
+ * BlockTransformers. This class is no longer registered as a Mixin.
+ */
+public final class ShovelItemAccessor {
+    private ShovelItemAccessor() {}
 }

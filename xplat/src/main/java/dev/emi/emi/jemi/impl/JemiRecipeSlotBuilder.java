@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import net.minecraft.util.context.ContextParameterMap;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Maps;
@@ -13,16 +12,23 @@ import dev.emi.emi.jemi.impl.JemiRecipeSlot.IngredientRenderer;
 import dev.emi.emi.jemi.impl.JemiRecipeSlot.OffsetDrawable;
 import dev.emi.emi.jemi.impl.JemiRecipeSlot.TankInfo;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.placement.HorizontalAlignment;
+import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.drawable.TilingDirection;
 import mezz.jei.api.gui.ingredient.IRecipeSlotRichTooltipCallback;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.display.SlotDisplay;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
 
 public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	public final JemiIngredientAcceptor acceptor;
@@ -40,51 +46,93 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 		this.y = y;
 	}
 
-    @Override
-    public IRecipeSlotBuilder add(SlotDisplay slotDisplay) {
-        acceptor.add(slotDisplay);
-        return this;
-    }
+	@Override
+	public ContextMap getContextMap() {
+		return acceptor.getContextMap();
+	}
 
-    @Override
-    public IRecipeSlotBuilder add(Fluid fluid) {
-        acceptor.add(fluid);
-        return this;
-    }
+	@Override
+	public IRecipeSlotBuilder add(SlotDisplay display) {
+		acceptor.add(display);
+		return this;
+	}
 
-    @Override
-    public IRecipeSlotBuilder add(Fluid fluid, long l) {
-        acceptor.add(fluid);
-        return this;
-    }
+	@Override
+	public <I> IRecipeSlotBuilder add(IIngredientType<I> ingredientType, SlotDisplay display) {
+		acceptor.add(ingredientType, display);
+		return this;
+	}
 
-    @Override
-    public IRecipeSlotBuilder add(Fluid fluid, long l, ComponentChanges componentChanges) {
-        acceptor.add(fluid, l, componentChanges);
-        return this;
-    }
+	@Override
+	public IRecipeSlotBuilder add(ItemStack stack) {
+		acceptor.add(stack);
+		return this;
+	}
 
-    @Override
-    public IRecipeSlotBuilder add(Ingredient ingredient) {
-        acceptor.add(ingredient);
-        return this;
-    }
+	@Override
+	public IRecipeSlotBuilder add(ItemLike item) {
+		acceptor.add(item);
+		return this;
+	}
 
-    @Override
-    public <I> IRecipeSlotBuilder add(IIngredientType<I> iIngredientType, I i) {
-        acceptor.add(iIngredientType, i);
-        return this;
-    }
+	@Override
+	public IRecipeSlotBuilder add(ItemStackTemplate template) {
+		acceptor.add(template);
+		return this;
+	}
 
-    @Override
+	@Override
+	public IRecipeSlotBuilder add(Fluid fluid) {
+		acceptor.add(fluid);
+		return this;
+	}
+
+	@Override
+	public IRecipeSlotBuilder add(Fluid fluid, long amount) {
+		acceptor.add(fluid, amount);
+		return this;
+	}
+
+	@Override
+	public IRecipeSlotBuilder add(Fluid fluid, long amount, DataComponentPatch componentChanges) {
+		acceptor.add(fluid, amount, componentChanges);
+		return this;
+	}
+
+	@Override
+	public IRecipeSlotBuilder add(Ingredient ingredient) {
+		acceptor.add(ingredient);
+		return this;
+	}
+
+	@Override
+	public <I> IRecipeSlotBuilder add(IIngredientType<I> ingredientType, Ingredient ingredient) {
+		acceptor.add(ingredientType, ingredient);
+		return this;
+	}
+
+	@Override
+	public <I> IRecipeSlotBuilder add(ITypedIngredient<I> typedIngredient) {
+		acceptor.add(typedIngredient);
+		return this;
+	}
+
+	@Override
+	public <I> IRecipeSlotBuilder add(IIngredientType<I> ingredientType, I ingredient) {
+		acceptor.add(ingredientType, ingredient);
+		return this;
+	}
+
+	@Override
 	public <I> IRecipeSlotBuilder addIngredients(IIngredientType<I> ingredientType, List<@Nullable I> ingredients) {
 		acceptor.addIngredients(ingredientType, ingredients);
 		return this;
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public <I> IRecipeSlotBuilder addIngredient(IIngredientType<I> ingredientType, I ingredient) {
-		acceptor.addIngredient(ingredientType, ingredient);
+		acceptor.add(ingredientType, ingredient);
 		return this;
 	}
 
@@ -95,22 +143,18 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public IRecipeSlotBuilder addFluidStack(Fluid fluid, long amount) {
-		acceptor.addFluidStack(fluid, amount);
+		acceptor.add(fluid, amount);
 		return this;
 	}
 
 	@Override
-	public IRecipeSlotBuilder addFluidStack(Fluid fluid, long amount, ComponentChanges componentChanges) {
-		acceptor.addFluidStack(fluid, amount, componentChanges);
+	@SuppressWarnings("removal")
+	public IRecipeSlotBuilder addFluidStack(Fluid fluid, long amount, DataComponentPatch componentChanges) {
+		acceptor.add(fluid, amount, componentChanges);
 		return this;
 	}
-
-//	@Override
-//	public IRecipeSlotBuilder addTooltipCallback(IRecipeSlotTooltipCallback tooltipCallback) {
-//		this.tooltipCallback = tooltipCallback;
-//		return this;
-//	} TODO
 
 	@Override
 	public IRecipeSlotBuilder setSlotName(String slotName) {
@@ -133,6 +177,18 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	@Override
 	public IRecipeSlotBuilder setFluidRenderer(long capacity, boolean showCapacity, int width, int height) {
 		this.tankInfo = new TankInfo(width, height, capacity, showCapacity);
+		return this;
+	}
+
+	@Override
+	public IRecipeSlotBuilder setFluidRenderer(long capacity, boolean showCapacity, int width, int height, TilingDirection tilingDirection) {
+		// The existing EMI renderer handles its own tiling; retain the supplied size and capacity.
+		return setFluidRenderer(capacity, showCapacity, width, height);
+	}
+
+	@Override
+	public IRecipeSlotBuilder setHoverPadding(int paddingTop, int paddingBottom, int paddingLeft, int paddingRight) {
+		// Existing slot hover bounds are provided by the EMI slot widget.
 		return this;
 	}
 
@@ -165,8 +221,9 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public IRecipeSlotBuilder addFluidStack(Fluid fluid) {
-		acceptor.addFluidStack(fluid);
+		acceptor.add(fluid);
 		return this;
 	}
 
@@ -178,6 +235,12 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	}
 
 	@Override
+    public IRecipeSlotBuilder setPosition(int areaX, int areaY, int areaWidth, int areaHeight,
+            HorizontalAlignment h, VerticalAlignment v) {
+        return setPosition(areaX + h.getXPos(areaWidth, getWidth()), areaY + v.getYPos(areaHeight, getHeight()));
+    }
+
+	@Override
 	public int getWidth() {
 		return large ? 26 : 18;
 	}
@@ -185,6 +248,12 @@ public class JemiRecipeSlotBuilder implements IRecipeSlotBuilder {
 	@Override
 	public int getHeight() {
 		return large ? 26 : 18;
+	}
+
+	@Override
+	public IRecipeSlotBuilder addItemStacks(List<ItemStack> itemStacks) {
+		acceptor.addItemStacks(itemStacks);
+		return this;
 	}
 
 	@Override

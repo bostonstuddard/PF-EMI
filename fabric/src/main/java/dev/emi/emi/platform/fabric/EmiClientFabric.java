@@ -11,19 +11,21 @@ import dev.emi.emi.network.EmiPacket;
 import dev.emi.emi.network.PingS2CPacket;
 import dev.emi.emi.platform.EmiClient;
 import dev.emi.emi.runtime.EmiReloadManager;
-
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.recipe.v1.sync.ClientRecipeSynchronizedEvent;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketDecoder;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-
-import org.jspecify.annotations.NonNull;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamDecoder;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public class EmiClientFabric implements ClientModInitializer {
 
@@ -31,42 +33,28 @@ public class EmiClientFabric implements ClientModInitializer {
 	public void onInitializeClient() {
 		EmiClient.init();
 		EmiData.init(reloader -> {
-			ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
+			ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
 
-                @Override
-                public CompletableFuture<Void> reload(Store store, Executor prepareExecutor,
-                                                      Synchronizer reloadSynchronizer, Executor applyExecutor) {
-                    return reloader.reload(store, prepareExecutor, reloadSynchronizer, applyExecutor);
-                }
+				@Override
+				public CompletableFuture<Void> reload(PreparableReloadListener.SharedState var1,
+						Executor var5, PreparableReloadListener.PreparationBarrier var7, Executor var6) {
+					return reloader.reload(var1, var5, var7, var6);
+				}
 
-                @Override
+				@Override
 				public String getName() {
 					return reloader.getName();
 				}
 
 				@Override
-				public @NonNull Identifier getFabricId() {
+				public Identifier getFabricId() {
 					return reloader.getEmiId();
 				}
 			});
 		});
 
-        ClientRecipeSynchronizedEvent.EVENT.register((minecraft, synchronizedRecipes) -> {
-            EmiReloadManager.reloadRecipes();
-        });
-
-//		PreparableModelLoadingPlugin.<List<Identifier>>register((manager, executor) -> {
-//			return CompletableFuture.supplyAsync(() -> {
-//				List<Identifier> ids = Lists.newArrayList();
-//				EmiTags.registerTagModels(manager, id -> ids.add(id.id()), "");
-//				return ids;
-//			}, executor);
-//		}, (ids, context) -> {
-//			context.addModels(ids);
-//		}); TODO
-
 		EmiNetwork.initClient(packet -> {
-			if (ClientPlayNetworking.canSend(packet.getId())) {
+			if (ClientPlayNetworking.canSend(packet.type())) {
 				ClientPlayNetworking.send(packet);
 			}
 		});
@@ -74,9 +62,32 @@ public class EmiClientFabric implements ClientModInitializer {
 		registerPacketReader(EmiNetwork.PING, PingS2CPacket::new);
 		registerPacketReader(EmiNetwork.COMMAND, CommandS2CPacket::new);
 		registerPacketReader(EmiNetwork.CHESS, EmiChessPacket.S2C::new);
+
+		registerVanillaRecipeSerializers();
+
+		ClientRecipeSynchronizedEvent.EVENT.register((client, recipes) -> {
+            // Recipe registries are reloadable and not present in the ordinary
+            // client connection RegistryAccess on Minecraft 26.3.  Use the
+            // Fabric-synchronized RecipeHolders, not a nonexistent registry.
+            EmiAgnosFabric.setReceivedRecipeMap(dev.emi.emi.EmiSyncedRecipeMaps.fromHolders(recipes.recipes()));
+            // The recipe-sync callback is authoritative. Tags are signalled
+            // separately by the client configuration/play tag listeners.
+            // Marking both resources here caused two overlapping EMI reloads.
+            EmiReloadManager.reloadRecipes();
+        });
+
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			EmiAgnosFabric.setReceivedRecipeMap(null);
+		});
 	}
 
-	private <T extends EmiPacket> void registerPacketReader(CustomPayload.Id<T> id, PacketDecoder<RegistryByteBuf, T> decode) {
+	private void registerVanillaRecipeSerializers() {
+		for (RecipeSerializer<?> serializer : BuiltInRegistries.RECIPE_SERIALIZER) {
+			RecipeSynchronization.synchronizeRecipeSerializer(serializer);
+		}
+	}
+
+	private <T extends EmiPacket> void registerPacketReader(CustomPacketPayload.Type<T> id, StreamDecoder<RegistryFriendlyByteBuf, T> decode) {
 		ClientPlayNetworking.registerGlobalReceiver(id, (payload, context) -> {
 			context.client().execute(() -> {
 				payload.apply(context.client().player);
