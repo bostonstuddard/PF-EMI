@@ -1,0 +1,20 @@
+{
+  "emi.category.projectflint.clay_grinder": "Clay Grinder",
+  "emi.category.projectflint.wooden_grinder": "Wooden Grinder",
+  "emi.category.projectflint.sanding_station": "Sanding Station",
+  "emi.category.projectflint.bookshelf": "Bookshelf Research",
+  "emi.category.projectflint.primitive_stove": "Primitive Stove",
+  "emi.category.projectflint.crude_clay_kiln": "Crude Clay Kiln",
+  "emi.category.projectflint.permanent_campfire": "Permanent Campfire",
+  "emi.category.projectflint.baked_clay_kiln": "Baked Clay Kiln",
+  "emi.category.projectflint.mortar_kiln": "Mortar Kiln",
+  "emi.category.projectflint.brick_furnace": "Brick Furnace",
+  "emi.category.projectflint.brick_blast_furnace": "Brick Blast Furnace",
+  "emi.category.projectflint.advanced_kiln": "Advanced Kiln",
+  "emi.category.projectflint.lumber_processing": "Lumber Processing",
+  "emi.category.projectflint.well": "Well",
+  "emi.category.projectflint.multiblock": "PF Structures",
+  "emi.category.projectflint.world_placement": "World Placement",
+  "emi.category.projectflint.block_drops": "Block Drops",
+  "emi.category.projectflint.mob_drops": "Mob Loot"
+}

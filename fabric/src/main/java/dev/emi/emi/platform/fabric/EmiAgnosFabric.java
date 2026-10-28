@@ -1,0 +1,306 @@
+package dev.emi.emi.platform.fabric;
+
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import net.minecraft.client.render.item.model.ItemModel;
+import net.minecraft.enchantment.Enchantment;
+import org.apache.commons.lang3.text.WordUtils;
+
+import com.google.common.collect.Lists;
+
+import dev.emi.emi.EmiPort;
+import dev.emi.emi.EmiRenderHelper;
+import dev.emi.emi.EmiUtil;
+import dev.emi.emi.api.EmiPlugin;
+import dev.emi.emi.api.EmiRegistry;
+import dev.emi.emi.api.FabricEmiStack;
+import dev.emi.emi.api.stack.EmiIngredient;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.FluidEmiStack;
+import dev.emi.emi.mixin.accessor.BrewingRecipeRegistryAccessor;
+import dev.emi.emi.platform.EmiAgnos;
+import dev.emi.emi.recipe.EmiBrewingRecipe;
+import dev.emi.emi.registry.EmiPluginContainer;
+import dev.emi.emi.runtime.EmiDrawContext;
+import dev.emi.emi.runtime.EmiLog;
+import dev.emi.emi.screen.FakeScreen;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import mezz.jei.api.fabric.ingredients.fluids.IJeiFluidIngredient;
+
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.PotionItem;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.Potions;
+import net.minecraft.recipe.BrewingRecipeRegistry;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.RecipeManager;
+import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.display.SlotDisplayContexts;
+import net.minecraft.recipe.input.RecipeInput;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.context.ContextParameterMap;
+import net.minecraft.world.World;
+
+public class EmiAgnosFabric extends EmiAgnos {
+	static {
+		EmiAgnos.delegate = new EmiAgnosFabric();
+	}
+
+	@Override
+	protected boolean isForgeAgnos() {
+		return false;
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	protected String getModNameAgnos(String namespace) {
+		if (namespace.equals("c")) {
+			return "Common";
+		}
+		Optional<ModContainer> container = FabricLoader.getInstance().getModContainer(namespace);
+		if (container.isPresent()) {
+			return container.get().getMetadata().getName();
+		}
+		container = FabricLoader.getInstance().getModContainer(namespace.replace('_', '-'));
+		if (container.isPresent()) {
+			return container.get().getMetadata().getName();
+		}
+		return WordUtils.capitalizeFully(namespace.replace('_', ' '));
+	}
+
+	@Override
+	protected Path getConfigDirectoryAgnos() {
+		return FabricLoader.getInstance().getConfigDir();
+	}
+
+	@Override
+	protected boolean isDevelopmentEnvironmentAgnos() {
+		return FabricLoader.getInstance().isDevelopmentEnvironment();
+	}
+
+	@Override
+	protected boolean isModLoadedAgnos(String id) {
+		return FabricLoader.getInstance().isModLoaded(id);
+	}
+
+	@Override
+	protected List<String> getAllModNamesAgnos() {
+		return FabricLoader.getInstance().getAllMods().stream().map(c -> c.getMetadata().getName()).toList();
+	}
+
+	@Override
+	protected List<String> getAllModAuthorsAgnos() {
+		return FabricLoader.getInstance().getAllMods().stream().flatMap(c -> c.getMetadata().getAuthors().stream())
+			.map(p -> p.getName()).distinct().toList();
+	}
+
+	@Override
+	protected List<String> getModsWithPluginsAgnos() {
+		List<String> list = Lists.newArrayList();
+		for (EntrypointContainer<EmiPlugin> container : FabricLoader.getInstance().getEntrypointContainers("emi", EmiPlugin.class)) {
+			try {
+				list.add(container.getProvider().getMetadata().getId());
+			} catch (Throwable t) {
+				EmiLog.error("Critical exception thrown when reading EMI Plugin from mod " + container.getProvider().getMetadata().getId(), t);
+			}
+		}
+		return list;
+	}
+
+
+	@Override
+	protected List<EmiPluginContainer> getPluginsAgnos() {
+		List<EmiPluginContainer> list = Lists.newArrayList();
+		for (EntrypointContainer<EmiPlugin> container : FabricLoader.getInstance().getEntrypointContainers("emi", EmiPlugin.class)) {
+			try {
+				list.add(new EmiPluginContainer(container.getEntrypoint(), container.getProvider().getMetadata().getId()));
+			} catch (Throwable t) {
+				EmiLog.error("Critical exception thrown when constructing EMI Plugin from mod " + container.getProvider().getMetadata().getId(), t);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	protected void addBrewingRecipesAgnos(EmiRegistry registry) {
+        World world = MinecraftClient.getInstance().world;
+		BrewingRecipeRegistry brewingRegistry = world != null ? world.getBrewingRecipeRegistry() : BrewingRecipeRegistry.EMPTY;
+        ContextParameterMap paramMap = SlotDisplayContexts.createParameters(world);
+		BrewingRecipeRegistryAccessor brewingRegistryAccess = (BrewingRecipeRegistryAccessor)brewingRegistry;
+
+		for (Ingredient ingredient : brewingRegistryAccess.getPotionTypes()) {
+			for (ItemStack stack : ingredient.toDisplay().getStacks(paramMap)) {
+				String pid = EmiUtil.subId(stack.getItem());
+				for (BrewingRecipeRegistry.Recipe<Potion> recipe : brewingRegistryAccess.getPotionRecipes()) {
+					try {
+						Ingredient recipeIngredient = recipe.ingredient();
+						if (!recipeIngredient.toDisplay().getStacks(paramMap).isEmpty()) {
+							Identifier id = EmiPort.id("emi", "/brewing/" + pid
+								+ "/" + EmiUtil.subId(recipeIngredient.toDisplay().getStacks(paramMap).getFirst().getItem())
+								+ "/" + EmiUtil.subId(EmiPort.getPotionRegistry().getId(recipe.from().value()))
+								+ "/" + EmiUtil.subId(EmiPort.getPotionRegistry().getId(recipe.to().value())));
+							registry.addRecipe(new EmiBrewingRecipe(
+								EmiStack.of(EmiPort.setPotion(stack.copy(), recipe.from().value())), EmiIngredient.of(recipeIngredient),
+								EmiStack.of(EmiPort.setPotion(stack.copy(), recipe.to().value())), id));
+						}
+					} catch (Exception e) {
+						EmiLog.error("Error registering brewing recipe", e);
+					}
+				}
+			}
+		}
+
+		for (BrewingRecipeRegistry.Recipe<Item> recipe : brewingRegistryAccess.getItemRecipes()) {
+			try {
+				Ingredient recipeIngredient = recipe.ingredient();
+				if (!recipeIngredient.toDisplay().getStacks(paramMap).isEmpty()) {
+					String gid = EmiUtil.subId(recipeIngredient.toDisplay().getStacks(paramMap).getFirst().getItem());
+					String iid = EmiUtil.subId(recipe.from().value());
+					String oid = EmiUtil.subId(recipe.to().value());
+					Consumer<RegistryEntry<Potion>> potionRecipeGen = entry -> {
+						if (brewingRegistry.isBrewable(entry)) {
+							Identifier id = EmiPort.id("emi", "/brewing/item/"
+								+ EmiUtil.subId(entry.getKey().get().getValue()) + "/" + gid + "/" + iid + "/" + oid);
+							registry.addRecipe(new EmiBrewingRecipe(
+								EmiStack.of(EmiPort.setPotion(new ItemStack(recipe.from().value()), entry.value())), EmiIngredient.of(recipeIngredient),
+								EmiStack.of(EmiPort.setPotion(new ItemStack(recipe.to().value()), entry.value())), id));
+						}
+					};
+					if (recipe.from().value() instanceof PotionItem) {
+						EmiPort.getPotionRegistry().streamEntries().forEach(potionRecipeGen);
+					} else {
+						potionRecipeGen.accept(Potions.AWKWARD);
+					}
+				}
+			} catch (Exception e) {
+				EmiLog.error("Error registering brewing recipe", e);
+			}
+		}
+	}
+
+	@Override
+	protected List<TooltipComponent> getItemTooltipAgnos(ItemStack stack) {
+		return FakeScreen.INSTANCE.getTooltipComponentListFromItem(stack);
+	}
+
+	@Override
+	protected Text getFluidNameAgnos(Fluid fluid, ComponentChanges componentChanges) {
+		return FluidVariantAttributes.getName(FluidVariant.of(fluid, componentChanges));
+	}
+
+	@Override
+	protected List<Text> getFluidTooltipAgnos(Fluid fluid, ComponentChanges componentChanges) {
+		return FluidVariantRendering.getTooltip(FluidVariant.of(fluid, componentChanges));
+	}
+
+	@Override
+	protected boolean isFloatyFluidAgnos(FluidEmiStack stack) {
+		FluidVariant fluid = FluidVariant.of(stack.getKeyOfType(Fluid.class), stack.getComponentChanges());
+		return FluidVariantAttributes.isLighterThanAir(fluid);
+	}
+
+	@Override
+	protected void renderFluidAgnos(FluidEmiStack stack, EmiDrawContext context, int x, int y, float delta, int xOff, int yOff, int width, int height) {
+		FluidVariant fluid = FluidVariant.of(stack.getKeyOfType(Fluid.class), stack.getComponentChanges());
+		Sprite[] sprites = FluidVariantRendering.getSprites(fluid);
+		if (sprites == null || sprites.length < 1 || sprites[0] == null) {
+			return;
+		}
+		Sprite sprite = sprites[0];
+		int color = FluidVariantRendering.getColor(fluid);
+		
+		EmiRenderHelper.drawTintedSprite(context, sprite, color, x, y, xOff, yOff, width, height);
+	}
+
+	@Override
+	protected EmiStack createFluidStackAgnos(Object object) {
+		if (object instanceof IJeiFluidIngredient fluid) {
+			return FabricEmiStack.of(fluid.getFluidVariant(), fluid.getAmount());
+		}
+		return EmiStack.EMPTY;
+	}
+
+	@Override
+	protected boolean canBatchAgnos(ItemStack stack) {
+		return false;//ColorProviderRegistry.ITEM.get(stack.getItem()) == null; TODO
+	}
+
+	@Override
+	protected Map<Item, Integer> getFuelMapAgnos() {
+		Object2IntMap<Item> fuelMap = new Object2IntOpenHashMap<>();
+		for (Item item : EmiPort.getItemRegistry()) {
+			if (!MinecraftClient.getInstance().world.getFuelRegistry().getFuelItems().contains(item)) {
+				continue;
+			}
+			int time = MinecraftClient.getInstance().world.getFuelRegistry().getFuelTicks(item.getDefaultStack());
+			if (time > 0) {
+				fuelMap.put(item, time);
+			}
+		}
+		return fuelMap;
+	}
+
+    @Override
+	protected ItemModel getBakedTagModelAgnos(Identifier id) {
+		return MinecraftClient.getInstance().getBakedModelManager().getItemModel(id);
+	}
+
+	@Override
+	protected boolean isEnchantableAgnos(ItemStack stack, Enchantment enchantment) {
+		return true;
+	}
+
+    @Override
+    protected <I extends RecipeInput, T extends Recipe<I>> Collection<RecipeEntry<T>> getAllRecipesOfTypeAgnos(RecipeManager recipeManager,
+                                                                                     RecipeType<T> recipeType) {
+        return recipeManager.getSynchronizedRecipes().getAllOfType(recipeType);
+    }
+
+    @Override
+    protected <I extends RecipeInput, T extends Recipe<I>> Stream<RecipeEntry<T>> getAllMatchesRecipeAgnos(
+            RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
+        return recipeManager.getSynchronizedRecipes().getAllMatches(recipeType, input, world);
+    }
+
+    @Override
+    protected <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeEntry<T>> getFirstMatchRecipeAgnos(
+            RecipeManager recipeManager, RecipeType<T> recipeType, I input, World world) {
+        return recipeManager.getSynchronizedRecipes().getFirstMatch(recipeType, input, world);
+    }
+
+    @Override
+    protected Collection<RecipeEntry<?>> getAllRecipesAgnos(RecipeManager recipeManager) {
+        return recipeManager.getSynchronizedRecipes().recipes();
+    }
+
+    @Override
+    protected RecipeEntry<?> getRecipeAgnos(RecipeManager recipeManager, Identifier id) {
+        return recipeManager.getSynchronizedRecipes().get(RegistryKey.of(RegistryKeys.RECIPE, id));
+    }
+
+}
