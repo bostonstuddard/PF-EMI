@@ -2,6 +2,17 @@
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).
 
+## 1.1.23-pf.12 — Source-parity corrections and loot lookup (2026-10-28)
+
+- Corrected Bookshelf research outputs to **actual bound Recipe Parchments**, with the `ProjectFlintRecipe` custom-data component and matching unfinished-bacon model override. Added the staged Bacon & Eggs research step, including its required unfinished parchment; corrected 4-book eligibility indicators for the missing pages.
+- Corrected all registered Primitive Oven parchment catalysts to the exact bound recipe ID, including efficient Fat, breads, jams, cheese, sushi, and dishes. These remain display-only EMI recipes and do not change game logic.
+- Added ten source-derived Clay Grinder transformations (tanned armor, fireclay shapes, unfired-brick recycling, Loose Dirt slabs). Added Wooden Grinder's woven-frame Clay Bucket alternate and 512-use Leather Armor variants.
+- Brought permanent campfire heat entries into alignment with ProjectFlint's `PrimitiveProcessingRegistry`: Burnt Twig/Branch, firing Unfired Clay Buckets, Unfired Bricks, and Unfired Fireclay Bricks. Avoided duplicating kiln-only entries.
+- Extended Fireclay Forge log/wood accepted-input examples to stripped and bark variants; verified the six-layer Forge and eight-layer Well structure definitions against ProjectFlint world validators.
+- Turtle loot pages now distinguish its guaranteed one adult meat drop from the alternative cooked-on-fire drop. Mob loot spawn eggs are **non-consumed catalyst lookup keys**, making these pages discoverable under Uses; they are not survival crafting ingredients.
+- Reduced the minimum multiblock rendering scale to fit unusually tall models in the recipe viewport. Updated source version/build launcher/patch applicator.
+- Expanded the version-pinned audit and added a local static regression script. The complete multi-loader/runtime checklist is **not** completed: builds, GUI tests, loot conditions, and the entire ProjectFlint source tree were not available in this environment. No binary/JAR compatibility is claimed.
+
 ## 1.1.23-pf.11 — ProjectFlint v0.31.48-b compatibility audit (source patch)
 
 **Structure viewer**

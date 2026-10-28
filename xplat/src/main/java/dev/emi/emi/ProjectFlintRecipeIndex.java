@@ -42,7 +42,7 @@ public final class ProjectFlintRecipeIndex {
 		}
 		if (stack.getKey() instanceof Item item) {
 			Identifier id = Registries.ITEM.getId(item);
-			if (id.getPath().endsWith("_spawn_egg")) return;
+			// Spawn eggs referenced by the mob-loot guide stay searchable as non-consumed catalysts.
 			VISIBLE_ITEMS.add(id);
 		}
 	}

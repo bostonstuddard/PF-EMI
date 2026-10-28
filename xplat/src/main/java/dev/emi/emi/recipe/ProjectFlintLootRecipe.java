@@ -73,7 +73,13 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 
 	@Override
 	public List<EmiIngredient> getCatalysts() {
-		return catalysts;
+		// Mob spawn eggs are explanatory subjects, not consumed materials. Register
+		// them as a non-consumed catalyst so EMI's Uses lookup can find their loot.
+		if (subjectIsInput) return catalysts;
+		List<EmiIngredient> searchable = new ArrayList<>(catalysts.size() + 1);
+		searchable.add(subject);
+		searchable.addAll(catalysts);
+		return List.copyOf(searchable);
 	}
 
 	@Override

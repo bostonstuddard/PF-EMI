@@ -27,7 +27,7 @@ import org.joml.Matrix3x2fStack;
  * for a dynamically-scaled isometric model.
  */
 public final class ProjectFlintMultiblockWidget extends Widget {
-	public static final String PF_EMI_MULTIBLOCK_WIDGET = "pf.11-viewport-fit-3d";
+	public static final String PF_EMI_MULTIBLOCK_WIDGET = "pf.12-viewport-fit-3d";
 
 	private static final int COLOR_BG = 0xB00E0E0E;
 	private static final int COLOR_VIEWPORT = 0xB0161616;
@@ -342,7 +342,8 @@ public final class ProjectFlintMultiblockWidget extends Widget {
 
 		float fitX = (viewport.width() - 12.0F) / rawWidth;
 		float fitY = (viewport.height() - 12.0F) / rawHeight;
-		float scale = Math.max(0.55F, Math.min(2.85F, Math.min(fitX, fitY)));
+		// Smaller GUI scales should fit even unusually tall/larger multiblocks.
+		float scale = Math.max(0.20F, Math.min(2.85F, Math.min(fitX, fitY)));
 
 		int scaledWidth = Math.round(rawWidth * scale);
 		int scaledHeight = Math.round(rawHeight * scale);

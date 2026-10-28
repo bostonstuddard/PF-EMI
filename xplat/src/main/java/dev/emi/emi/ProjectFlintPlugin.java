@@ -13,7 +13,12 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.config.FluidUnit;
 import dev.emi.emi.recipe.ProjectFlintProcessRecipe;
 import dev.emi.emi.recipe.ProjectFlintLootRecipe;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
@@ -26,7 +31,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.11";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.12";
 
 	private static final String PF = "projectflint";
 
@@ -272,6 +277,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, clay, "clay/bone_chestplate", List.of(pf("filed_bone", 8)), pf("bone_chestplate"));
 			simple(registry, clay, "clay/bone_leggings", List.of(pf("filed_bone", 7)), pf("bone_leggings"));
 			simple(registry, clay, "clay/bone_boots", List.of(pf("filed_bone", 4)), pf("bone_boots"));
+			// ClayGrinderRecipeGuideRegistry: newer tanning, brick, and fireclay conversions.
+			simple(registry, clay, "clay/tanned_helmet", List.of(pf("tanned_leather", 5)), pf("tanned_leather_helmet"));
+			simple(registry, clay, "clay/tanned_chestplate", List.of(pf("tanned_leather", 8)), pf("tanned_leather_chestplate"));
+			simple(registry, clay, "clay/tanned_leggings", List.of(pf("tanned_leather", 7)), pf("tanned_leather_leggings"));
+			simple(registry, clay, "clay/tanned_boots", List.of(pf("tanned_leather", 4)), pf("tanned_leather_boots"));
+			simple(registry, clay, "clay/fireclay_brick_block", List.of(pf("fireclay_brick", 4)), pf("fireclay_brick_block"));
+			simple(registry, clay, "clay/fireclay_brick_slab", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_slab", 2));
+			simple(registry, clay, "clay/fireclay_brick_stairs", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_stairs"));
+			simple(registry, clay, "clay/fireclay_slab_to_block", List.of(pf("fireclay_brick_slab", 2)), pf("fireclay_brick_block"));
+			simple(registry, clay, "clay/unfired_brick_recycle", List.of(pf("unfired_brick")), pf("unfired_clay_ball", 2));
+			simple(registry, clay, "clay/loose_dirt_from_slabs", List.of(pf("loose_dirt_slab", 2)), pf("loose_dirt"));
 			simple(registry, clay, "clay/clay_mortar", List.of(pf("super_heated_clay", 9)), pf("clay_mortar"));
 			simple(registry, clay, "clay/flint_chips", List.of(mc("flint")), pf("flint_chip", 4));
 			simple(registry, clay, "clay/flint_from_chips", List.of(pf("flint_chip", 4)), mc("flint"));
@@ -425,6 +441,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(mc("clay_ball", 8)), List.of(pf("unfired_brick_mold")), List.of(pf("unfired_brick", 8)), 0);
 			process(registry, wood, "wood/unfired_clay_bucket_bone_knife",
 				List.of(mc("clay_ball", 3)), List.of(boneKnife), List.of(pf("unfired_clay_bucket")), 0);
+			simple(registry, wood, "wood/unfired_clay_bucket_frame",
+				List.of(mc("clay_ball", 3), pf("woven_chest_frame")), pf("unfired_clay_bucket"));
+			// Leather armor from the Wooden Grinder has custom 512-use durability.
+			simple(registry, wood, "wood/leather_boots",
+				List.of(mc("leather", 4), pf("woven_wool", 4)), maxDamageItem("leather_boots", 512));
+			simple(registry, wood, "wood/leather_helmet",
+				List.of(mc("leather", 5), pf("woven_wool", 5)), maxDamageItem("leather_helmet", 512));
+			simple(registry, wood, "wood/leather_chestplate",
+				List.of(mc("leather", 8), pf("woven_wool", 8)), maxDamageItem("leather_chestplate", 512));
+			simple(registry, wood, "wood/leather_leggings",
+				List.of(mc("leather", 7), pf("woven_wool", 7)), maxDamageItem("leather_leggings", 512));
 			simple(registry, wood, "wood/wheat_seeds",
 				List.of(pf("flax_seeds", 9), pf("clay_water_bucket")), mc("wheat_seeds", 3));
 			simple(registry, wood, "wood/flour",
@@ -500,17 +527,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			for (String[] row : research) {
 				process(registry, shelf, "bookshelf/research/" + row[2],
 					List.of(mc(row[0], Long.parseLong(row[1])), pf("recipe_parchment")),
-					List.of(pf("bookshelf"), mc("book", 4)), List.of(pf("recipe_parchment")), 0);
+					List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment(row[2].equals("unfinished_bacon") ? "bacon_and_eggs_unfinished" : row[2])), 0);
 			}
 			process(registry, shelf, "bookshelf/research/pumpkin_cake",
 				List.of(pf("pumpkin_slice", 16), pf("recipe_parchment")),
-				List.of(pf("bookshelf")), List.of(pf("recipe_parchment")), 0);
+				List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment("pumpkin_cake")), 0);
 			process(registry, shelf, "bookshelf/research/pumpkin_pie",
 				List.of(pf("pumpkin_slice", 16), pf("recipe_parchment")),
-				List.of(pf("bookshelf")), List.of(pf("recipe_parchment")), 0);
+				List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment("pumpkin_pie")), 0);
 			process(registry, shelf, "bookshelf/research/butter",
 				List.of(pf("wooden_cup_raw_milk", 4), pf("recipe_parchment")),
-				List.of(pf("bookshelf")), List.of(pf("recipe_parchment")), 0);
+				List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment("butter")), 0);
 
 			// The real BookshelfRecipeRegistry requires >= 4 inserted Books and a blank parchment.
 			String[][] laterResearch = {
@@ -527,14 +554,20 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			for (String[] row : laterResearch) {
 				process(registry, shelf, "bookshelf/research/modern/" + row[2],
 					List.of(pf(row[0], Long.parseLong(row[1])), pf("recipe_parchment")),
-					List.of(pf("bookshelf"), mc("book", 4)), List.of(pf("recipe_parchment")), 0);
+					List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment(row[2])), 0);
 			}
 			process(registry, shelf, "bookshelf/research/modern/cheese",
 				List.of(pf("wooden_cup_raw_milk", 4), pf("recipe_parchment")),
-				List.of(pf("bookshelf")), List.of(pf("recipe_parchment")), 0);
+				List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment("cheese")), 0);
+			// The Bacon & Eggs parchment is a TWO-STAGE Bookshelf recipe.
+			// The second step explicitly requires unfinished bacon parchment, NOT blank parchment.
+			process(registry, shelf, "bookshelf/research/finish_bacon_and_eggs",
+				List.of(pf("scrambled_egg", 8), boundParchment("bacon_and_eggs_unfinished")),
+				List.of(pf("bookshelf"), mc("book", 4)),
+				List.of(boundParchment("bacon_and_eggs")), 0);
 			process(registry, shelf, "bookshelf/research/bone_broth",
 				List.of(pf("filed_bone", 6), pf("recipe_parchment")),
-				List.of(pf("bookshelf")), List.of(pf("recipe_parchment")), 0);
+				List.of(pf("bookshelf"), mc("book", 4)), List.of(boundParchment("bone_broth")), 0);
 		}
 
 		if (stove != null) {
@@ -672,21 +705,21 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		EmiRecipeCategory furnace = category(registry, "brick_furnace", "brick_furnace");
 		EmiRecipeCategory blast = category(registry, "brick_blast_furnace", "brick_blast_furnace");
 
-		if (campfire != null) registerCommonHeat(registry, campfire, "campfire", 0.90f, false);
+		if (campfire != null) registerCommonHeat(registry, campfire, "campfire", 0.90f);
 		if (baked != null) {
-			registerCommonHeat(registry, baked, "baked", 1.0f, true);
+			registerCommonHeat(registry, baked, "baked", 1.0f);
 			registerKilnOnly(registry, baked, "baked", 1.0f);
 		}
 		if (mortar != null) {
-			registerCommonHeat(registry, mortar, "mortar", 1.25f, true);
+			registerCommonHeat(registry, mortar, "mortar", 1.25f);
 			registerKilnOnly(registry, mortar, "mortar", 1.25f);
 		}
 		if (furnace != null) {
-			registerCommonHeat(registry, furnace, "brick_furnace", 1.50f, true);
+			registerCommonHeat(registry, furnace, "brick_furnace", 1.50f);
 			registerKilnOnly(registry, furnace, "brick_furnace", 1.50f);
 		}
 		if (blast != null) {
-			registerCommonHeat(registry, blast, "brick_blast_furnace", 1.50f, true);
+			registerCommonHeat(registry, blast, "brick_blast_furnace", 1.50f);
 			registerKilnOnly(registry, blast, "brick_blast_furnace", 1.50f);
 		}
 
@@ -704,13 +737,15 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		EmiRegistry registry,
 		EmiRecipeCategory category,
 		String prefix,
-		float speed,
-		boolean includeDirectBurns
+		float speed
 	) {
-		if (includeDirectBurns) {
-			heat(registry, category, prefix, "burnt_twig", pf("twig"), pf("burnt_twig"), 0, speed);
-			heat(registry, category, prefix, "burnt_branch", pf("branch"), pf("burnt_branch"), 0, speed);
-		}
+		// Both CAMPFIRE and KILN accept these instant/direct burns.
+		heat(registry, category, prefix, "burnt_twig", pf("twig"), pf("burnt_twig"), 0, speed);
+		heat(registry, category, prefix, "burnt_branch", pf("branch"), pf("burnt_branch"), 0, speed);
+		// PrimitiveProcessingRegistry flags bucket/brick/fireclay firing as BOTH.
+		heat(registry, category, prefix, "clay_bucket", pf("unfired_clay_bucket"), pf("clay_bucket"), 300, speed);
+		heat(registry, category, prefix, "brick", pf("unfired_brick"), mc("brick"), 300, speed);
+		heat(registry, category, prefix, "fireclay_brick", pf("unfired_fireclay_brick"), pf("fireclay_brick"), 300, speed);
 		heat(registry, category, prefix, "scrambled_egg", mc("egg"), pf("scrambled_egg", 2), 300, speed);
 		heat(registry, category, prefix, "plant_seeds", pf("plant_fiber"), pf("plant_seeds"), 375, speed);
 		heat(registry, category, prefix, "fired_clay_bowl", pf("unfired_woven_bowl"), pf("fired_clay_bowl"), 300, speed);
@@ -760,8 +795,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		heat(registry, category, prefix, "mortar_bricks", pf("unfired_mortar_brick"), pf("mortar_bricks"), 300, speed);
 		heat(registry, category, prefix, "limestone", pf("smooth_limestone"), pf("limestone"), 300, speed);
 		heat(registry, category, prefix, "glass_shard", pf("sand_ball"), pf("glass_shard"), 300, speed);
-		heat(registry, category, prefix, "unfired_brick", pf("unfired_brick"), mc("brick"), 300, speed);
-		heat(registry, category, prefix, "fireclay_brick", pf("unfired_fireclay_brick"), pf("fireclay_brick"), 300, speed);
 
 		for (String mold : List.of("axe", "brick", "cutters", "multitool", "pot", "block")) {
 			heat(registry, category, prefix, "fired_" + mold + "_mold",
@@ -892,7 +925,14 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 					"crimson_planks", "warped_planks")), List.of(pf("basin")), List.of(pf("wood_dust")), 0);
 			process(registry, placement, "forge/wood_to_charcoal",
 				List.of(anyMc(4, "oak_log", "birch_log", "spruce_log", "jungle_log", "acacia_log",
-					"dark_oak_log", "mangrove_log", "cherry_log", "pale_oak_log")),
+					"dark_oak_log", "mangrove_log", "cherry_log", "pale_oak_log",
+					"oak_wood", "birch_wood", "spruce_wood", "jungle_wood", "acacia_wood",
+					"dark_oak_wood", "mangrove_wood", "cherry_wood", "pale_oak_wood",
+					"stripped_oak_log", "stripped_birch_log", "stripped_spruce_log", "stripped_jungle_log",
+					"stripped_acacia_log", "stripped_dark_oak_log", "stripped_mangrove_log", "stripped_cherry_log",
+					"stripped_pale_oak_log", "stripped_oak_wood", "stripped_birch_wood", "stripped_spruce_wood",
+					"stripped_jungle_wood", "stripped_acacia_wood", "stripped_dark_oak_wood",
+					"stripped_mangrove_wood", "stripped_cherry_wood", "stripped_pale_oak_wood")),
 				List.of(pf("fireclay_forge_controller"), anyPf(1,"flint_firestarter","bone_firestarter","wood_firestarter")),
 				List.of(mc("charcoal", 4)), 20 * 60);
 			process(registry, placement, "forge/hardwood_alloy",
@@ -1242,7 +1282,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			loot(pf("animal_bones", 3), "2-3 Animal Bones")
 		));
 		mob(registry, mobs, "turtle", mc("turtle_spawn_egg"), List.of(
-			loot(pf("raw_turtle_meat"), "Custom turtle meat; count and conditions require drop-system audit")
+			loot(pf("raw_turtle_meat"), "1 adult turtle; cooked variant if killed on fire"),
+			loot(pf("cooked_turtle_meat"), "Alternative when the turtle is on fire (not an additional drop)")
 		));
 		mob(registry, mobs, "camel", mc("camel_spawn_egg"), List.of(
 			loot(pf("raw_camel_meat", 4), "3-4; cooked if killed on fire")
@@ -1321,6 +1362,31 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		return result.toString();
 	}
 
+	/** Exact ProjectFlint RecipeParchmentItem.boundStack implementation (CUSTOM_DATA
+	 * tag ProjectFlintRecipe, plus the unfinished-bacon model selector). */
+	private static EmiStack maxDamageItem(String path, int maximum) {
+		Identifier id = id("minecraft", path);
+		Item item = Registries.ITEM.get(id);
+		if (item == null || item == Items.AIR || !id.equals(Registries.ITEM.getId(item))) return EmiStack.EMPTY;
+		ItemStack stack = new ItemStack(item);
+		stack.set(DataComponentTypes.MAX_DAMAGE, maximum);
+		stack.set(DataComponentTypes.DAMAGE, 0);
+		return EmiStack.of(stack);
+	}
+
+	private static EmiStack boundParchment(String id) {
+		if (!hasPfItem("recipe_parchment")) return EmiStack.EMPTY;
+		ItemStack stack = new ItemStack(Registries.ITEM.get(pfId("recipe_parchment")));
+		NbtCompound data = new NbtCompound();
+		data.putString("ProjectFlintRecipe", "projectflint:" + id);
+		stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(data));
+		if (id.equals("bacon_and_eggs_unfinished")) {
+			stack.set(DataComponentTypes.CUSTOM_MODEL_DATA,
+				new CustomModelDataComponent(List.of(), List.of(), List.of("incomplete"), List.of()));
+		}
+		return EmiStack.of(stack);
+	}
+
 	private static void stoveRecipe(
 		EmiRegistry registry,
 		EmiRecipeCategory category,
@@ -1329,7 +1395,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		EmiIngredient parchment,
 		EmiStack output
 	) {
-		process(registry, category, "stove/" + id, inputs, List.of(parchment), List.of(output), 20 * 15);
+		// The server checks the bound recipe id, not merely the parchment item type.
+		String recipeId = id.equals("fat_efficiency") ? "fat" : id;
+		process(registry, category, "stove/" + id, inputs,
+			List.of(boundParchment(recipeId)), List.of(output), 20 * 15);
 	}
 
 	private static void heat(

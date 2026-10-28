@@ -25,7 +25,7 @@ import net.minecraft.util.Identifier;
  * This intentionally is NOT a second EMI entrypoint anymore.
  */
 public final class ProjectFlintMultiblockPlugin {
-	public static final String PF_EMI_MULTIBLOCK_PATCH = "pf.11";
+	public static final String PF_EMI_MULTIBLOCK_PATCH = "pf.12";
 
 	private ProjectFlintMultiblockPlugin() {
 	}

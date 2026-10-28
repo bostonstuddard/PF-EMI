@@ -1,15 +1,35 @@
 # PF-EMI × ProjectFlint — Exhaustive Audit Checklist
 
-Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b748eb808e50f9945ee174f9ccf255362862`, verified 2026-10-28); PF-EMI **1.1.23-pf.11**, MC **1.21.11**.
+Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b748eb808e50f9945ee174f9ccf255362862`, verified 2026-10-28); PF-EMI **1.1.23-pf.12**, MC **1.21.11**.
 
 **Definition of checkmarks:** `[x]` means the specific source fact, source edit, or archive existence was checked here. It does **NOT** mean a full runtime regression, nor imply complete equivalence. `[ ]` is intentionally incomplete or requires live testing/full source review.
 
 ## Audit result and blockers
 
-- **Partially completed.** Important code changes and spot-checks have been made, but the demand for 100% accurate every-custom-thing coverage is not yet met. This is a precise continuation checklist rather than a certification.
+- **Source parity and runtime audit remain incomplete.** The pf.12 patch makes additional directly compared fixes. Hundreds of per-item checks still need an exhaustive ProjectFlint tree and live game testing. This is a precise continuation checklist rather than a certification.
 - ProjectFlint Github source was inspected through connected GitHub file reads, but a full local clone was unavailable due to external networking restrictions.
 - Gradle wrapper 9.2.1 cannot download through this sandbox. No successful compilation, gameplay test or screenshot verification was obtained.
-- The build archive has Forge-era sources but only Fabric is claimed for this targeted pf.11 build; do not assume current Forge/NeoForge integration is working.
+- The build archive has Forge-era sources but only Fabric is claimed for this targeted pf.12 build; do not assume current Forge/NeoForge integration is working.
+
+## pf.12 acceptance pass — newly resolved source discrepancies
+
+**Static/source-reviewed, not gameplay-tested:**
+
+- [x] Read the current GitHub `RecipeParchmentItem.java` and reproduced `CUSTOM_DATA.ProjectFlintRecipe` on all researched/used parchments; matched `CustomModelData` for the unfinished Bacon & Eggs parchment.
+- [x] Checked `BookshelfRecipeRegistry.java` stage and four-book gate; added the intermediate-to-final Bacon & Eggs research step.
+- [x] Checked `PrimitiveStoveRecipeRegistry.java` listed oven processes and matching parchment IDs; retained its 300-tick cook time.
+- [x] Checked `ClayGrinderRecipeGuideRegistry.java` and added tanned leather armor, fireclay shapes, Unfired Brick recycle, Loose Dirt slab consolidation.
+- [x] Checked `WoodenGrinderRecipeRegistry.java` for custom-max-damage leather armor and alternate Clay Bucket forming recipe.
+- [x] Checked `PrimitiveProcessingRegistry.java` for BOTH campfire/kiln eligible brick, fireclay, bucket and twig/branch heating.
+- [x] Checked `PrimitiveAnimalDropSystem.java` for exactly one Turtle meat (cooked on fire); registered a non-consumed mob-identity lookup.
+- [x] Checked `WellMultiblock.java` and `FireclayForgeMultiblock.java` source constraints for the displayed frame/ring model and counts.
+- [x] Added and executed `tools/verify_pf_emi_pf12.py`: 20/20 static assertions pass; compile/runtime remain untested.
+- [ ] Obtain a full exact local ProjectFlint `6f45b748` checkout; all JAVA/JSON tags, generated recipes, datapacks, LootTables and Mixins must be covered.
+- [ ] Compile and load PF-EMI pf.12 alongside target ProjectFlint and check complete GUI and recipes in-game.
+- [ ] Validate every block and mob loot condition in survival/creative with tool/difficulty/state variants.
+- [ ] Confirm compatibility with Forge and NeoForge independently before deployment.
+
+**Marking rules:** `[x]` above documents a verified source comparison or completed patch/test asset. It does not certify that a Minecraft client has successfully executed the route.
 
 ## Source and testing workstreams
 
@@ -19,7 +39,7 @@ Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b
 - [x] Recorded GitHub source revision 6f45b748eb808e50f9945ee174f9ccf255362862 (2026-10-28)
 - [x] Confirmed uploaded PF-EMI snapshot is 1.1.23-pf.10 and source targets 1.21.11
 - [ ] Download current ProjectFlint GitHub tree as an exact local snapshot; compare every Java/JSON resource
-- [ ] Check for GitHub commits newer than recorded pinned revision before final release
+- [x] Checked newest GitHub commits again on 2026-10-28; still pinned at 6f45b748
 - [ ] Compile against both current PF and PF-EMI dependency graphs
 - [ ] Test a development world in both fresh and upgraded saves
 
@@ -45,7 +65,7 @@ Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b
 - [x] Source compared: BookshelfRecipeRegistry latest research list and four-book requirement
 - [x] Source compared: BasinBlockEntity 1/2 item processing, one hunger point, wood/plank inputs
 - [x] Source-derived v0.31.45–48 Hardwood/Basin/Pickaxe/Torch guidance from ProjectFlint CHANGELOG.md
-- [ ] Replace generic recipe parchment icons with actual bound parchment component outputs
+- [x] Replaced generic parchment output/catalyst stacks with exact custom-data-bound Recipe Parchment stacks; source implementation compared in `RecipeParchmentItem.java`
 - [ ] Compare full signed player 2×2 and Hardwood Table 3×3 recipes and native recipe imports
 - [ ] Compare all Cloth/Tanned Leather, Fireclay and Hardwood tool crafting and repair recipes
 - [ ] Verify all categories do not duplicate base ProjectFlint/native recipes at runtime
@@ -80,7 +100,7 @@ Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b
 
 ### Build, packaging and changelog
 
-- [x] Changed source version to pf.11
+- [x] Changed source version to pf.12
 - [x] Consolidated nine scattered release notes into one CHANGELOG.md; deleted stale duplicates
 - [x] Removed dangling APPLY script call in build.bat and disabled absent NeoForge Gradle project
 - [x] Excluded generated Gradle/build/git data from planned source distribution

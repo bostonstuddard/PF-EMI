@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
-title PF-EMI 1.1.23-pf.11 - Minecraft 1.21.11
+title PF-EMI 1.1.23-pf.12 - Minecraft 1.21.11
 if not exist "gradlew.bat" (
     echo [PF-EMI] ERROR: Missing gradlew.bat; extract the full PF-EMI source archive.
     exit /b 1
@@ -40,14 +40,14 @@ if not exist "%JAVA_HOME%\bin\javac.exe" (
     echo [PF-EMI] ERROR: JAVA_HOME points to a JRE instead of a full JDK.
     exit /b 1
 )
-echo [PF-EMI] ProjectFlint integration pf.11 - Minecraft 1.21.11
+echo [PF-EMI] ProjectFlint integration pf.12 - Minecraft 1.21.11
 call gradlew.bat :fabric:clean :fabric:build --no-daemon --max-workers=2
 if errorlevel 1 (
     echo [PF-EMI] Build failed. Review the Gradle errors above.
     exit /b 1
 )
 if not exist dist mkdir dist
-set "OUTPUT=dist\PF-EMI-1.21.11-pf.11.jar"
+set "OUTPUT=dist\PF-EMI-1.21.11-pf.12.jar"
 if exist "%OUTPUT%" del /q "%OUTPUT%"
 for %%F in ("fabric\build\libs\*.jar") do (
     echo %%~nxF | findstr /i /c:"sources" /c:"dev-shadow" /c:"-api" >nul
