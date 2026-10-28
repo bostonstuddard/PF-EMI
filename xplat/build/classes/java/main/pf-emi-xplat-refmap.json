@@ -1,0 +1,182 @@
+{
+  "mappings": {
+    "dev/emi/emi/mixin/CraftingResultSlotMixin": {
+      "onCrafted(Lnet/minecraft/item/ItemStack;)V": "Lnet/minecraft/class_1734;method_7669(Lnet/minecraft/class_1799;)V"
+    },
+    "dev/emi/emi/mixin/DrawContextMixin": {
+      "drawItemTooltip(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;II)V": "Lnet/minecraft/class_332;method_51446(Lnet/minecraft/class_327;Lnet/minecraft/class_1799;II)V"
+    },
+    "dev/emi/emi/mixin/HandledScreenMixin": {
+      "net/minecraft/client/gui/screen/ingame/HandledScreen.drawBackground(Lnet/minecraft/client/gui/DrawContext;FII)V": "Lnet/minecraft/class_465;method_2389(Lnet/minecraft/class_332;FII)V",
+      "net/minecraft/client/gui/screen/ingame/HandledScreen.drawForeground(Lnet/minecraft/client/gui/DrawContext;II)V": "Lnet/minecraft/class_465;method_2388(Lnet/minecraft/class_332;II)V",
+      "render": "Lnet/minecraft/class_465;method_25394(Lnet/minecraft/class_332;IIF)V",
+      "renderBackground(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_465;method_25420(Lnet/minecraft/class_332;IIF)V"
+    },
+    "dev/emi/emi/mixin/HoeItemMixin": {
+      "createTillAction": "Lnet/minecraft/class_1794;method_36988(Lnet/minecraft/class_2680;)Ljava/util/function/Consumer;",
+      "createTillAndDropAction": "Lnet/minecraft/class_1794;method_36985(Lnet/minecraft/class_2680;Lnet/minecraft/class_1935;)Ljava/util/function/Consumer;"
+    },
+    "dev/emi/emi/mixin/ItemStackMixin": {
+      "getTooltip": "Lnet/minecraft/class_1799;method_7950(Lnet/minecraft/class_1792$class_9635;Lnet/minecraft/class_1657;Lnet/minecraft/class_1836;)Ljava/util/List;"
+    },
+    "dev/emi/emi/mixin/KeyboardMixin": {
+      "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z": "Lnet/minecraft/class_437;method_25404(III)Z",
+      "onChar(JII)V": "Lnet/minecraft/class_309;method_1457(JII)V",
+      "onKey(JIIII)V": "Lnet/minecraft/class_309;method_1466(JIIII)V"
+    },
+    "dev/emi/emi/mixin/MinecraftClientMixin": {
+      "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V": "Lnet/minecraft/class_310;method_56134(Lnet/minecraft/class_437;)V",
+      "reloadResources(ZLnet/minecraft/client/MinecraftClient$LoadingContext;)Ljava/util/concurrent/CompletableFuture;": "Lnet/minecraft/class_310;method_36561(ZLnet/minecraft/class_310$class_8764;)Ljava/util/concurrent/CompletableFuture;"
+    },
+    "dev/emi/emi/mixin/MouseMixin": {
+      "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z": "Lnet/minecraft/class_437;method_25402(DDI)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;mouseDragged(DDIDD)Z": "Lnet/minecraft/class_437;method_25403(DDIDD)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z": "Lnet/minecraft/class_437;method_25406(DDI)Z",
+      "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z": "Lnet/minecraft/class_437;method_25401(DDDD)Z",
+      "onMouseButton(JIII)V": "Lnet/minecraft/class_312;method_1601(JIII)V",
+      "onMouseScroll(JDD)V": "Lnet/minecraft/class_312;method_1598(JDD)V",
+      "tick": "Lnet/minecraft/class_312;method_55793()V"
+    },
+    "dev/emi/emi/mixin/RecipeBookWidgetMixin": {
+      "toggleOpen": "Lnet/minecraft/class_507;method_2591()V"
+    },
+    "dev/emi/emi/mixin/ScreenMixin": {
+      "init(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25423(Lnet/minecraft/class_310;II)V",
+      "resize(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25410(Lnet/minecraft/class_310;II)V"
+    },
+    "dev/emi/emi/mixin/StatusEffectsDisplayMixin": {
+      "drawStatusEffects(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_485;method_64514(Lnet/minecraft/class_332;IIF)V"
+    },
+    "dev/emi/emi/mixin/ToastManagerMixin": {
+      "draw": "Lnet/minecraft/class_374;method_1996(Lnet/minecraft/class_332;)V"
+    },
+    "dev/emi/emi/mixin/accessor/AxeItemAccessor": {
+      "STRIPPED_BLOCKS": "field_7898:Ljava/util/Map;"
+    },
+    "dev/emi/emi/mixin/accessor/BakedModelManagerAccessor": {
+      "models": "field_5408:Ljava/util/Map;"
+    },
+    "dev/emi/emi/mixin/accessor/BrewingRecipeRegistryAccessor": {
+      "itemRecipes": "field_51405:Ljava/util/List;",
+      "potionRecipes": "field_51404:Ljava/util/List;",
+      "potionTypes": "field_51403:Ljava/util/List;"
+    },
+    "dev/emi/emi/mixin/accessor/CraftingResultSlotAccessor": {
+      "input": "field_7870:Lnet/minecraft/class_8566;"
+    },
+    "dev/emi/emi/mixin/accessor/DrawContextAccessor": {
+      "drawTooltip": "method_51435(Lnet/minecraft/class_327;Ljava/util/List;IILnet/minecraft/class_8000;Lnet/minecraft/class_2960;)V"
+    },
+    "dev/emi/emi/mixin/accessor/HandledScreenAccessor": {
+      "backgroundHeight": "field_2779:I",
+      "backgroundWidth": "field_2792:I",
+      "focusedSlot": "field_2787:Lnet/minecraft/class_1735;",
+      "getSlotAt": "method_64240(DD)Lnet/minecraft/class_1735;",
+      "x": "field_2776:I",
+      "y": "field_2800:I"
+    },
+    "dev/emi/emi/mixin/accessor/HoeItemAccessor": {
+      "TILLING_ACTIONS": "field_8023:Ljava/util/Map;"
+    },
+    "dev/emi/emi/mixin/accessor/ItemRendererAccessor": {
+      "renderBakedItemModel": "method_23182(Lnet/minecraft/class_1087;Lnet/minecraft/class_1799;IILnet/minecraft/class_4587;Lnet/minecraft/class_4588;)V"
+    },
+    "dev/emi/emi/mixin/accessor/OrderedTextTooltipComponentAccessor": {
+      "text": "field_27997:Lnet/minecraft/class_5481;"
+    },
+    "dev/emi/emi/mixin/accessor/ShovelItemAccessor": {
+      "PATH_STATES": "field_8912:Ljava/util/Map;"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "dev/emi/emi/mixin/CraftingResultSlotMixin": {
+        "onCrafted(Lnet/minecraft/item/ItemStack;)V": "Lnet/minecraft/class_1734;method_7669(Lnet/minecraft/class_1799;)V"
+      },
+      "dev/emi/emi/mixin/DrawContextMixin": {
+        "drawItemTooltip(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;II)V": "Lnet/minecraft/class_332;method_51446(Lnet/minecraft/class_327;Lnet/minecraft/class_1799;II)V"
+      },
+      "dev/emi/emi/mixin/HandledScreenMixin": {
+        "net/minecraft/client/gui/screen/ingame/HandledScreen.drawBackground(Lnet/minecraft/client/gui/DrawContext;FII)V": "Lnet/minecraft/class_465;method_2389(Lnet/minecraft/class_332;FII)V",
+        "net/minecraft/client/gui/screen/ingame/HandledScreen.drawForeground(Lnet/minecraft/client/gui/DrawContext;II)V": "Lnet/minecraft/class_465;method_2388(Lnet/minecraft/class_332;II)V",
+        "render": "Lnet/minecraft/class_465;method_25394(Lnet/minecraft/class_332;IIF)V",
+        "renderBackground(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_465;method_25420(Lnet/minecraft/class_332;IIF)V"
+      },
+      "dev/emi/emi/mixin/HoeItemMixin": {
+        "createTillAction": "Lnet/minecraft/class_1794;method_36988(Lnet/minecraft/class_2680;)Ljava/util/function/Consumer;",
+        "createTillAndDropAction": "Lnet/minecraft/class_1794;method_36985(Lnet/minecraft/class_2680;Lnet/minecraft/class_1935;)Ljava/util/function/Consumer;"
+      },
+      "dev/emi/emi/mixin/ItemStackMixin": {
+        "getTooltip": "Lnet/minecraft/class_1799;method_7950(Lnet/minecraft/class_1792$class_9635;Lnet/minecraft/class_1657;Lnet/minecraft/class_1836;)Ljava/util/List;"
+      },
+      "dev/emi/emi/mixin/KeyboardMixin": {
+        "Lnet/minecraft/client/gui/screen/Screen;keyPressed(III)Z": "Lnet/minecraft/class_437;method_25404(III)Z",
+        "onChar(JII)V": "Lnet/minecraft/class_309;method_1457(JII)V",
+        "onKey(JIIII)V": "Lnet/minecraft/class_309;method_1466(JIIII)V"
+      },
+      "dev/emi/emi/mixin/MinecraftClientMixin": {
+        "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V": "Lnet/minecraft/class_310;method_56134(Lnet/minecraft/class_437;)V",
+        "reloadResources(ZLnet/minecraft/client/MinecraftClient$LoadingContext;)Ljava/util/concurrent/CompletableFuture;": "Lnet/minecraft/class_310;method_36561(ZLnet/minecraft/class_310$class_8764;)Ljava/util/concurrent/CompletableFuture;"
+      },
+      "dev/emi/emi/mixin/MouseMixin": {
+        "Lnet/minecraft/client/gui/screen/Screen;mouseClicked(DDI)Z": "Lnet/minecraft/class_437;method_25402(DDI)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;mouseDragged(DDIDD)Z": "Lnet/minecraft/class_437;method_25403(DDIDD)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;mouseReleased(DDI)Z": "Lnet/minecraft/class_437;method_25406(DDI)Z",
+        "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDDD)Z": "Lnet/minecraft/class_437;method_25401(DDDD)Z",
+        "onMouseButton(JIII)V": "Lnet/minecraft/class_312;method_1601(JIII)V",
+        "onMouseScroll(JDD)V": "Lnet/minecraft/class_312;method_1598(JDD)V",
+        "tick": "Lnet/minecraft/class_312;method_55793()V"
+      },
+      "dev/emi/emi/mixin/RecipeBookWidgetMixin": {
+        "toggleOpen": "Lnet/minecraft/class_507;method_2591()V"
+      },
+      "dev/emi/emi/mixin/ScreenMixin": {
+        "init(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25423(Lnet/minecraft/class_310;II)V",
+        "resize(Lnet/minecraft/client/MinecraftClient;II)V": "Lnet/minecraft/class_437;method_25410(Lnet/minecraft/class_310;II)V"
+      },
+      "dev/emi/emi/mixin/StatusEffectsDisplayMixin": {
+        "drawStatusEffects(Lnet/minecraft/client/gui/DrawContext;IIF)V": "Lnet/minecraft/class_485;method_64514(Lnet/minecraft/class_332;IIF)V"
+      },
+      "dev/emi/emi/mixin/ToastManagerMixin": {
+        "draw": "Lnet/minecraft/class_374;method_1996(Lnet/minecraft/class_332;)V"
+      },
+      "dev/emi/emi/mixin/accessor/AxeItemAccessor": {
+        "STRIPPED_BLOCKS": "field_7898:Ljava/util/Map;"
+      },
+      "dev/emi/emi/mixin/accessor/BakedModelManagerAccessor": {
+        "models": "field_5408:Ljava/util/Map;"
+      },
+      "dev/emi/emi/mixin/accessor/BrewingRecipeRegistryAccessor": {
+        "itemRecipes": "field_51405:Ljava/util/List;",
+        "potionRecipes": "field_51404:Ljava/util/List;",
+        "potionTypes": "field_51403:Ljava/util/List;"
+      },
+      "dev/emi/emi/mixin/accessor/CraftingResultSlotAccessor": {
+        "input": "field_7870:Lnet/minecraft/class_8566;"
+      },
+      "dev/emi/emi/mixin/accessor/DrawContextAccessor": {
+        "drawTooltip": "method_51435(Lnet/minecraft/class_327;Ljava/util/List;IILnet/minecraft/class_8000;Lnet/minecraft/class_2960;)V"
+      },
+      "dev/emi/emi/mixin/accessor/HandledScreenAccessor": {
+        "backgroundHeight": "field_2779:I",
+        "backgroundWidth": "field_2792:I",
+        "focusedSlot": "field_2787:Lnet/minecraft/class_1735;",
+        "getSlotAt": "method_64240(DD)Lnet/minecraft/class_1735;",
+        "x": "field_2776:I",
+        "y": "field_2800:I"
+      },
+      "dev/emi/emi/mixin/accessor/HoeItemAccessor": {
+        "TILLING_ACTIONS": "field_8023:Ljava/util/Map;"
+      },
+      "dev/emi/emi/mixin/accessor/ItemRendererAccessor": {
+        "renderBakedItemModel": "method_23182(Lnet/minecraft/class_1087;Lnet/minecraft/class_1799;IILnet/minecraft/class_4587;Lnet/minecraft/class_4588;)V"
+      },
+      "dev/emi/emi/mixin/accessor/OrderedTextTooltipComponentAccessor": {
+        "text": "field_27997:Lnet/minecraft/class_5481;"
+      },
+      "dev/emi/emi/mixin/accessor/ShovelItemAccessor": {
+        "PATH_STATES": "field_8912:Ljava/util/Map;"
+      }
+    }
+  }
+}

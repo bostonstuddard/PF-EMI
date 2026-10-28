@@ -1,0 +1,1017 @@
+[Architectury Transformer DEBUG] 
+[Architectury Transformer DEBUG] ============================
+[Architectury Transformer DEBUG] Transforming from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionFabric.jar
+[Architectury Transformer DEBUG] ============================
+[Architectury Transformer DEBUG] 
+[Architectury Transformer DEBUG] Transforming 5 transformer(s) from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionFabric.jar: 
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapMixinVariables@2d8a959
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformExpectPlatform@17a0e80f
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapInjectables@1f917176
+[Architectury Transformer DEBUG]  - AddRefmapName(enabled=() -> kotlin.Boolean)
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformPlatformOnly@1a57a9a7
+[Architectury Transformer DEBUG] Transforming from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionFabric.jar with 5 transformer(s) on dev.architectury.transformer.handler.SimpleTransformerHandler
+[Architectury Transformer DEBUG] Reading mixin mappings file: C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\fabric\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2.main.tiny
+[Architectury Transformer DEBUG] Reading mixin mappings file: C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2.main.tiny
+[Architectury Transformer DEBUG] Remapping with 2 mapping provider(s):
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.shadowed.impl.dev.architectury.tinyremapper.TinyUtils$$Lambda/0x000001c913225bb8@1feffd1b
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.shadowed.impl.dev.architectury.tinyremapper.TinyUtils$$Lambda/0x000001c913225bb8@24c632bb
+[Architectury Transformer DEBUG] Provided 71 classpath jar(s):
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.jetbrains\annotations\26.0.2\c7ce3cdeda3d18909368dfe5977332dfad326c6d\annotations-26.0.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm\9.9\c29635c8a7afa03d74b33c1884df8abb2b3f3dcc\asm-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-analysis\9.9\bf4fa6e66638851c1cd22c2caea0c3ee5d5f437\asm-analysis-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-commons\9.9\db9165a3bf908ded6b08612d583a15d1d0c7bda0\asm-commons-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-tree\9.9\f8de6eead6d24dd0f45bd065bbe112b2cda6ea21\asm-tree-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-util\9.9\42fdfc0508b43807c8078d6e82ecff2ce2112ae8\asm-util-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\sponge-mixin\0.16.5+mixin.0.8.7\80fc3a9f592673cea87f4cd702f87991c6c9fe4d\sponge-mixin-0.16.5+mixin.0.8.7.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.github.llamalad7\mixinextras-fabric\0.5.0\91a83dfb7abd320f6236bd1fcf5c0ff143d59a13\mixinextras-fabric-0.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\yarn\1.21.3+build.2\2ad14aed781c4a73ed4dbb421966d408a0a06686\yarn-1.21.3+build.2-constants.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-annotations\2.13.4\858c6cc78e1f08a885b1613e1d817c829df70a6e\jackson-annotations-2.13.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.13.4\cf934c681294b97ef6d80082faeefbe1edadf56\jackson-core-2.13.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-databind\2.13.4.2\325c06bdfeb628cfb80ebaaf1a26cc1eb558a585\jackson-databind-2.13.4.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.github.oshi\oshi-core\6.4.10\b1d8ab82d11d92fd639b56d639f8f46f739dd5fa\oshi-core-6.4.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.github.stephenc.jcip\jcip-annotations\1.0-1\ef31541dd28ae2cefdd17c7ebf352d93e9058c63\jcip-annotations-1.0-1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.10.1\b3add478d4382b78ea20b1671390a858002feb6c\gson-2.10.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.guava\failureaccess\1.0.1\1dcf1de382a0bf95a3d8b0849546c88bac1292c9\failureaccess-1.0.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\32.1.2-jre\5e64ec7e056456bef3a4bc4c6fdaef71e8ab6318\guava-32.1.2-jre.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.ibm.icu\icu4j\73.2\61ad4ef7f9131fcf6d25c34b817f90d6da06c9e9\icu4j-73.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.microsoft.azure\msal4j\1.15.0\52fd60d5dc3f0fb3ed5c19b63f6f2312cd1f6add\msal4j-1.15.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\authlib\6.0.55\f0e9077d577b4c3c4d310d5fe704b4eb95a359fe\authlib-6.0.55.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\blocklist\1.0.10\5c685c5ffa94c4cd39496c7184c1d122e515ecef\blocklist-1.0.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\brigadier\1.3.10\d15b53a14cf20fdcaa98f731af5dda654452c010\brigadier-1.3.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\datafixerupper\8.0.16\67d4de6d7f95d89bcf5862995fb854ebaec02a34\datafixerupper-8.0.16.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\jtracy\1.0.29\6f07dcb6a2e595c7ee2ca43b67e5d1c018ca0770\jtracy-1.0.29.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\logging\1.4.9\275b4b0469bb089e2633b569768be913a444e5d9\logging-1.4.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\patchy\2.2.10\da05971b07cbb379d002cf7eaec6a2048211fefc\patchy-2.2.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\text2speech\1.17.9\3cad216e3a7f0c19b4b394388bc9ffc446f13b14\text2speech-1.17.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\content-type\2.3\e3aa0be212d7a42839a8f3f506f5b990bcce0222\content-type-2.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\lang-tag\1.7\97c73ecd70bc7e8eefb26c5eea84f251a63f1031\lang-tag-1.7.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\nimbus-jose-jwt\9.37.3\700f71ffefd60c16bd8ce711a956967ea9071cec\nimbus-jose-jwt-9.37.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\oauth2-oidc-sdk\11.9.1\fa9a2e447e2cef4dfda40a854dd7ec35624a7799\oauth2-oidc-sdk-11.9.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-codec\commons-codec\1.16.0\4e3eb3d79888d76b54e28b350915b5dc3919c9de\commons-codec-1.16.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.15.1\f11560da189ab563a5c8e351941415430e9304ea\commons-io-2.15.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-logging\commons-logging\1.2\4bfc12adfe4842bf07b657f0369c4cb522955686\commons-logging-1.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-buffer\4.1.97.Final\f8f3d8644afa5e6e1a40a3a6aeb9d9aa970ecb4f\netty-buffer-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-codec\4.1.97.Final\384ba4d75670befbedb45c4d3b497a93639c206d\netty-codec-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-common\4.1.97.Final\7cceacaf11df8dc63f23d0fb58e9d4640fc88404\netty-common-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-handler\4.1.97.Final\abb86c6906bf512bf2b797a41cd7d2e8d3cd7c36\netty-handler-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-resolver\4.1.97.Final\cec8348108dc76c47cf87c669d514be52c922144\netty-resolver-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-classes-epoll\4.1.97.Final\795da37ded759e862457a82d9d92c4d39ce8ecee\netty-transport-classes-epoll-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-unix-common\4.1.97.Final\d469d84265ab70095b01b40886cabdd433b6e664\netty-transport-native-unix-common-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport\4.1.97.Final\f37380d23c9bb079bc702910833b2fd532c9abd0\netty-transport-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\it.unimi.dsi\fastutil\8.5.12\c24946d46824bd528054bface3231d2ecb7e95e8\fastutil-8.5.12.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.java.dev.jna\jna-platform\5.14.0\28934d48aed814f11e4c584da55c49fa7032b31b\jna-platform-5.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.java.dev.jna\jna\5.14.0\67bf3eaea4f0718cb376a181a629e5f88fa1c9dd\jna-5.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.minidev\accessors-smart\2.5.0\aca011492dfe9c26f4e0659028a4fe0970829dd8\accessors-smart-2.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.minidev\json-smart\2.5.0\57a64f421b472849c40e77d2e7cce3a141b41e99\json-smart-2.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.sf.jopt-simple\jopt-simple\5.0.4\4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c\jopt-simple-5.0.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-compress\1.26.0\659feffdd12280201c8aacb8f7be94f9a883c824\commons-compress-1.26.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.14.0\1ed471194b02f2c6cb734a0cd6f6f107c673afae\commons-lang3-3.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.httpcomponents\httpclient\4.5.13\e5f6cae5ca7ecaac1ec2827a9e2d65ae2869cada\httpclient-4.5.13.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.httpcomponents\httpcore\4.4.16\51cf043c87253c9f58b539c9f7e44c8894223850\httpcore-4.4.16.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-api\2.22.1\bea6fede6328fabafd7e68363161a7ea6605abd1\log4j-api-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-core\2.22.1\7183a25510a02ad00cc6a95d3b3d2a7d3c5a8dc4\log4j-core-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-slf4j2-impl\2.22.1\d7e6693c2606cb7e7335047d7bb96dec52db5665\log4j-slf4j2-impl-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.jcraft\jorbis\0.0.17\8872d22b293e8f5d7d56ff92be966e6dc28ebdc6\jorbis-0.0.17.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.joml\joml\1.10.5\22566d58af70ad3d72308bab63b8339906deb649\joml-1.10.5.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-freetype\3.3.3\a0db6c84a8becc8ca05f9dbfa985edc348a824c7\lwjgl-freetype-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-glfw\3.3.3\efa1eb78c5ccd840e9f329717109b5e892d72f8e\lwjgl-glfw-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-jemalloc\3.3.3\b543467b7ff3c6920539a88ee602d34098628be5\lwjgl-jemalloc-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-openal\3.3.3\daada81ceb5fc0c291fbfdd4433cb8d9423577f2\lwjgl-openal-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-opengl\3.3.3\2f6b0147078396a58979125a4c947664e98293a\lwjgl-opengl-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-stb\3.3.3\25dd6161988d7e65f71d5065c99902402ee32746\lwjgl-stb-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-tinyfd\3.3.3\82d755ca94b102e9ca77283b9e2dc46d1b15fbe5\lwjgl-tinyfd-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl\3.3.3\29589b5f87ed335a6c7e7ee6a5775f81f97ecb84\lwjgl-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lz4\lz4-java\1.8.0\4b986a99445e49ea5fbf5d149c4b63f6ed6c6780\lz4-java-1.8.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.slf4j\slf4j-api\2.0.9\7cf2726fdcfbc8610f9a71fb3ed639871f315340\slf4j-api-2.0.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\.gradle\loom-cache\minecraftMaven\net\minecraft\minecraft-merged-cbd3c1021f\1.21.3-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2\minecraft-merged-cbd3c1021f-1.21.3-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-epoll\4.1.97.Final\54188f271e388e7f313aea995e82f58ce2cdb809\netty-transport-native-epoll-4.1.97.Final-linux-x86_64.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-epoll\4.1.97.Final\5514744c588190ffda076b35a9b8c9f24946a960\netty-transport-native-epoll-4.1.97.Final-linux-aarch_64.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\fabric-loader\0.17.3\deafaba5de4d9bbd76105783ff4e21ce0773874f\fabric-loader-0.17.3.jar
+[Architectury Transformer] Read classpath in 1.227 s
+[Architectury Transformer DEBUG] Remapping Classes:
+[Architectury Transformer DEBUG] Found class transformer
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/VanillaPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/VanillaPlugin$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiPort with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeBackground with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeTreeButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeDefaultButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeDefaultButtonWidget$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeScreenshotButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/util/InheritanceMap with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/FluidEmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/TagEmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/ListEmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/ItemEmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/TooltipQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/AliasQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexModQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$CompiledQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexTooltipQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/Query with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/NameQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/LogicalOrQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexNameQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexTagQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/ModQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/LogicalAndQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$SearchWorker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/SearchStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/QueryType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/TagQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenBase with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$ScreenSpace with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeDisplay with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$BatcherVertexConsumerProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$UnlitFacade$Consumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeTab with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen$PresetGroupWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/DisabledToast with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$SidebarPanel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$Batchable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeDisplay$ButtonType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/WidgetGroup$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$MicroChar with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeScreen$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen$SelectionWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$2 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$3 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$UnlitFacade with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$UnitScale with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/WidgetGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$ClaimedCollection with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$Mutator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Hover with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$SidebarEmiStackInteraction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$TreeVolume$Width with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Node with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen$PresetWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$TreeVolume with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Cost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/SidebarButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/ResolutionButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/SizedButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/EmiSearchWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntEdit with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EnumWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EmiNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget$MoveDirection with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigJumpButton with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigSearch with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ScreenAlignWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SidebarSubpanelsWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SidebarPagesWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigSearch$ConfigSearchWidgetField with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigEntryWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntGroupWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/GroupNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EmiBindWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SubGroupNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/BooleanWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RemainderTooltipComponent$Remainder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/IngredientTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent$TooltipRenderData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeCostTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTextTooltipWrapper with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent$TextRenderData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltip with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RemainderTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeCostTooltipComponent$Node with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/TagTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite$Synthetic with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiDrawCompat with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorites with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite$Craftable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiDrawContext with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiLog with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadManager$ReloadWorker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiHistory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiSidebars$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiSidebars with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiTagKey with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadLog with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiScreenshotRecorder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiHidden with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiProfiler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiPersistentData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorites$CompoundList with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/RecipeError$Severity with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/RecipeError with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/EmiDev with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes$Worker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes$Manager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiIngredientSerializers with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeFiller with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiSyncedRecipes with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiComparisonDefaults with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiCommands with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRegistryImpl with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$ComparisonHashStrategy with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiDragDropHandlers with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeSorter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiTags with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$StrictHashStrategy with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackProviders with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$IndexGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiExclusionAreas with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiInitRegistryImpl with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeFiller$DiscoveredItem with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiPluginContainer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiTagRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiCompostingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiStonecuttingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiShapedRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiAnvilRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiFuelRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiSyntheticIngredientRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiCookingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiBrewingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiGrindstoneRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiSmithingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiTransmuteRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiShapelessRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBookCloningRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBannerShieldRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiArmorDyeRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiRepairItemRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiAnvilEnchantRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiAnvilRepairItemRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBannerDuplicateRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBookCloningRecipe$Template with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiSmithingTrimRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiGrindstoneDisenchantingBookRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiSuspiciousStewRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkRocketRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiGrindstoneDisenchantingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkStarFadeRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkStarRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiMapCloningRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiClient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiAgnos with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiMain with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/FillRecipeC2SPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/RecipeSyncS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiNetwork with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/PingS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/CreateItemC2SPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/CommandS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket$C2S with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket$S2C with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinPlugin$InvokeTargetInfo with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/MixinPlaceholder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinTransformation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/Transform with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/InvokeTarget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/StripConstructors with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/AdditionalField with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/Extends with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/MouseMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/AbstractInventoryScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/MinecraftClientMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/CraftingResultSlotMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ItemStackMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ToastManagerMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/RecipeBookWidgetMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/HandledScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/DrawContextMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/StatusEffectsDisplayMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/KeyboardMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/HoeItemMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/ItemStackMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/FluidMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/ItemConvertibleMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/OrderedTextTooltipComponentAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/HandledScreenAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/ItemRendererAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/SmithingTransformRecipeAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/BrewingRecipeRegistryAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/ShovelItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/HoeItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/BakedModelManagerAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/DrawContextAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/SmithingTrimRecipeAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/CraftingResultSlotAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/AxeItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiInput with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiBind with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiBind$ModifiedKey with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CoercedRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CookingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/StonecuttingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CraftingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/InventoryRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiDataLoader$DataConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/TagExclusions with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiAlias with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiRecipeCategoryProperties with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiResourceReloadListener with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData$Filter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults$Tag with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiDataLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults$Resolution with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaultLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiTagExclusionsLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiAlias$Baked with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData$Added with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/Margins with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ConfigPresets with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/CheatMode with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ButtonVisibility with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarTheme with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSubpanels with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/HeaderType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigGroupEnd with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarPages$SidebarPage with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Comment with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EffectLocation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/HelpLevel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/IndexSource with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign$Horizontal with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigFilter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/IntGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSide with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarPages with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/RecipeBookAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ConfigEnum with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Writer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Setter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign$Vertical with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSubpanels$Subpanel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/FluidUnit with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSettings with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigValue with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$MultiWriter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$SyntaxErrorException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$2 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$BadValueException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$QDCSSException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$BlameString with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$2$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3$1$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEvaluation$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEvaluation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/EmiChess with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/StandardMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/MoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessBoard with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/RandomMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessBoard$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessMove with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessPiece with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/StandardMoveGenerator$Worker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/PieceColor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/PieceType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/NetworkedMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/BoM$DefaultStatus with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ChanceMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FractionalMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/BoM with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FoldState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FlatMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ChanceState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/MaterialNode with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/TreeCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/MaterialTree with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ProgressState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiScreenBoundsProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$SlotBased with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiApi with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$SlotBased$TriConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiExclusionArea with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiFillAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiEntrypoint with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiStackProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiRegistry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiInitRegistry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiApi$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$BoundsBased with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/DrawableWidget$DrawableWidgetConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/WidgetTooltipHolder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/ButtonWidget$ClickAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/RecipeFillButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/ButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextWidget$Alignment with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/FillingArrowWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/SlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/WidgetHolder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TankWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TooltipWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/Bounds with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/AnimatedTextureWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/GeneratedSlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/DrawableWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/Widget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextureWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$Builder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmptyEmiStack$EmptyEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmptyEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStackConvertible with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/FluidEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ItemEmiStack$ItemEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/FluidEmiStack$FluidEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$Predicate with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStackInteraction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$HashFunction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ListEmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/TagEmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStack$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter$StackConstructor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ItemEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/serializer/EmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/serializer/EmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTooltipComponents with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTooltipMetadata with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTexture with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiRender with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiRenderable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiCraftingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe$PageManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/BasicEmiRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiInfoRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/VanillaEmiRecipeCategories with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiPatternCraftingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe$PageSlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeCategory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe$Builder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiPlayerInventory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe$WorldIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiResolutionRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeDecorator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeSorting with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiInfoRecipe$PageManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext$Type with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/StandardRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext$Destination with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/StandardRecipeHandler$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Checking whether /fabric.mod.json is a mixin config.
+[Architectury Transformer DEBUG] Checking whether /emi.mixins.json is a mixin config.
+[Architectury Transformer DEBUG] Checking whether /architectury.common.json is a mixin config.
+[Architectury Transformer DEBUG] Checking whether /pf-emi-xplat-refmap.json is a mixin config.
+[Architectury Transformer DEBUG] Found mixin config(s): /emi.mixins.json
+[Architectury Transformer DEBUG] Injecting pf-emi-xplat-refmap.json to /emi.mixins.json
+[Architectury Transformer DEBUG] Closed File Systems for C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionFabric.jar
+[Architectury Transformer] Transformed jar with 5 transformer(s) in 2.039 s
+[Architectury Transformer DEBUG] 
+[Architectury Transformer DEBUG] ============================
+[Architectury Transformer DEBUG] Transforming from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionNeoForge.jar
+[Architectury Transformer DEBUG] ============================
+[Architectury Transformer DEBUG] 
+[Architectury Transformer DEBUG] Transforming 5 transformer(s) from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionNeoForge.jar: 
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformExpectPlatform@64d3eadf
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapInjectables@587393bd
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformPlatformOnly@301dfd3c
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformNeoForgeAnnotations@a2e63b5
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformNeoForgeEnvironment@71d0e53d
+[Architectury Transformer DEBUG] Transforming from C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\devlibs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-dev.jar to C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionNeoForge.jar with 5 transformer(s) on dev.architectury.transformer.handler.SimpleTransformerHandler
+[Architectury Transformer DEBUG] Remapping with 1 mapping provider(s):
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformNeoForgeEnvironment$$Lambda/0x000001c91324b178@6a51815f
+[Architectury Transformer DEBUG] Provided 71 classpath jar(s):
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.jetbrains\annotations\26.0.2\c7ce3cdeda3d18909368dfe5977332dfad326c6d\annotations-26.0.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm\9.9\c29635c8a7afa03d74b33c1884df8abb2b3f3dcc\asm-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-analysis\9.9\bf4fa6e66638851c1cd22c2caea0c3ee5d5f437\asm-analysis-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-commons\9.9\db9165a3bf908ded6b08612d583a15d1d0c7bda0\asm-commons-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-tree\9.9\f8de6eead6d24dd0f45bd065bbe112b2cda6ea21\asm-tree-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-util\9.9\42fdfc0508b43807c8078d6e82ecff2ce2112ae8\asm-util-9.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\sponge-mixin\0.16.5+mixin.0.8.7\80fc3a9f592673cea87f4cd702f87991c6c9fe4d\sponge-mixin-0.16.5+mixin.0.8.7.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.github.llamalad7\mixinextras-fabric\0.5.0\91a83dfb7abd320f6236bd1fcf5c0ff143d59a13\mixinextras-fabric-0.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\yarn\1.21.3+build.2\2ad14aed781c4a73ed4dbb421966d408a0a06686\yarn-1.21.3+build.2-constants.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-annotations\2.13.4\858c6cc78e1f08a885b1613e1d817c829df70a6e\jackson-annotations-2.13.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.13.4\cf934c681294b97ef6d80082faeefbe1edadf56\jackson-core-2.13.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-databind\2.13.4.2\325c06bdfeb628cfb80ebaaf1a26cc1eb558a585\jackson-databind-2.13.4.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.github.oshi\oshi-core\6.4.10\b1d8ab82d11d92fd639b56d639f8f46f739dd5fa\oshi-core-6.4.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.github.stephenc.jcip\jcip-annotations\1.0-1\ef31541dd28ae2cefdd17c7ebf352d93e9058c63\jcip-annotations-1.0-1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.10.1\b3add478d4382b78ea20b1671390a858002feb6c\gson-2.10.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.guava\failureaccess\1.0.1\1dcf1de382a0bf95a3d8b0849546c88bac1292c9\failureaccess-1.0.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\32.1.2-jre\5e64ec7e056456bef3a4bc4c6fdaef71e8ab6318\guava-32.1.2-jre.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.ibm.icu\icu4j\73.2\61ad4ef7f9131fcf6d25c34b817f90d6da06c9e9\icu4j-73.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.microsoft.azure\msal4j\1.15.0\52fd60d5dc3f0fb3ed5c19b63f6f2312cd1f6add\msal4j-1.15.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\authlib\6.0.55\f0e9077d577b4c3c4d310d5fe704b4eb95a359fe\authlib-6.0.55.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\blocklist\1.0.10\5c685c5ffa94c4cd39496c7184c1d122e515ecef\blocklist-1.0.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\brigadier\1.3.10\d15b53a14cf20fdcaa98f731af5dda654452c010\brigadier-1.3.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\datafixerupper\8.0.16\67d4de6d7f95d89bcf5862995fb854ebaec02a34\datafixerupper-8.0.16.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\jtracy\1.0.29\6f07dcb6a2e595c7ee2ca43b67e5d1c018ca0770\jtracy-1.0.29.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\logging\1.4.9\275b4b0469bb089e2633b569768be913a444e5d9\logging-1.4.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\patchy\2.2.10\da05971b07cbb379d002cf7eaec6a2048211fefc\patchy-2.2.10.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.mojang\text2speech\1.17.9\3cad216e3a7f0c19b4b394388bc9ffc446f13b14\text2speech-1.17.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\content-type\2.3\e3aa0be212d7a42839a8f3f506f5b990bcce0222\content-type-2.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\lang-tag\1.7\97c73ecd70bc7e8eefb26c5eea84f251a63f1031\lang-tag-1.7.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\nimbus-jose-jwt\9.37.3\700f71ffefd60c16bd8ce711a956967ea9071cec\nimbus-jose-jwt-9.37.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\com.nimbusds\oauth2-oidc-sdk\11.9.1\fa9a2e447e2cef4dfda40a854dd7ec35624a7799\oauth2-oidc-sdk-11.9.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-codec\commons-codec\1.16.0\4e3eb3d79888d76b54e28b350915b5dc3919c9de\commons-codec-1.16.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.15.1\f11560da189ab563a5c8e351941415430e9304ea\commons-io-2.15.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\commons-logging\commons-logging\1.2\4bfc12adfe4842bf07b657f0369c4cb522955686\commons-logging-1.2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-buffer\4.1.97.Final\f8f3d8644afa5e6e1a40a3a6aeb9d9aa970ecb4f\netty-buffer-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-codec\4.1.97.Final\384ba4d75670befbedb45c4d3b497a93639c206d\netty-codec-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-common\4.1.97.Final\7cceacaf11df8dc63f23d0fb58e9d4640fc88404\netty-common-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-handler\4.1.97.Final\abb86c6906bf512bf2b797a41cd7d2e8d3cd7c36\netty-handler-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-resolver\4.1.97.Final\cec8348108dc76c47cf87c669d514be52c922144\netty-resolver-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-classes-epoll\4.1.97.Final\795da37ded759e862457a82d9d92c4d39ce8ecee\netty-transport-classes-epoll-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-unix-common\4.1.97.Final\d469d84265ab70095b01b40886cabdd433b6e664\netty-transport-native-unix-common-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport\4.1.97.Final\f37380d23c9bb079bc702910833b2fd532c9abd0\netty-transport-4.1.97.Final.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\it.unimi.dsi\fastutil\8.5.12\c24946d46824bd528054bface3231d2ecb7e95e8\fastutil-8.5.12.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.java.dev.jna\jna-platform\5.14.0\28934d48aed814f11e4c584da55c49fa7032b31b\jna-platform-5.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.java.dev.jna\jna\5.14.0\67bf3eaea4f0718cb376a181a629e5f88fa1c9dd\jna-5.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.minidev\accessors-smart\2.5.0\aca011492dfe9c26f4e0659028a4fe0970829dd8\accessors-smart-2.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.minidev\json-smart\2.5.0\57a64f421b472849c40e77d2e7cce3a141b41e99\json-smart-2.5.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.sf.jopt-simple\jopt-simple\5.0.4\4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c\jopt-simple-5.0.4.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-compress\1.26.0\659feffdd12280201c8aacb8f7be94f9a883c824\commons-compress-1.26.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.14.0\1ed471194b02f2c6cb734a0cd6f6f107c673afae\commons-lang3-3.14.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.httpcomponents\httpclient\4.5.13\e5f6cae5ca7ecaac1ec2827a9e2d65ae2869cada\httpclient-4.5.13.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.httpcomponents\httpcore\4.4.16\51cf043c87253c9f58b539c9f7e44c8894223850\httpcore-4.4.16.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-api\2.22.1\bea6fede6328fabafd7e68363161a7ea6605abd1\log4j-api-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-core\2.22.1\7183a25510a02ad00cc6a95d3b3d2a7d3c5a8dc4\log4j-core-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.apache.logging.log4j\log4j-slf4j2-impl\2.22.1\d7e6693c2606cb7e7335047d7bb96dec52db5665\log4j-slf4j2-impl-2.22.1.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.jcraft\jorbis\0.0.17\8872d22b293e8f5d7d56ff92be966e6dc28ebdc6\jorbis-0.0.17.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.joml\joml\1.10.5\22566d58af70ad3d72308bab63b8339906deb649\joml-1.10.5.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-freetype\3.3.3\a0db6c84a8becc8ca05f9dbfa985edc348a824c7\lwjgl-freetype-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-glfw\3.3.3\efa1eb78c5ccd840e9f329717109b5e892d72f8e\lwjgl-glfw-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-jemalloc\3.3.3\b543467b7ff3c6920539a88ee602d34098628be5\lwjgl-jemalloc-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-openal\3.3.3\daada81ceb5fc0c291fbfdd4433cb8d9423577f2\lwjgl-openal-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-opengl\3.3.3\2f6b0147078396a58979125a4c947664e98293a\lwjgl-opengl-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-stb\3.3.3\25dd6161988d7e65f71d5065c99902402ee32746\lwjgl-stb-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl-tinyfd\3.3.3\82d755ca94b102e9ca77283b9e2dc46d1b15fbe5\lwjgl-tinyfd-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lwjgl\lwjgl\3.3.3\29589b5f87ed335a6c7e7ee6a5775f81f97ecb84\lwjgl-3.3.3.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.lz4\lz4-java\1.8.0\4b986a99445e49ea5fbf5d149c4b63f6ed6c6780\lz4-java-1.8.0.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\org.slf4j\slf4j-api\2.0.9\7cf2726fdcfbc8610f9a71fb3ed639871f315340\slf4j-api-2.0.9.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\.gradle\loom-cache\minecraftMaven\net\minecraft\minecraft-merged-cbd3c1021f\1.21.3-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2\minecraft-merged-cbd3c1021f-1.21.3-net.fabricmc.yarn.1_21_3.1.21.3+build.2-v2.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-epoll\4.1.97.Final\54188f271e388e7f313aea995e82f58ce2cdb809\netty-transport-native-epoll-4.1.97.Final-linux-x86_64.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-epoll\4.1.97.Final\5514744c588190ffda076b35a9b8c9f24946a960\netty-transport-native-epoll-4.1.97.Final-linux-aarch_64.jar
+[Architectury Transformer DEBUG]  - C:\Users\Boston\.gradle\caches\modules-2\files-2.1\net.fabricmc\fabric-loader\0.17.3\deafaba5de4d9bbd76105783ff4e21ce0773874f\fabric-loader-0.17.3.jar
+[Architectury Transformer] Read classpath in 1.139 s
+[Architectury Transformer DEBUG] Remapping Classes:
+[Architectury Transformer DEBUG] net/fabricmc/api/EnvType -> net/neoforged/api/distmarker/Dist
+[Architectury Transformer DEBUG] net/fabricmc/api/Environment -> net/neoforged/api/distmarker/OnlyIn
+[Architectury Transformer DEBUG] Found class transformer
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/VanillaPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/VanillaPlugin$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiPort with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeBackground with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeTreeButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeDefaultButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeDefaultButtonWidget$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeScreenshotButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/util/InheritanceMap with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/FluidEmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/TagEmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/ListEmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/stack/serializer/ItemEmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/TooltipQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/AliasQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexModQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$CompiledQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexTooltipQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/Query with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/NameQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/LogicalOrQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexNameQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/RegexTagQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/ModQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/LogicalAndQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/SearchStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$SearchWorker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/QueryType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/search/TagQuery with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenBase with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$ScreenSpace with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeDisplay with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$BatcherVertexConsumerProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$UnlitFacade$Consumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeTab with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen$PresetGroupWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/DisabledToast with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$SidebarPanel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$Batchable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeDisplay$ButtonType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/WidgetGroup$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$MicroChar with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$2 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/RecipeScreen$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$3 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$UnlitFacade with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigEnumScreen$SelectionWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/MicroTextRenderer$UnitScale with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/StackBatcher$ClaimedCollection with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/WidgetGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigScreen$Mutator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/EmiScreenManager$SidebarEmiStackInteraction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$TreeVolume$Width with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Node with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Hover with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/ConfigPresetScreen$PresetWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$TreeVolume with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/BoMScreen$Cost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/SidebarButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/ResolutionButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/SizedButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/EmiSearchWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EnumWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EmiNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget$MoveDirection with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntEdit with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigJumpButton with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigSearch with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SidebarSubpanelsWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SidebarPagesWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigSearch$ConfigSearchWidgetField with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ScreenAlignWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ConfigEntryWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntGroupWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/GroupNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/EmiBindWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/SubGroupNameWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/ListWidget$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/IntWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/widget/config/BooleanWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RemainderTooltipComponent$Remainder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/IngredientTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent$TooltipRenderData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeCostTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTextTooltipWrapper with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent$TextRenderData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltip with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RemainderTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/RecipeCostTooltipComponent$Node with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/EmiTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/screen/tooltip/TagTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite$Synthetic with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiDrawContext with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorites with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite$Craftable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiLog with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiDrawCompat with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadManager$ReloadWorker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiHistory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiSidebars$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiSidebars with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiTagKey with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiReloadLog with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorite with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiScreenshotRecorder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiHidden with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiProfiler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiFavorites$CompoundList with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/EmiPersistentData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/RecipeError$Severity with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/RecipeError with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/runtime/dev/EmiDev with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes$Worker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes$Manager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeFiller with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiIngredientSerializers with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiSyncedRecipes with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiComparisonDefaults with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiCommands with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRegistryImpl with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiDragDropHandlers with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$ComparisonHashStrategy with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipes with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiTags with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeSorter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$StrictHashStrategy with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackProviders with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList$IndexGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiExclusionAreas with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiStackList with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiInitRegistryImpl with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiRecipeFiller$DiscoveredItem with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/registry/EmiPluginContainer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiStonecuttingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiTagRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiCompostingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiShapedRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiAnvilRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiFuelRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiSyntheticIngredientRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiCookingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiGrindstoneRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiBrewingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiSmithingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiTransmuteRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/EmiShapelessRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBannerShieldRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBookCloningRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiArmorDyeRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiRepairItemRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiAnvilEnchantRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiAnvilRepairItemRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBannerDuplicateRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiBookCloningRecipe$Template with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiSmithingTrimRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiSuspiciousStewRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiGrindstoneDisenchantingBookRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkRocketRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiGrindstoneDisenchantingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkStarFadeRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiMapCloningRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/recipe/special/EmiFireworkStarRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiClient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiAgnos with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/platform/EmiMain with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/FillRecipeC2SPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/RecipeSyncS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/PingS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiNetwork with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/CommandS2CPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/CreateItemC2SPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket$C2S with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/network/EmiChessPacket$S2C with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinPlugin$InvokeTargetInfo with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/MixinPlaceholder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/EmiMixinTransformation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/InvokeTarget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/Transform with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/StripConstructors with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/AdditionalField with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixinsupport/annotation/Extends with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/MouseMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/AbstractInventoryScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/MinecraftClientMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/CraftingResultSlotMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ItemStackMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ToastManagerMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/RecipeBookWidgetMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/HandledScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/ScreenMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/DrawContextMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/KeyboardMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/StatusEffectsDisplayMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/HoeItemMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/ItemStackMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/FluidMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/conversion/ItemConvertibleMixin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/OrderedTextTooltipComponentAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/HandledScreenAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/ItemRendererAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/SmithingTransformRecipeAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/BrewingRecipeRegistryAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/ShovelItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/HoeItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/BakedModelManagerAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/DrawContextAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/SmithingTrimRecipeAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/CraftingResultSlotAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/mixin/accessor/AxeItemAccessor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiInput with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiBind with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/input/EmiBind$ModifiedKey with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CoercedRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CookingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/StonecuttingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/CraftingRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/handler/InventoryRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiDataLoader$DataConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/TagExclusions with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiAlias with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiRecipeCategoryProperties with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiResourceReloadListener with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiDataLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData$Filter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults$Tag with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaultLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults$Resolution with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/RecipeDefaults with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiTagExclusionsLoader with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/EmiAlias$Baked with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/data/IndexStackData$Added with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/Margins with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ConfigPresets with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/CheatMode with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ButtonVisibility with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSubpanels with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarTheme with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/HeaderType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigGroupEnd with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarPages$SidebarPage with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Comment with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/HelpLevel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EffectLocation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/IndexSource with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign$Horizontal with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigFilter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/IntGroup with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSide with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/RecipeBookAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ConfigEnum with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Writer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarPages with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$Setter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSettings with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/ScreenAlign$Vertical with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/SidebarSubpanels$Subpanel with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/FluidUnit with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$MultiWriter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/config/EmiConfig$ConfigValue with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$SyntaxErrorException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$2 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$BadValueException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$QDCSSException with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$BlameString with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3$1$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$2$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/com/unascribed/qdcss/QDCSS$3$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEvaluation$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/EmiChess with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEvaluation with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/MoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/StandardMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessBoard with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/RandomMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessBoard$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessMove with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessPiece with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/StandardMoveGenerator$Worker with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/PieceColor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/ChessTooltipComponent with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/PieceType with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/chess/NetworkedMoveGenerator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FractionalMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ChanceMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/BoM$DefaultStatus with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/BoM with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FoldState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/FlatMaterialCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ChanceState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/MaterialNode with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/TreeCost with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/MaterialTree with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/bom/ProgressState with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiScreenBoundsProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$SlotBased with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiApi with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$SlotBased$TriConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiExclusionArea with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiFillAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiEntrypoint with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiStackProvider with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiRegistry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiInitRegistry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiApi$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/EmiDragDropHandler$BoundsBased with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/DrawableWidget$DrawableWidgetConsumer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/WidgetTooltipHolder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/ButtonWidget$ClickAction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/RecipeFillButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/ButtonWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextWidget$Alignment with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/SlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/FillingArrowWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/WidgetHolder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TankWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TooltipWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/Bounds with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/AnimatedTextureWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/GeneratedSlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/DrawableWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/Widget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/widget/TextureWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$Builder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmptyEmiStack$EmptyEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmptyEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStackConvertible with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/FluidEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ItemEmiStack$ItemEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/FluidEmiStack$FluidEntry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$Predicate with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison$HashFunction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStackInteraction with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/Comparison with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ListEmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/TagEmiIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/ItemEmiStack with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiStack$Entry with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter$StackConstructor with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/EmiRegistryAdapter with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/serializer/EmiStackSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/stack/serializer/EmiIngredientSerializer with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTooltipComponents with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTooltipMetadata with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiTexture with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiRender with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/render/EmiRenderable with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiCraftingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe$PageManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/BasicEmiRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiInfoRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/VanillaEmiRecipeCategories with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiPatternCraftingRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe$PageSlotWidget with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeCategory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe$Builder with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiPlayerInventory with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiWorldInteractionRecipe$WorldIngredient with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiResolutionRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiIngredientRecipe with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeDecorator with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeSorting with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiInfoRecipe$PageManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/EmiRecipeManager with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext$Type with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/StandardRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiCraftContext$Destination with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/EmiRecipeHandler with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/api/recipe/handler/StandardRecipeHandler$1 with maxs=true frames=true
+[Architectury Transformer DEBUG] Closed File Systems for C:\Users\Boston\Downloads\ProjectFlint sourceCode\PF-EMI\PF-EMI (1.21.3)\xplat\build\libs\pf-emi-1.1.23-pf.1-SNAPSHOT+1.21.3+xplat-transformProductionNeoForge.jar
+[Architectury Transformer] Transformed jar with 5 transformer(s) in 1.586 s

@@ -1,0 +1,22 @@
+{
+  "mappings": {
+    "dev/emi/emi/mixin/ClientConfigurationNetworkHandlerMixin": {
+      "onSynchronizeTags": "Lnet/minecraft/class_8674;method_11126(Lnet/minecraft/class_2790;)V"
+    },
+    "dev/emi/emi/mixin/ClientPlayNetworkHandlerMixin": {
+      "onGameJoin": "Lnet/minecraft/class_634;method_11120(Lnet/minecraft/class_2678;)V",
+      "onSynchronizeTags": "Lnet/minecraft/class_634;method_11126(Lnet/minecraft/class_2790;)V"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "dev/emi/emi/mixin/ClientConfigurationNetworkHandlerMixin": {
+        "onSynchronizeTags": "Lnet/minecraft/class_8674;method_11126(Lnet/minecraft/class_2790;)V"
+      },
+      "dev/emi/emi/mixin/ClientPlayNetworkHandlerMixin": {
+        "onGameJoin": "Lnet/minecraft/class_634;method_11120(Lnet/minecraft/class_2678;)V",
+        "onSynchronizeTags": "Lnet/minecraft/class_634;method_11126(Lnet/minecraft/class_2790;)V"
+      }
+    }
+  }
+}

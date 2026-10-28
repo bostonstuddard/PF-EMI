@@ -1,0 +1,23 @@
+v1	named	intermediary
+FIELD	dev/emi/emi/mixin/CraftingResultSlotMixin	Lnet/minecraft/inventory/RecipeInputInventory;	input	field_7870
+FIELD	dev/emi/emi/mixin/CraftingResultSlotMixin	Lnet/minecraft/entity/player/PlayerEntity;	player	field_7868
+FIELD	dev/emi/emi/mixin/HandledScreenMixin	I	backgroundWidth	field_2792
+FIELD	dev/emi/emi/mixin/HandledScreenMixin	I	backgroundHeight	field_2779
+FIELD	dev/emi/emi/mixin/HandledScreenMixin	I	x	field_2776
+FIELD	dev/emi/emi/mixin/HandledScreenMixin	I	y	field_2800
+FIELD	dev/emi/emi/mixin/KeyboardMixin	Lnet/minecraft/client/MinecraftClient;	client	field_1678
+FIELD	dev/emi/emi/mixin/MinecraftClientMixin	Lnet/minecraft/client/world/ClientWorld;	world	field_1687
+FIELD	dev/emi/emi/mixin/MouseMixin	Lnet/minecraft/client/MinecraftClient;	client	field_1779
+FIELD	dev/emi/emi/mixin/MouseMixin	D	x	field_1795
+FIELD	dev/emi/emi/mixin/MouseMixin	D	y	field_1794
+FIELD	dev/emi/emi/mixin/MouseMixin	I	activeButton	field_1780
+FIELD	dev/emi/emi/mixin/MouseMixin	D	cursorDeltaX	field_1789
+FIELD	dev/emi/emi/mixin/MouseMixin	D	cursorDeltaY	field_1787
+FIELD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	Lnet/minecraft/client/gui/screen/ingame/HandledScreen;	parent	field_54477
+FIELD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	Lnet/minecraft/client/MinecraftClient;	client	field_54478
+METHOD	dev/emi/emi/mixin/RecipeBookWidgetMixin	()Z	isOpen	method_2605
+METHOD	dev/emi/emi/mixin/RecipeBookWidgetMixin	(Z)V	setOpen	method_2593
+METHOD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	(Lnet/minecraft/entity/effect/StatusEffectInstance;)Lnet/minecraft/text/Text;	getStatusEffectDescription	method_38933
+METHOD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	(Lnet/minecraft/client/gui/DrawContext;IILjava/lang/Iterable;Z)V	drawStatusEffectBackgrounds	method_18642
+METHOD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	(Lnet/minecraft/client/gui/DrawContext;IILjava/lang/Iterable;Z)V	drawStatusEffectSprites	method_18643
+METHOD	dev/emi/emi/mixin/StatusEffectsDisplayMixin	(Lnet/minecraft/client/gui/DrawContext;IILjava/lang/Iterable;)V	drawStatusEffectDescriptions	method_18644
