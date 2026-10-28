@@ -5,6 +5,7 @@ import java.util.Map;
 
 import dev.emi.emi.EmiPort;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CookingFuel;
@@ -48,7 +49,7 @@ public final class EmiFuelDiscovery {
             return Math.max(0, constant.value());
         }
         if (burnTime instanceof ResolvableInt.Reference reference) {
-            var id = reference.key().identifier();
+            Identifier id = reference.key().identifier();
             if (!"minecraft".equals(id.getNamespace())) {
                 return 0;
             }

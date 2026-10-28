@@ -35,10 +35,10 @@ if not "!RESULT!"=="0" (
     echo ================================================================
     echo [PF-EMI] BUILD COMPLETE - release folder:
     if "!FORGE_ONLY!"=="0" (
-        echo   1.0+26.3+fabric.jar
-        echo   1.0+26.3+neoforge.jar
+        echo   1.1+26.3+fabric.jar
+        echo   1.1+26.3+neoforge.jar
     )
-    echo   1.0+26.3+forge.jar
+    echo   1.1+26.3+forge.jar
     echo ================================================================
 )
 echo [PF-EMI] Press any key to close this window.
@@ -84,6 +84,8 @@ exit /b 0
 :BuildAll
 rem Root project contains the Fabric, NeoForge and shared xplat modules.
 for %%L in (fabric neoforge) do (
+    rem Remove both current build artifacts and pre-1.1 filenames.
+    if exist "release\1.1+26.3+%%L.jar" del /q "release\1.1+26.3+%%L.jar"
     if exist "release\1.0+26.3+%%L.jar" del /q "release\1.0+26.3+%%L.jar"
 )
 echo [PF-EMI] Building Fabric and NeoForge for Minecraft 26.3...
@@ -118,9 +120,9 @@ for %%F in ("!NEO_JAR!") do if %%~zF LSS 100000 (
     echo [PF-EMI] ERROR: NeoForge JAR is too small.
     exit /b 1
 )
-copy /Y "!FABRIC_JAR!" "release\1.0+26.3+fabric.jar" >nul
+copy /Y "!FABRIC_JAR!" "release\1.1+26.3+fabric.jar" >nul
 if errorlevel 1 exit /b 1
-copy /Y "!NEO_JAR!" "release\1.0+26.3+neoforge.jar" >nul
+copy /Y "!NEO_JAR!" "release\1.1+26.3+neoforge.jar" >nul
 if errorlevel 1 exit /b 1
 
 echo [PF-EMI] Fabric and NeoForge builds complete; starting Forge...
@@ -132,6 +134,7 @@ rem Forge is an independent ForgeGradle project, NOT part of root settings.gradl
 set "FORGE_CONFIG=%CD%\forge\src\main\resources\emi-forge26.mixins.json"
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\verify-forge-jar.ps1" -SourceConfig "!FORGE_CONFIG!"
 if errorlevel 1 exit /b 1
+if exist "release\1.1+26.3+forge.jar" del /q "release\1.1+26.3+forge.jar"
 if exist "release\1.0+26.3+forge.jar" del /q "release\1.0+26.3+forge.jar"
 echo [PF-EMI] Building Forge 26.3...
 pushd "forge"
@@ -151,8 +154,8 @@ if not "!FORGE_COUNT!"=="1" (
 )
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\verify-forge-jar.ps1" -JarPath "!FORGE_JAR!"
 if errorlevel 1 exit /b 1
-copy /Y "!FORGE_JAR!" "release\1.0+26.3+forge.jar" >nul
+copy /Y "!FORGE_JAR!" "release\1.1+26.3+forge.jar" >nul
 if errorlevel 1 exit /b 1
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\verify-forge-jar.ps1" -JarPath "%CD%\release\1.0+26.3+forge.jar"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\verify-forge-jar.ps1" -JarPath "%CD%\release\1.1+26.3+forge.jar"
 if errorlevel 1 exit /b 1
 exit /b 0

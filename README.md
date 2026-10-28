@@ -1,68 +1,73 @@
-# EMI - Port Forward
+# PF-EMI — Minecraft 26.3
 
-**PF-EMI** or **EMI - Port Forward** started as a _standalone port forward_ for 1.21.11 for my mod, ProjectFlint, and has now become a widely used port for 1.21.2+, featuring NeoForge, Forge, and Fabric versions. Port Forward exists to not only port forward the last features from the prev. version of EMI, but also so it can add new features for the newest versions, improving EMI overall. Below is EMI's direct description.
+PF-EMI is the ProjectFlint-maintained fork of [EMI](https://github.com/emilyploszaj/emi), an item/recipe browser for Minecraft. **This checkout targets Minecraft 26.3 only**, with Fabric, NeoForge and Forge support. Quilt and all earlier Minecraft ports are not built from this source tree.
 
-# Github Branches
+## Development status
 
-While source code can be provided for older versions, the only versions receiving active updates will have specific Github Branches, however, in the future, I'd like to get all branches for all released versions put into github.
+The **1.1 feature branch is unreleased**. The user built and launched Dev 3.2 on Fabric, but its new discovery pages were not discoverable as intended. Dev 3.3 corrects the category registration and adds diagnostic counts; it has not yet been compiled or runtime-tested. It adds separate Status Effects, Enchantments, Villager Professions, and Villager Trading categories using the normal EMI recipe viewer. Loot and ore data synchronization are not yet implemented. It retains v30 and all subsequent fixes in one cumulative patch. See [`CHANGELOG-1.1.md`](CHANGELOG-1.1.md) for developer notes, upstream issue references, API/ABI impact, and release test gates. Do not treat this work as a verified 1.1 JAR release.
 
-The main branch serves as the specific branch for just my standalone mod needs for ProjectFlint.
+## Build
 
-# EMI's Main Changes
-EMI is a featureful and accessible item and recipe viewer for Minecraft.
+Requires **JDK 25**, network access to Gradle/Maven dependencies for a first build, and the bundled Gradle wrappers. Run commands from the extracted project root.
 
-![EMI Interface](https://user-images.githubusercontent.com/14813658/224562247-1588064e-39ef-475a-9108-d7a357af6939.png)
+| Platform | All three loaders | Forge only |
+| --- | --- | --- |
+| Windows | Double-click `build.bat` | `build.bat --forge-only` |
+| Linux | `./build.sh` | `./build.sh --forge-only` |
 
-![Recipe Tree](https://user-images.githubusercontent.com/14813658/224562258-1a5ee67a-fd7f-489f-9eed-ae67c184ddac.png)
+Windows `build.bat` retains the terminal and prompts once before closing, on success or failure. It does **not** open a file explorer or an editor. Its Forge stage checks the mixin source and compiled JAR via `scripts/verify-forge-jar.ps1` (PowerShell is included in supported Windows installations). Linux runs the same build stages, with size/output checks but without the PowerShell-only Forge content validator.
 
-## Developers
-To add EMI to your project as a dependency you need to add the following to your `build.gradle`:
-```gradle
-repositories {
-	maven {
-		name = "TerraformersMC"
-		url = "https://maven.terraformersmc.com/"
-	}
-}
-```
+The all-loader build uses **two Gradle projects**: the root Gradle project builds `xplat`, Fabric and NeoForge; the independent `forge/` Gradle wrapper builds Forge. Do not delete Forge's nested `gradlew`, `gradlew.bat`, `gradle/wrapper`, `settings.gradle` or `gradle.properties`.
 
-How EMI gets added to your dependencies varies based on modloader and setup.
-The Gradle property `emi_version` should be something like `1.0.0+1.19.4` with EMI's version and Minecraft's version.
-Here are common dependency setups for different loaders and build systems.
+### Distributable outputs
 
-```gradle
-dependencies {
-	// Fabric
-	modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
-	modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
+Successful builds place **playable loader JARs** under `release/`:
 
-	// Forge (see below block as well if you use Forge Gradle)
-	compileOnly fg.deobf("dev.emi:emi-forge:${emi_version}:api")
-	runtimeOnly fg.deobf("dev.emi:emi-forge:${emi_version}") 
+- `release/1.1+26.3+fabric.jar`
+- `release/1.1+26.3+neoforge.jar`
+- `release/1.1+26.3+forge.jar`
 
-	// NeoForge
-	compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
-	runtimeOnly "dev.emi:emi-neoforge:${emi_version}" 
+The `1.0` prefix is for the release **filename**, not the internal mod version. Do not distribute the root `xplat` JAR or `-api`, `-dev`, and `-sources` JARs. Never install more than one loader variant in a Minecraft profile.
 
-	// Architectury
-	modCompileOnly "dev.emi:emi-xplat-intermediary:${emi_version}:api"
+## Project layout
 
-	// MultiLoader Template/VanillaGradle
-	compileOnly "dev.emi:emi-xplat-mojmap:${emi_version}:api"
-}
-```
+- `xplat/` — cross-loader Java and shared resources.
+- `fabric/`, `neoforge/`, `forge/` — platform adapters and metadata.
+- `gradle/`, `gradlew*`, `build.gradle`, `settings.gradle`, `gradle.properties` — active root Gradle build.
+- `forge/gradlew*`, `forge/gradle/` — independent ForgeGradle build.
+- `scripts/verify-forge-jar.ps1` — Forge-only JAR validation, used by Windows build.
+- `build.bat`, `build.sh` — the two consolidated build entry points.
+- `CHANGELOG.md` — **single master file** for current 26.3 patch summaries and complete archived patch-note history.
 
-For Forge Gradle users, you will need to enable Mixin refmaps in your client sourceset. This can be done by adding 2 lines inside of your client runs, to look like below.
+Generated `build/`, `.gradle/` and `release/` folders are intentionally **not included** in this source package. They are regenerated by the build. Dependency caches have not been shipped; first-time builds may need to download dependencies. There are no prebuilt release JARs in this archive.
 
-```gradle
-runs {
-	client {
-		// Add these two lines
-		property 'mixin.env.remapRefMap', 'true'
-		property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+## 26.3 compatibility notes
 
-		// The rest of the code that was already here
-		// ...
-	}
-}
-```
+- v29 restored discovery of vanilla 26.3 cooking-fuel references and constant fuel values. Arbitrary datapack/server-dependent values may still require a future sync/evaluation path.
+- Fabric recipe sync and Forge chunked recipe transfer have been updated for 26.3; verify recipe coverage and disconnect/reload behavior on both integrated and dedicated servers.
+- JEI integration relies on deprecated upstream APIs at some narrow call sites. Warning annotations do not guarantee future JEI compatibility.
+- Client renderer, external servers, optional other mods and Java/Gradle toolchains can produce warnings not caused by EMI. Do not suppress or reinterpret those as an all-clear.
+
+## v30 modpack interoperability
+
+Pack authors can add `c:disabled_from_recipe_viewers` to item/block/fluid tags to remove items from EMI's recipe index **and** disable associated recipes. For example, an item tag can be placed at `data/c/tags/item/disabled_from_recipe_viewers.json` and contain `{"values": ["minecraft:example_item"]}` (replace the placeholder with a real item ID).
+
+The existing `c:hidden_from_recipe_viewers` tag hides index entries only. Do not use the new disabled tag just to collapse a crowded sidebar: disabling has broader effects on recipe availability. External mods should continue to use EMI's supported plugin registry instead of accessing private implementation classes.
+
+Fuel recipes now display an exact burn-duration tooltip when the flame is hovered. They still omit unsupported contextual datapack fuel providers rather than claiming arbitrary guessed values.
+
+## Verification before release
+
+Build all three loaders with Java 25, test normal/creative inventory browsing, search, tooltips, favorites, recipes, recipe transfer, fuel/composting/brewing categories, world join/rejoin, `/reload`, and multiplayer against a dedicated server. Check the three resulting JARs and their logs. **Cleaning/reorganizing source files does not itself prove that the mod builds or runs.**
+
+For v30 specifically, validate: (1) both hide and disable data-pack tags, including block tags, fluid tags and fully disabled ingredient tags; (2) recipe removal without unexpected recipe loss for remaining allowed ingredients; (3) repeated world joins/disconnects and fast server switches; (4) rapid text search/recipe browsing while recipe indexes are baking; (5) fuel-time hover tooltips; and (6) external API/plugin compatibility in Fabric, NeoForge and Forge.
+
+Full patch history and outstanding limitations: [CHANGELOG.md](CHANGELOG.md).
+
+## Credits/license
+
+EMI originally created by Emi. The ProjectFlint-maintained port includes upstream work and patches by its contributors. See [LICENSE](LICENSE).
+
+## PF-EMI 1.1 development
+
+The unreleased 1.1 cumulative patch and implementation notes are tracked in [`CHANGELOG-1.1.md`](CHANGELOG-1.1.md). This development branch is not a built or tested 1.1 release.

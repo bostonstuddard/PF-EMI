@@ -2,6 +2,7 @@ package dev.emi.emi.recipe;
 
 import java.util.List;
 import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,10 @@ public class EmiFuelRecipe implements EmiRecipe {
 	@Override
 	public void addWidgets(WidgetHolder widgets) {
 		widgets.addTexture(EmiTexture.EMPTY_FLAME, 1, 1);
-		widgets.addAnimatedTexture(EmiTexture.FULL_FLAME, 1, 1, 1000 * time / 20, false, true, true);
+		widgets.addAnimatedTexture(EmiTexture.FULL_FLAME, 1, 1, 1000 * time / 20, false, true, true).tooltip((mx, my) -> {
+			return List.of(ClientTooltipComponent.create(EmiPort.ordered(EmiPort.translatable("emi.fuel_time.seconds",
+				EmiRenderHelper.TEXT_FORMAT.format(time / 20f)))));
+		});
 		widgets.addSlot(stack, 18, 0).recipeContext(this);
 		widgets.addText(EmiPort.translatable("emi.fuel_time.items",
 			EmiRenderHelper.TEXT_FORMAT.format(time / 200f)), 38, 5, -1, true);

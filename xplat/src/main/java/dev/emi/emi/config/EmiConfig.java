@@ -143,6 +143,18 @@ public class EmiConfig {
 	@ConfigValue("ui.recipe-tree-button-visibility")
 	public static ButtonVisibility recipeTreeButtonVisibility = ButtonVisibility.AUTO;
 
+	@Comment("Where to place the existing EMI config and recipe tree buttons. Defaults to their original positions.")
+	@ConfigValue("ui.emi-buttons-anchor")
+	public static EmiButtonAnchor emiButtonsAnchor = EmiButtonAnchor.BOTTOM_LEFT;
+
+	@Comment("Additional X and Y offsets (in GUI pixels) for the EMI buttons. Negative values are allowed.")
+	@ConfigValue("ui.emi-buttons-offset")
+	public static IntGroup emiButtonsOffset = new IntGroup("emi.button_offset.", List.of("x", "y"), IntList.of(0, 0));
+
+	@Comment("How inventory slots are highlighted when searching; the default preserves EMI's dim overlay.")
+	@ConfigValue("ui.inventory-search-highlight")
+	public static InventoryHighlightStyle inventorySearchHighlight = InventoryHighlightStyle.DIM;
+
 	@ConfigGroup("ui.recipe-screen")
 	@Comment("The maximum height the recipe screen will grow to be if space is available in pixels.")
 	@ConfigValue("ui.maximum-recipe-screen-height")

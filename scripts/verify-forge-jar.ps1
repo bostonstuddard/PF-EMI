@@ -55,8 +55,24 @@ try {
             if (-not $jar.GetEntry('META-INF/mods.toml')) {
                 throw 'Forge JAR is missing META-INF/mods.toml.'
             }
-            if (-not $jar.GetEntry('dev/emi/emi/platform/forge/EmiForge.class')) {
-                throw 'Forge JAR is missing EmiForge.class.'
+            # Validate every required Forge class, not only the @Mod entrypoint.
+            # A ForgeGradle source-set regression can otherwise produce a
+            # superficially valid JAR containing only the shared xplat classes.
+            $requiredForgeClasses = @(
+                'dev/emi/emi/platform/forge/EmiForge.class',
+                'dev/emi/emi/platform/forge/EmiClientForge.class',
+                'dev/emi/emi/platform/forge/EmiAgnosForge.class',
+                'dev/emi/emi/platform/forge/EmiPacketHandler.class',
+                'dev/emi/emi/platform/forge/EmiRecipeSync.class',
+                'dev/emi/emi/api/forge/ForgeEmiStack.class'
+            )
+            $missingForgeClasses = @($requiredForgeClasses | Where-Object { -not $jar.GetEntry($_) })
+            if ($missingForgeClasses.Count -gt 0) {
+                $platformClasses = @($jar.Entries |
+                    Where-Object { $_.FullName -like 'dev/emi/emi/platform/forge/*.class' } |
+                    Select-Object -ExpandProperty FullName -First 12)
+                $detail = if ($platformClasses.Count -eq 0) { '(none)' } else { $platformClasses -join ', ' }
+                throw "Forge JAR is missing required classes: $($missingForgeClasses -join ', '). Packaged Forge platform classes: $detail"
             }
             $manifest = $jar.GetEntry('META-INF/MANIFEST.MF')
             if (-not $manifest) { throw 'Forge JAR is missing the manifest.' }

@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import dev.emi.emi.jemi.JemiPlugin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import com.google.common.collect.Lists;
 
 import dev.emi.emi.EmiPort;
+import dev.emi.emi.VanillaPlugin;
+import dev.emi.emi.recipe.EmiDiscoveryPlugin;
 import dev.emi.emi.api.EmiInitRegistry;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipe;
@@ -46,7 +47,7 @@ public class EmiReloadManager {
 		EmiMixinTransformation.preach();
 	}
 
-	public static void reloadTags() {
+	public static synchronized void reloadTags() {
 		loadedResourcesMask |= 1;
 		if (loadedResourcesMask == 3) {
 			EmiLog.info("Recipes synchronized, reloading EMI");
@@ -57,7 +58,7 @@ public class EmiReloadManager {
 		}
 	}
 
-	public static void reloadRecipes() {
+	public static synchronized void reloadRecipes() {
 		loadedResourcesMask |= 2;
 		if (loadedResourcesMask == 3) {
 			EmiLog.info("Tags synchronized, reloading EMI");
@@ -144,19 +145,34 @@ public class EmiReloadManager {
 					EmiScreenBase.clearScreenBoundsProviders();
 					if (clear) {
 						clear = false;
+						status = 0;
 						continue;
 					}
 					Minecraft client = Minecraft.getInstance();
-					if (client.level == null) {
-						EmiReloadLog.warn("World is null");
-						break;
-					} else if (EmiPort.getRecipeMap() == null) {
-						EmiReloadLog.warn("Recipe Manager is null");
+					if (client.level == null || EmiPort.getRecipeMap() == null) {
+						// A connection may have closed between synchronization and reload.
+						// Leave the browser empty instead of reporting a false failure.
+						status = 0;
 						break;
 					}
-					List<EmiPluginContainer> plugins = Lists.newArrayList();
-					plugins.addAll(EmiAgnos.getPlugins().stream()
-						.sorted((a, b) -> Integer.compare(entrypointPriority(a), entrypointPriority(b))).toList());
+					List<EmiPluginContainer> plugins = Lists.newArrayList(EmiAgnos.getPlugins());
+					// NeoForge/Forge discover annotated plugins through mod-file scans.
+					// If their scan misses EMI's own class, do not lose vanilla recipes
+					// and the discovery browser; never register a duplicate instance.
+					if (plugins.stream().noneMatch(c -> c.plugin() instanceof VanillaPlugin)) {
+						EmiLog.warn("Vanilla EMI plugin missing from loader discovery; using built-in fallback");
+						plugins.add(new EmiPluginContainer(new VanillaPlugin(), "emi"));
+					}
+					plugins.sort((a, b) -> Integer.compare(entrypointPriority(a), entrypointPriority(b)));
+					// Run built-in information registration after the vanilla plugin,
+					// but before third-party plugins that may reference its categories.
+					// It still executes if vanilla recipe translation fails earlier.
+					int discoveryIndex = 0;
+					while (discoveryIndex < plugins.size()
+							&& entrypointPriority(plugins.get(discoveryIndex)) == 0) {
+						discoveryIndex++;
+					}
+					plugins.add(discoveryIndex, new EmiPluginContainer(new EmiDiscoveryPlugin(), "emi-discovery"));
 					
 					if (EmiAgnos.isModLoaded("jei")) {
 						plugins.add(new EmiPluginContainer(new JemiPlugin(), "jemi"));

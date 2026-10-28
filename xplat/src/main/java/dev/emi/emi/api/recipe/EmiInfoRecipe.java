@@ -1,6 +1,7 @@
 package dev.emi.emi.api.recipe;
 
 import java.util.List;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -17,13 +18,35 @@ public class EmiInfoRecipe implements EmiRecipe {
 	private static final int PADDING = 4;
 	private static final Minecraft CLIENT = Minecraft.getInstance();
 	private final List<EmiIngredient> stacks;
-	private final List<FormattedCharSequence> text;
+	// 26.3 lazily uploads missing font glyphs when text is wrapped. EMI plugins
+	// register recipes on a background reload worker, so do not wrap here.
+	private final List<Component> sourceText;
+	private volatile List<FormattedCharSequence> text;
 	private final Identifier id;
 
 	public EmiInfoRecipe(List<EmiIngredient> stacks, List<Component> text, @Nullable Identifier id) {
 		this.stacks = stacks;
-		this.text = text.stream().flatMap(t -> CLIENT.font.split(t, getDisplayWidth() - 4).stream()).toList();
+		this.sourceText = List.copyOf(text);
 		this.id = id;
+	}
+
+	/**
+	 * Text layout can bake/upload font glyphs in Minecraft 26.3. The first
+	 * layout must therefore occur on the render thread (normally when EMI
+	 * creates the recipe screen), never during asynchronous registration.
+	 *
+	 * Keep the existing public constructor and recipe methods unchanged for
+	 * addons compiled against EMI's API.
+	 */
+	private List<FormattedCharSequence> wrappedText() {
+		List<FormattedCharSequence> lines = text;
+		if (lines == null && RenderSystem.isOnRenderThread()) {
+			lines = sourceText.stream()
+				.flatMap(t -> CLIENT.font.split(t, getDisplayWidth() - 4).stream())
+				.toList();
+			text = lines;
+		}
+		return lines == null ? List.of() : lines;
 	}
 
 	@Override
@@ -58,14 +81,21 @@ public class EmiInfoRecipe implements EmiRecipe {
 
 	@Override
 	public int getDisplayHeight() {
-		int stackHeight = ((Math.min(stacks.size(), MAX_STACKS) - 1) / STACK_WIDTH + 1) * 18;
-		return stackHeight + CLIENT.font.lineHeight * text.size() + PADDING;
+		int stackCount = Math.min(stacks.size(), MAX_STACKS);
+		int stackHeight = stackCount == 0 ? 0 : ((stackCount - 1) / STACK_WIDTH + 1) * 18;
+		// Only the render thread can safely perform actual font wrapping.
+		// A pre-layout height on a reload worker is a conservative placeholder;
+		// the recipe screen requests the exact height on the render thread.
+		int lineCount = RenderSystem.isOnRenderThread()
+			? wrappedText().size()
+			: (text == null ? sourceText.size() : text.size());
+		return stackHeight + CLIENT.font.lineHeight * lineCount + PADDING;
 	}
 
 	@Override
 	public void addWidgets(WidgetHolder widgets) {
 		int stackCount = Math.min(stacks.size(), MAX_STACKS);
-		int stackHeight = ((stackCount - 1) / STACK_WIDTH + 1);
+		int stackHeight = stackCount == 0 ? 0 : ((stackCount - 1) / STACK_WIDTH + 1);
 		int xOff = 54 - (stackCount % STACK_WIDTH * 9);
 		for (int i = 0; i < stackCount; i++) {
 			int y = i / STACK_WIDTH * 18;
@@ -79,10 +109,11 @@ public class EmiInfoRecipe implements EmiRecipe {
 				widgets.addSlot(stacks.get(i), x + 18, y);
 			}
 		}
+		List<FormattedCharSequence> lines = wrappedText();
 		int y = stackHeight * 18 + PADDING;
-		int lineCount = (widgets.getHeight() - y) / CLIENT.font.lineHeight;
-		PageManager manager = new PageManager(text, lineCount);
-		if (lineCount < text.size()) {
+		int lineCount = Math.max(0, (widgets.getHeight() - y) / CLIENT.font.lineHeight);
+		PageManager manager = new PageManager(lines, lineCount);
+		if (lineCount > 0 && lineCount < lines.size()) {
 			widgets.addButton(2, 2, 12, 12, 0, 0, () -> true, (mouseX, mouseY, button) -> {
 				manager.scroll(-1);
 			});
@@ -115,6 +146,9 @@ public class EmiInfoRecipe implements EmiRecipe {
 		}
 
 		public void scroll(int delta) {
+			if (pageSize <= 0) {
+				return;
+			}
 			currentPage += delta;
 			int totalPages = (lines.size() - 1) / pageSize + 1;
 			if (currentPage < 0) {

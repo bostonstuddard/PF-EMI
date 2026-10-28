@@ -207,13 +207,28 @@ public class EmiRecipeFiller {
 				int maxAmount = Integer.MAX_VALUE;
 				for (DiscoveredItem ui : unique) {
 					if (!ui.catalyst()) {
+						if (ui.consumed <= 0) {
+							return null;
+						}
 						maxAmount = Math.min(maxAmount, ui.amount / ui.consumed);
-						maxAmount = Math.min(maxAmount, ui.max);
 					}
 				}
-				maxAmount = Math.min(maxAmount, amount + batchesAlreadyPresent(recipe, handler, screen));
+				// Bound each destination slot independently. A repeated input can occupy
+				// multiple slots, even if its combined consumption exceeds one stack.
+				for (DiscoveredItem di : discovered) {
+					if (di != null && !di.catalyst()) {
+						if (di.consumed <= 0) {
+							return null;
+						}
+						maxAmount = Math.min(maxAmount, di.max / di.consumed);
+					}
+				}
+				// Shift-fill uses Integer.MAX_VALUE. Adding existing batches as ints
+				// would overflow to a negative number and empty the crafting grid.
+				long requested = (long) amount + batchesAlreadyPresent(recipe, handler, screen);
+				maxAmount = (int) Math.min(maxAmount, Math.max(0L, requested));
 
-				if (maxAmount == 0) {
+				if (maxAmount <= 0) {
 					return null;
 				}
 
@@ -290,6 +305,16 @@ public class EmiRecipeFiller {
 			Minecraft client = Minecraft.getInstance();
 			MultiPlayerGameMode manager = client.gameMode;
 			Player player = client.player;
+			List<Slot> slots = handler.getCraftingSlots(recipe, screenHandler);
+			// Reject invalid handler layouts before moving any items out of the grid.
+			if (stacks.size() > slots.size()) {
+				return false;
+			}
+			for (int i = 0; i < stacks.size(); i++) {
+				if (!stacks.get(i).isEmpty() && slots.get(i) == null) {
+					return false;
+				}
+			}
 			List<Slot> clear = handler.getCraftingSlots(screenHandler);
 			for (Slot slot : clear) {
 				if (slot != null) {
@@ -297,7 +322,6 @@ public class EmiRecipeFiller {
 				}
 			}
 			List<Slot> inputs = handler.getInputSources(screenHandler);
-			List<Slot> slots = handler.getCraftingSlots(recipe, screenHandler);
 			outer:
 			for (int i = 0; i < stacks.size(); i++) {
 				ItemStack stack = stacks.get(i);

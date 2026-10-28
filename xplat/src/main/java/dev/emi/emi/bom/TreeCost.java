@@ -143,6 +143,14 @@ public class TreeCost {
 		return 0;
 	}
 
+	private static long saturatedMultiply(long left, long right) {
+		try {
+			return Math.multiplyExact(left, right);
+		} catch (ArithmeticException e) {
+			return Long.MAX_VALUE;
+		}
+	}
+
 	private void complete(MaterialNode node) {
 		node.progress = ProgressState.COMPLETED;
 		node.totalNeeded = 0;
@@ -163,6 +171,13 @@ public class TreeCost {
 		boolean catalyst = node.catalyst;
 		if (catalyst) {
 			amount = node.amount;
+		} else if (node.partialCapacityUnits > 0 && node.partialUnitsPerCraft > 0) {
+			// Convert consumable units to fresh physical items. Only recipes that opt into
+			// EmiPartialConsumptionRecipe reach this path. A group of repeated crafts can
+			// share one item's capacity instead of charging a new item for every craft.
+			long crafts = Math.ceilDiv(amount, Math.max(1, node.amount));
+			long totalUnits = saturatedMultiply(crafts, node.partialUnitsPerCraft);
+			amount = Math.ceilDiv(totalUnits, node.partialCapacityUnits);
 		}
 		EmiRecipe recipe = node.recipe;
 		if (recipe instanceof EmiResolutionRecipe err) {
@@ -221,7 +236,7 @@ public class TreeCost {
 			}
 
 			for (MaterialNode n : node.children) {
-				if (!n.remainder.isEmpty() && n.remainderAmount > 0) {
+				if (!n.remainder.isEmpty() && n.remainderAmount > 0 && n.partialCapacityUnits == 0) {
 					if (n.catalyst) {
 						addRemainder(n.remainder, n.remainderAmount, produced.consume(n.consumeChance));
 					} else {

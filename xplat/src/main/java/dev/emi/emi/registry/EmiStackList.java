@@ -107,6 +107,10 @@ public class EmiStackList {
 					Object2IntMap<String> usedNamespaces = new Object2IntOpenHashMap<>();
 					IndexGroup ig = new IndexGroup();
 					Collection<ItemStack> searchStacks = itemGroupToStacksMap.get(group);
+					if (searchStacks == null) {
+						// The tab failed to build above; do not fail again here.
+						continue;
+					}
 					for (ItemStack stack : searchStacks) {
 						EmiStack es = EmiStack.of(stack);
 						String namespace = es.getId().getNamespace();

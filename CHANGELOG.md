@@ -1,14 +1,21 @@
 # PF-EMI — Master Changelog and Patch History
 
-**Current source target: Minecraft 26.3 (Fabric, NeoForge, Forge)**  
-**Last documented feature patch: v29 — October 27, 2026**
+## Unreleased — PF-EMI 1.1 Dev 3.3 (source-only correction)
 
-This is the project's **only patch-note file**. The short release history is directly below; the collapsible reference archive at the end preserves the original patch-note text for auditability. The historical apply/extract directions in that archive are **obsolete**: this is a complete 26.3 source tree, not a sequence of patches. The archived 1.21.x, 26.1 and 26.2 notes do not imply their source targets remain supported here.
+Fix addon-style feature discoverability: expose separate Status Effects, Enchantments, Villager Professions and Villager Trading categories instead of placing everything in the generic Info category. Register all status effects (including those without potions), use built-in job-site registries, and show an explicit notice when a server has not shared its trade registry. Add per-section registration counts and isolate malformed entries so one error cannot silently halt an entire discovery loop. Retain Dev 3.2 and older cumulative changes. No public Java ABI change; four new synthetic category IDs are observable. See `CHANGELOG-1.1.md` for implementation, limitations, API impact and validation requirements. The Fabric user test of Dev 3.2 showed features were not usefully discoverable; Dev 3.3 is not yet built or tested.
+
+
+**Current source target: Minecraft 26.3 (Fabric, NeoForge, Forge)**  
+**Ongoing 1.1 development (Dev 3: effect, enchantment, profession and potential-trade information):** see [`CHANGELOG-1.1.md`](CHANGELOG-1.1.md) for the cumulative unreleased feature/fix branch.  
+**Last finalized historical patch notes: v30 — October 27, 2026**
+
+This is the **historical master patch-note archive**. The ongoing 1.1 work is maintained separately in `CHANGELOG-1.1.md`. The short release history is directly below; the collapsible reference archive at the end preserves the original patch-note text for auditability. The historical apply/extract directions in that archive are **obsolete**: this is a complete 26.3 source tree, not a sequence of patches. The archived 1.21.x, 26.1 and 26.2 notes do not imply their source targets remain supported here.
 
 ## Minecraft 26.3 — active history
 
 | Patch | Main change |
 | --- | --- |
+| **v30** | Added `#c:disabled_from_recipe_viewers` support across registered item/block/fluid/other EMI registries; fixed fully disabled tag-value resurrection; hardened cross-session async recipe indexing and unload state; ignored invalid third-party null categories; added fuel burn-duration tooltips and creative-tab failure guards. Patch-only distribution. |
 | **v29** | Fuel browser recognizes all 18 vanilla `minecraft:cooking/time_*` reference providers, standard furnace burn times and literal positive constants. Fixes omitted wooden fuels on all three loaders. Arbitrary dynamic/modded provider values are not fabricated. |
 | **v28** | Standardized `1.0+26.3+{fabric,neoforge,forge}.jar` outputs, launcher pause/no-Explorer behavior, stale-release checks, and narrowly scoped legacy JEI compiler annotations. |
 | **v27** | NeoForge waits for recipe-map readiness before reload; optional JEI mixin only activates when appropriate; Java 25 Gradle native access flags, warning analysis and specific JEI annotations. |
@@ -20,6 +27,27 @@ This is the project's **only patch-note file**. The short release history is dir
 | **v21** | Updated code paths for 26.3's reloadable recipe registry / `RecipeMap` API. |
 | **v20** | Removed obsolete tool subclasses and mixins; adapted screenshot/GUI tooltips, key input, inventory prediction, bone meal, JEI contexts and compostable data components. |
 | **v19** | Initial 26.3 target migration: Fabric API/NeoForge/Forge/JEI coordinates, SDL input, Renderpearl GPU types, data-driven brewing and cooking-fuel components. |
+
+### v30 implementation notes (2026-10-27)
+
+- **Pack-author control:** use `#c:disabled_from_recipe_viewers` in item/block/fluid registry tags to disable stacks entirely, including tag ingredients and recipes. This differs from `#c:hidden_from_recipe_viewers`, which only removes entries from the visible item index. Block tags also apply to matching block-item stacks. Only registries that EMI indexes through registered adapters can be affected.
+- **Tag integrity:** fully disabled tags remain empty rather than accidentally restoring original values after filtering; unusable tags are removed from the selectable tag list.
+- **Rejoin/reload:** synchronization readiness flags are updated atomically; a worker running after world closure settles to waiting rather than an erroneous reloading state; outdated asynchronous recipe workers cannot clear newer workers or publish old workstation indexes.
+- **Third-party safety:** recipes without a category no longer abort an entire bake; failed creative-tab item population is skipped rather than repeatedly dereferenced.
+- **Fuel QoL:** hovering the animated fuel flame shows exact burn duration in seconds; existing smelt-count labels remain unchanged.
+- **API/ABI:** no files under `dev/emi/emi/api/` or platform public API directories were altered; no new required mod, loader, config parameter, plugin hook or network message was introduced. A source-level public-API check passed, but runtime/bytecode ABI compatibility must still be tested with built Java 25 artifacts and third-party integrations.
+- **Out of scope:** creative-tab sidebars, stack-group editing, trade browsing, and JEI API migrations require more UI/runtime verification. No upstream PR has been sent. Changes are local to PF-EMI.
+
+#### Upstream issue and extension review
+
+- [EMI #1226](https://github.com/emilyploszaj/emi/issues/1226) — implemented the requested `c:disabled_from_recipe_viewers` semantics in this 26.3 fork (source-only verification). This is intentionally not a new public Java API.
+- [EMI #1218](https://github.com/emilyploszaj/emi/issues/1218) — prevents one obvious null-category failure route while baking third-party recipes; does **not** establish that all external null-data reports are resolved.
+- [EMI #1270](https://github.com/emilyploszaj/emi/issues/1270) — audited connection-reload state and corrected an async worker race; the exact upstream reproduction has not been independently confirmed here.
+- [EMI #1255](https://github.com/emilyploszaj/emi/issues/1255) and [#1245](https://github.com/emilyploszaj/emi/issues/1245) — JEI binary compatibility needs a separate supported JEI installation/test matrix; not marked fixed.
+- [EMI #1258](https://github.com/emilyploszaj/emi/issues/1258) — searching may be affected by addon stack-group behavior; not patched without a reproducible 26.3 case.
+- [Reliable EMI](https://modrinth.com/mod/reliable-emi) and [EMI++](https://modrinth.com/mod/emixx) — their workstation tabs, editable groups, creative tabs and villager trade pages are useful design references, but require UI, accessibility and data-provenance validation before bringing into core. Code was not copied from these addons.
+- EMI `CONTRIBUTING.md` requests stable small diffs, preserving ABI, no incidental API expansion, and strongly cautions against submitting LLM-generated source. This patch is only for PF-EMI; no upstream submission is implied.
+
 
 ### 26.3 release behavior and constraints
 

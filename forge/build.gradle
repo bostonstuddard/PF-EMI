@@ -34,9 +34,61 @@ repositories {
     maven { url = 'https://maven.blamejared.com/' }
 }
 
-// ForgeGradle builds the shared 26.3 Mojang-named Java sources directly.
+// Keep ForgeGradle's conventional src/main/java source root intact.  The
+// original working 26.3 build only adds xplat to it.  Replacing the source
+// roots using setSrcDirs() caused the Forge platform classes to disappear
+// from the output even though the shared sources still compiled.
 sourceSets.main.java {
     srcDir '../xplat/src/main/java'
+}
+
+// Explicitly feed Forge's entrypoint/event/network classes to javac. This is
+// additive to the source set and protects the standalone ForgeGradle project
+// if another plugin adjusts JavaCompile's source collection.
+def forgePlatformSources = fileTree('src/main/java') {
+    include 'dev/emi/emi/platform/forge/**/*.java'
+    include 'dev/emi/emi/api/forge/**/*.java'
+}
+
+tasks.register('verifyForgeEntrypointSource') {
+    doLast {
+        def entrypoint = file('src/main/java/dev/emi/emi/platform/forge/EmiForge.java')
+        if (!entrypoint.isFile() || !sourceSets.main.java.files.contains(entrypoint)) {
+            throw new GradleException('Forge entrypoint EmiForge.java is missing from the main source set.')
+        }
+        if (forgePlatformSources.files.size() < 6) {
+            throw new GradleException('Expected six Forge platform/API source files; found ' +
+                    forgePlatformSources.files.size() + '. Source tree may be incomplete.')
+        }
+    }
+}
+
+tasks.named('compileJava', JavaCompile).configure {
+    dependsOn 'verifyForgeEntrypointSource'
+    source forgePlatformSources
+    doFirst {
+        def entrypoint = file('src/main/java/dev/emi/emi/platform/forge/EmiForge.java')
+        if (!source.files.contains(entrypoint)) {
+            throw new GradleException('Forge entrypoint is not in compileJava inputs: ' + entrypoint)
+        }
+    }
+    doLast {
+        def classesDir = destinationDirectory.get().asFile
+        def required = [
+            'dev/emi/emi/platform/forge/EmiForge.class',
+            'dev/emi/emi/platform/forge/EmiClientForge.class',
+            'dev/emi/emi/platform/forge/EmiAgnosForge.class',
+            'dev/emi/emi/platform/forge/EmiPacketHandler.class',
+            'dev/emi/emi/platform/forge/EmiRecipeSync.class',
+            'dev/emi/emi/api/forge/ForgeEmiStack.class'
+        ]
+        def missing = required.findAll { !new File(classesDir, it).isFile() }
+        if (!missing.isEmpty()) {
+            throw new GradleException('Forge compileJava produced no required platform classes: ' +
+                    missing.join(', ') + '; output=' + classesDir)
+        }
+        println '[PF-EMI] OK: Forge platform entrypoint, network, event, and API classes compiled.'
+    }
 }
 sourceSets.main.resources {
     srcDir '../xplat/src/main/resources'

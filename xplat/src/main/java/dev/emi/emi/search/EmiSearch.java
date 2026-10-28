@@ -149,6 +149,9 @@ public class EmiSearch {
 		synchronized (EmiSearch.class) {
 			if (worker == currentWorker) {
 				EmiSearch.stacks = stacks;
+				// Publish the matching query and its results together. An obsolete
+				// worker must never replace the active query after a newer search.
+				compiledQuery = worker.compiled;
 				currentWorker = null;
 				searchThread = null;
 			}
@@ -252,6 +255,7 @@ public class EmiSearch {
 	private static class SearchWorker implements Runnable {
 		private final String query;
 		private final List<? extends EmiIngredient> source;
+		private CompiledQuery compiled;
 
 		public SearchWorker(String query, List<? extends EmiIngredient> source) {
 			this.query = query;
@@ -262,7 +266,7 @@ public class EmiSearch {
 		public void run() {
 			try {
 				CompiledQuery compiled = new CompiledQuery(query);
-				compiledQuery = compiled;
+				this.compiled = compiled;
 				if (compiled.isEmpty()) {
 					apply(this, source);
 					return;
@@ -277,11 +281,12 @@ public class EmiSearch {
 						}
 					}
 					List<EmiStack> ess = stack.getEmiStacks();
-					// TODO properly support ingredients?
-					if (ess.size() == 1) {
-						EmiStack es = ess.get(0);
+					// Grouped ingredients are one visible index entry. Keep the group
+					// when at least one of its alternatives matches the full query.
+					for (EmiStack es : ess) {
 						if (compiled.test(es)) {
 							stacks.add(stack);
+							break;
 						}
 					}
 				}

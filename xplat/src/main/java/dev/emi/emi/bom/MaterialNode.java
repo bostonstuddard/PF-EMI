@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Lists;
 
 import dev.emi.emi.api.recipe.EmiRecipe;
+import dev.emi.emi.api.recipe.EmiPartialConsumptionRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 
@@ -19,6 +20,9 @@ public class MaterialNode {
 	public long amount = 1;
 	public long divisor = 1;
 	public long remainderAmount = 0;
+	/** Opt-in units used by this input per parent craft, and capacity per physical item. */
+	public long partialUnitsPerCraft = 0;
+	public long partialCapacityUnits = 0;
 	public boolean catalyst = false;
 	// Should these be decoupled from material nodes?
 	public FoldState state = FoldState.EXPANDED;
@@ -52,6 +56,8 @@ public class MaterialNode {
 		this.amount = node.amount;
 		this.divisor = node.divisor;
 		this.remainderAmount = node.remainderAmount;
+		this.partialUnitsPerCraft = node.partialUnitsPerCraft;
+		this.partialCapacityUnits = node.partialCapacityUnits;
 	}
 
 	public void recalculate(MaterialTree tree) {
@@ -100,21 +106,45 @@ public class MaterialNode {
 			divisor = 1;
 		}
 		this.children = Lists.newArrayList();
+		List<EmiIngredient> inputs = recipe.getInputs();
+		List<EmiPartialConsumptionRecipe.PartialInput> partials = recipe instanceof EmiPartialConsumptionRecipe partial
+			? partial.getPartialInputs() : List.of();
 		outer:
-		for (EmiIngredient i : recipe.getInputs()) {
+		for (int inputIndex = 0; inputIndex < inputs.size(); inputIndex++) {
+			EmiIngredient i = inputs.get(inputIndex);
+			long capacity = 0;
+			long used = 0;
+			for (EmiPartialConsumptionRecipe.PartialInput partial : partials) {
+				if (partial.inputIndex() == inputIndex) {
+					capacity = partial.capacityUnits();
+					used = partial.usedUnitsPerCraft();
+					break;
+				}
+			}
 			EmiStack remainder = EmiStack.EMPTY;
 			if (i.getEmiStacks().size() == 1) {
 				remainder = i.getEmiStacks().get(0).getRemainder();
 			}
 			for (MaterialNode node : children) {
-				if (EmiIngredient.areEqual(i, node.ingredient) && EmiIngredient.areEqual(remainder, node.remainder)) {
+				if (EmiIngredient.areEqual(i, node.ingredient) && EmiIngredient.areEqual(remainder, node.remainder)
+						&& node.partialCapacityUnits == capacity && (capacity > 0 || node.partialUnitsPerCraft == 0)) {
 					node.amount += i.getAmount();
 					node.remainderAmount += remainder.getAmount();
+					if (capacity > 0) {
+						node.partialUnitsPerCraft = Long.MAX_VALUE - node.partialUnitsPerCraft < used
+							? Long.MAX_VALUE : node.partialUnitsPerCraft + used;
+					}
 					continue outer;
 				}
 			}
 			if (!i.isEmpty()) {
 				MaterialNode node = new MaterialNode(i);
+				node.partialCapacityUnits = capacity;
+				node.partialUnitsPerCraft = used;
+				if (capacity > 0) {
+					// These are consumable units, not a normal reusable catalyst.
+					node.catalyst = false;
+				}
 				node.consumeChance = i.getChance();
 				children.add(node);
 			}

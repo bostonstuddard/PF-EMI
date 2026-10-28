@@ -32,6 +32,7 @@ public class EmiTags {
 	public static final InheritanceMap<EmiRegistryAdapter<?>> ADAPTERS_BY_CLASS = new InheritanceMap<>(Maps.newHashMap());
 	public static final Map<Registry<?>, EmiRegistryAdapter<?>> ADAPTERS_BY_REGISTRY = Maps.newHashMap();
 	public static final Identifier HIDDEN_FROM_RECIPE_VIEWERS = EmiPort.id("c", "hidden_from_recipe_viewers");
+	public static final Identifier DISABLED_FROM_RECIPE_VIEWERS = EmiPort.id("c", "disabled_from_recipe_viewers");
 	public static final Map<TagKey<?>, Identifier> MODELED_TAGS = Maps.newHashMap();
 	private static final Map<Set<?>, List<EmiTagKey<?>>> CACHED_TAGS = Maps.newHashMap();
 	private static final Map<EmiTagKey<?>, List<?>> TAG_VALUES = Maps.newHashMap();
@@ -192,12 +193,11 @@ public class EmiTags {
 		tags = consolodateTags(tags);
 		for (EmiTagKey<T> key : tags) {
 			List<T> values = key.stream().filter(s -> !EmiHidden.isDisabled(stackFromKey(key, s))).toList();
-			if (values.isEmpty()) {
-				TAG_VALUES.put(key, key.getList());
-			} else {
-				TAG_VALUES.put(key, values);
-			}
+			TAG_VALUES.put(key, values);
 		}
+		// A tag whose members are all disabled must not reintroduce them
+		// through the ingredient list or appear as a selectable tag.
+		tags = tags.stream().filter(key -> !TAG_VALUES.get(key).isEmpty()).toList();
 		EmiTags.TAGS.addAll(tags.stream().sorted((a, b) -> a.id().toString().compareTo(b.id().toString())).toList());
 		tags = tags.stream()
 			.sorted((a, b) -> Long.compare(b.stream().count(), a.stream().count()))

@@ -18,14 +18,15 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 public class JemiTooltipBuilder implements ITooltipBuilder {
 	public final List<ClientTooltipComponent> tooltip = Lists.newArrayList();
 	private final List<Component> legacyText = Lists.newArrayList();
+	private final List<Either<FormattedText, TooltipComponent>> lines = Lists.newArrayList();
 
 	@Override
 	public void add(FormattedText component) {
 		// JEI allows non-text StringVisitable... Minecraft's methods don't easily
-		if (component instanceof Component text) {
-			tooltip.add(ClientTooltipComponent.create(text.getVisualOrderText()));
-			legacyText.add(text);
-		}
+		Component text = component instanceof Component nativeText ? nativeText : Component.literal(component.getString());
+		tooltip.add(ClientTooltipComponent.create(text.getVisualOrderText()));
+		legacyText.add(text);
+		lines.add(Either.left(component));
 	}
 
 	@Override
@@ -39,6 +40,7 @@ public class JemiTooltipBuilder implements ITooltipBuilder {
 	public void add(TooltipComponent data) {
 		try {
 			tooltip.add(ClientTooltipComponent.create(data));
+			lines.add(Either.right(data));
 		} catch (Exception e) {
 			EmiLog.error("Error converting TooltipComponent", e);
 		}
@@ -51,7 +53,10 @@ public class JemiTooltipBuilder implements ITooltipBuilder {
 
 	@Override
 	public void clear() {
-		// EMI does not support tooltip removal, this will only clear the user's additions
+		// These are only the JEI plugin's lines; EMI's base item tooltip is held separately.
+		tooltip.clear();
+		legacyText.clear();
+		lines.clear();
 	}
 
 	@Override
@@ -74,8 +79,6 @@ public class JemiTooltipBuilder implements ITooltipBuilder {
 
 	@Override
 	public List<Either<FormattedText, TooltipComponent>> getLines() {
-		return legacyText.stream()
-			.<Either<FormattedText, TooltipComponent>>map(Either::left)
-			.toList();
+		return List.copyOf(lines);
 	}
 }

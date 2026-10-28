@@ -53,7 +53,7 @@ public class EmiRecipes {
 	private static Map<EmiRecipeCategory, List<EmiIngredient>> workstations = Maps.newHashMap();
 	private static List<EmiRecipe> recipes = Lists.newArrayList();
 
-	public static Map<EmiStack, List<EmiRecipe>> byWorkstation = Maps.newHashMap();
+	public static volatile Map<EmiStack, List<EmiRecipe>> byWorkstation = Map.of();
 	public static List<EmiRecipeDecorator> decorators = Lists.newArrayList();
 
 	public static Map<Recipe<?>, Identifier> recipeIds = Map.of();
@@ -65,7 +65,7 @@ public class EmiRecipes {
 		categories.clear();
 		workstations.clear();
 		recipes.clear();
-		byWorkstation.clear();
+		byWorkstation = Map.of();
 		decorators.clear();
 		manager = Manager.EMPTY;
 		RecipeMap map = EmiPort.getRecipeMap();
@@ -80,7 +80,7 @@ public class EmiRecipes {
 	public static void bake() {
 		long start = System.currentTimeMillis();
 		recipes.addAll(EmiData.recipes.stream().map(r -> r.get()).toList());
-		categories.sort((a, b) -> EmiRecipeCategoryProperties.getOrder(a) - EmiRecipeCategoryProperties.getOrder(b));
+		categories.sort((a, b) -> Integer.compare(EmiRecipeCategoryProperties.getOrder(a), EmiRecipeCategoryProperties.getOrder(b)));
 		invalidators.addAll(EmiData.recipeFilters);
 
 		invalidators.add(r -> {
@@ -93,6 +93,10 @@ public class EmiRecipes {
 		});
 
 		List<EmiRecipe> filtered = recipes.stream().filter(r -> {
+			if (r == null || r.getCategory() == null) {
+				EmiReloadLog.warn("Skipping recipe with null recipe or category from plugin");
+				return false;
+			}
 			for (Predicate<EmiRecipe> predicate : invalidators) {
 				if (predicate.test(r)) {
 					return false;
@@ -107,7 +111,23 @@ public class EmiRecipes {
 				filteredWorkstations.put(entry.getKey(), w);
 			}
 		}
-		manager = new Manager(categories, filteredWorkstations, filtered, false);
+		// Registration counts alone cannot detect recipes removed by filters.
+		// Report the actual discovered pages remaining after all invalidators,
+		// so a missing category can be diagnosed from a single client log.
+		for (String path : List.of("status_effects", "enchantments", "villager_professions", "villager_trading")) {
+			Identifier categoryId = EmiPort.id("emi", path);
+			if (categories.stream().anyMatch(c -> c.getId().equals(categoryId))) {
+				long kept = filtered.stream().filter(r -> r.getCategory().getId().equals(categoryId)).count();
+				EmiLog.info("[EMI Discovery] " + path + ": " + kept + " visible pages after recipe filters");
+				if (kept == 0) {
+					EmiReloadLog.warn("[EMI Discovery] " + path + " contains no visible pages after filtering. "
+						+ "Check the earlier per-entry errors and plugin registration log");
+				}
+			}
+		}
+		Manager initialManager = new Manager(categories, filteredWorkstations, filtered, false);
+		manager = initialManager;
+		byWorkstation = initialManager.byWorkstation;
 		setWorker(new Worker(categories, filteredWorkstations, filtered));
 		EmiLog.info("Baked " + recipes.size() + " recipes in " + (System.currentTimeMillis() - start) + "ms");
 	}
@@ -139,6 +159,7 @@ public class EmiRecipes {
 		private Map<EmiStack, List<EmiRecipe>> byInput = new Object2ObjectOpenCustomHashMap<>(new EmiStackList.ComparisonHashStrategy());
 		private Map<EmiStack, List<EmiRecipe>> byOutput = new Object2ObjectOpenCustomHashMap<>(new EmiStackList.ComparisonHashStrategy());
 		private Map<EmiRecipeCategory, List<EmiRecipe>> byCategory = Maps.newHashMap();
+		private final Map<EmiStack, List<EmiRecipe>> byWorkstation = Maps.newHashMap();
 		private Map<Identifier, EmiRecipe> byId = Maps.newHashMap();
 
 		private Manager() {
@@ -308,12 +329,15 @@ public class EmiRecipes {
 		public void run() {
 			long startTime = System.currentTimeMillis();
 			Manager manager = new Manager(categories, workstations, recipes, true);
-			if (activeWorker == this) {
-				long endTime = System.currentTimeMillis();
-				EmiLog.info("Baked recipes after reload in " + (endTime - startTime) + "ms");
-				EmiRecipes.manager = manager;
+			synchronized (EmiRecipes.class) {
+				if (activeWorker == this) {
+					long endTime = System.currentTimeMillis();
+					EmiLog.info("Baked recipes after reload in " + (endTime - startTime) + "ms");
+					EmiRecipes.manager = manager;
+					EmiRecipes.byWorkstation = manager.byWorkstation;
+					activeWorker = null;
+				}
 			}
-			setWorker(null);
 		}
 	}
 }

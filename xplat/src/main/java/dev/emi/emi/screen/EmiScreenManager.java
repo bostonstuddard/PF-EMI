@@ -50,6 +50,8 @@ import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.bom.BoM;
 import dev.emi.emi.chess.EmiChess;
 import dev.emi.emi.config.EmiConfig;
+import dev.emi.emi.config.EmiButtonAnchor;
+import dev.emi.emi.config.InventoryHighlightStyle;
 import dev.emi.emi.config.HeaderType;
 import dev.emi.emi.config.HelpLevel;
 import dev.emi.emi.config.Margins;
@@ -886,8 +888,14 @@ public class EmiScreenManager {
 				EmiStack stack = EmiStack.of(slot.getItem());
 				context.push();
 				if (query != null) {
-					if (!query.test(stack)) {
+					boolean matches = !stack.isEmpty() && query.test(stack);
+					InventoryHighlightStyle style = EmiConfig.inventorySearchHighlight;
+					if (!matches && style != InventoryHighlightStyle.OUTLINE) {
 						context.fill(slot.x - 1, slot.y - 1, 18, 18, 0x77000000);
+					} else if (matches && style != InventoryHighlightStyle.DIM) {
+						// A dark edge and bright inner edge stay legible against light and dark resource packs.
+						drawInventoryOutline(context, slot.x - 1, slot.y - 1, 18, 0xFF171717);
+						drawInventoryOutline(context, slot.x, slot.y, 16, 0xFFFFD96A);
 					}
 				} else if (BoM.craftingMode && BoM.tree != null) {
 					if (!(slot.container instanceof Inventory) && !ignoredSlots.contains(slot) && synfavs.contains(stack)) {
@@ -898,6 +906,13 @@ public class EmiScreenManager {
 			}
 			context.pop();
 		}
+	}
+
+	private static void drawInventoryOutline(EmiDrawContext context, int x, int y, int size, int color) {
+		context.fill(x, y, size, 1, color);
+		context.fill(x, y + size - 1, size, 1, color);
+		context.fill(x, y, 1, size, color);
+		context.fill(x + size - 1, y, 1, size, color);
 	}
 
 	public static void addWidgets(Screen screen) {
@@ -924,13 +939,47 @@ public class EmiScreenManager {
 		EmiPort.focus(search, false);
 		search.setVisible(EmiConfig.searchSidebar != SidebarSide.NONE);
 
-		emi.x = 2;
-		emi.y = screen.height - 22;
-
-		tree.x = 24;
-		tree.y = screen.height - 22;
-
+		positionEmiButtons(screen);
 		updateSidebarButtons();
+	}
+
+	/** Runs when the screen is initialized, not on every render tick. */
+	private static void positionEmiButtons(Screen screen) {
+		boolean showEmi = EmiConfig.emiConfigButtonVisibility.resolve(!isDisabled());
+		boolean showTree = EmiConfig.recipeTreeButtonVisibility.resolve(!isDisabled());
+		int totalWidth = (showEmi ? 20 : 0) + (showTree ? 20 : 0) + (showEmi && showTree ? 2 : 0);
+		int x;
+		int y;
+		switch (EmiConfig.emiButtonsAnchor) {
+			case SEARCH_LEFT -> {
+				x = search.getX() - totalWidth - 2;
+				y = search.getY();
+			}
+			case SEARCH_RIGHT -> {
+				x = search.getX() + search.getWidth() + 2;
+				y = search.getY();
+			}
+			case TOP_LEFT -> {
+				x = panels.get(0).space == null ? 2 : panels.get(0).space.tx + panels.get(0).space.tw * ENTRY_SIZE + 2;
+				y = 2;
+			}
+			case TOP_RIGHT -> {
+				x = panels.get(1).space == null ? screen.width - totalWidth - 2 : panels.get(1).space.tx - totalWidth - 2;
+				y = 2;
+			}
+			default -> {
+				x = 2;
+				y = screen.height - 22;
+			}
+		}
+		x += Mth.clamp(EmiConfig.emiButtonsOffset.values.getInt(0), -2048, 2048);
+		y += Mth.clamp(EmiConfig.emiButtonsOffset.values.getInt(1), -2048, 2048);
+		x = Mth.clamp(x, 0, Math.max(0, screen.width - Math.max(20, totalWidth)));
+		y = Mth.clamp(y, 0, Math.max(0, screen.height - 20));
+		emi.x = x;
+		emi.y = y;
+		tree.x = x + (showEmi ? 22 : 0);
+		tree.y = y;
 	}
 
 	private static void updateSidebarButtons() {

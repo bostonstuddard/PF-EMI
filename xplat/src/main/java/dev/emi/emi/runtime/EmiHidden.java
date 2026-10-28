@@ -4,6 +4,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.core.Registry;
+import net.minecraft.world.item.BlockItem;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
@@ -20,10 +22,12 @@ import dev.emi.emi.api.stack.serializer.EmiIngredientSerializer;
 import dev.emi.emi.data.EmiData;
 import dev.emi.emi.data.IndexStackData;
 import dev.emi.emi.registry.EmiStackList;
+import dev.emi.emi.registry.EmiTags;
 
 public class EmiHidden {
 	// Data loaded
 	public static Set<EmiIngredient> disabledStacks = Sets.newHashSet();
+	private static final Set<Object> disabledTagKeys = Sets.newHashSet();
 	public static List<IndexStackData.Filter> disabledFilters = Lists.newArrayList();
 	public static Map<String, Boolean> disabledFilterLookup = Maps.newHashMap();
 	// Plugin defined
@@ -34,6 +38,7 @@ public class EmiHidden {
 
 	public static void clear() {
 		disabledStacks.clear();
+		disabledTagKeys.clear();
 		disabledFilters.clear();
 		disabledFilterLookup.clear();
 		pluginDisabledStacks.clear();
@@ -41,6 +46,11 @@ public class EmiHidden {
 	}
 
 	public static void reload() {
+		// Resolve the common disable tag for every registered EMI registry adapter.
+		// Block tags must also disable their corresponding block-item stacks.
+		for (Registry<?> registry : EmiTags.ADAPTERS_BY_REGISTRY.keySet()) {
+			disabledTagKeys.addAll(EmiTagKey.of(registry, EmiTags.DISABLED_FROM_RECIPE_VIEWERS).getSet());
+		}
 		List<IndexStackData> isds = EmiData.stackData.stream().map(i -> i.get()).filter(i -> i.disable() && (!i.filters().isEmpty() || !i.removed().isEmpty())).toList();
 		for (IndexStackData data : isds) {
 			for (EmiIngredient stack : data.removed()) {
@@ -83,7 +93,9 @@ public class EmiHidden {
 	public static boolean isDisabled(EmiIngredient stack) {
 		outer:
 		for (EmiStack s : stack.getEmiStacks()) {
-			if (disabledStacks.contains(s) || pluginDisabledStacks.contains(s)) {
+			if (disabledStacks.contains(s) || pluginDisabledStacks.contains(s)
+					|| disabledTagKeys.contains(s.getKey())
+					|| (s.getKey() instanceof BlockItem blockItem && disabledTagKeys.contains(blockItem.getBlock()))) {
 				continue;
 			}
 			for (Predicate<EmiStack> predicate : pluginDisabledFilters) {
