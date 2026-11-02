@@ -3,6 +3,17 @@ package dev.emi.emi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.Reader;
+import java.util.Comparator;
+import java.util.stream.Stream;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
@@ -41,7 +52,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.14";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.15";
 
 	private static final String PF = "projectflint";
 
@@ -84,20 +95,18 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	private static Set<String> createRemappedRecipeIds() {
 		java.util.Set<String> ids = new java.util.HashSet<>(List.of(
 			"leather_sheet_from_tanned", "leather_straps_from_sheet", "leather_repair_kit",
-			"wooden_pickaxe", "wooden_axe", "wooden_shovel", "crushed_stone_from_cobblestone",
+			"crushed_stone_from_cobblestone",
 			"basin_crafting", "sticks_from_sheet", "sand_from_flakes",
 			"clay_block_from_clay_balls", "dirt_from_loose_soil", "loose_soil_from_dirt",
 			"dirt_piles_from_loose_soil", "fat_burning_torch",
-			"hardwood", "hardwood_crafting_table", "hardwood_pickaxe", "hardwood_axe",
-			"hardwood_shovel", "hardwood_hoe", "hardwood_sword", "hardwood_hammer"
+			"hardwood"
 		));
 		for (String wood : WOOD_VARIANTS) {
 			ids.add(wood + "_planks_from_log");
 			ids.add(wood + "_planks_from_stripped_log");
 			ids.add(wood + "_sheet_from_plank");
 			ids.add(wood + "_board_from_plank");
-			ids.add(wood + "_door_hinged");
-			if (!wood.equals("oak")) ids.add("wooden_shovel_" + wood);
+
 		}
 		return Set.copyOf(ids);
 	}
@@ -1102,10 +1111,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 2));
 		grid(registry, personal, "leather_repair_kit", 2, true,
 			List.of(pf("leather_strap"), mc("string")), pf("repair_kit"));
-		grid(registry, personal, "wooden_pickaxe", 2, true,
-			List.of(mc("stick"), mc("string"), pf("leather_strap"), pf("wooden_sheet")), mc("wooden_pickaxe"));
-		grid(registry, personal, "wooden_axe", 2, true,
-			List.of(pf("tannin"), pf("leather_sheet"), mc("stick"), pf("wooden_sheet")), mc("wooden_axe"));
 		for (String kind : WOOD_VARIANTS) {
 			EmiStack planks = mc(kind + "_planks");
 			EmiStack log = mc(kind + "_log");
@@ -1119,10 +1124,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(planks, pf("bone_knife")), pf("wooden_sheet", 3));
 			grid(registry, personal, kind + "_board_from_plank", 2, true,
 				List.of(planks, pf("flint_file")), pf("wooden_board"));
-			grid(registry, personal, kind + "_door_hinged", 2, true,
-				List.of(pf("wooden_door_hinge"), planks, planks.copy(), planks.copy()), mc(kind + "_door"));
-			grid(registry, personal, kind.equals("oak") ? "wooden_shovel" : "wooden_shovel_" + kind, 2, true,
-				List.of(planks, mc("stick"), pf("leather_strap")), mc("wooden_shovel"));
 		}
 		grid(registry, personal, "crushed_stone_from_cobblestone", 2, true, List.of(mc("cobblestone")), pf("crushed_stone"));
 		grid(registry, personal, "basin_crafting", 2, true,
@@ -1140,39 +1141,218 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(mc("stick"), mc("string"), mc("charcoal")), pf("fat_burning_torch"));
 		// Vanilla/native recipes remain authoritative for conditional repair behavior.
 		// Avoid inventing an unconditional repair output for any damaged armor item.
-		// Basic 2x2 Hardwood and table-assembly JSONs also work before owning the table.
+		// Only actual 2x2 recipes belong here; the station-only table assembly
+		// was moved to projectflint:hardwood_crafting in 0.31.51-b.
 		grid(registry, personal, "hardwood", 2, true,
 			List.of(pf("clay_water_bucket"), pf("wood_dust"), pf("wood_dust"), pf("tannin")), pf("hardwood"));
-		grid(registry, personal, "hardwood_crafting_table", 2, true,
-			List.of(pf("hardwood_alloy"), pf("hardwood_alloy"), mc("cobblestone"), pf("bound_wood_processor")),
-			pf("hardwood_crafting_table"));
 	}
 
-	/** Actual 3x3 shapes from ProjectFlint JSONs, not just a list of materials. */
+	/**
+	 * ProjectFlint 0.31.51+ moved its Hardwood Table recipes to a dedicated
+	 * recipe type. The previous fixed six-tool list was both incomplete and wrong
+	 * (it missed Leather Straps and most of the 3x3 progression).
+	 *
+	 * Read the registered station-only type instead of guessing from output IDs.
+	 * Neither vanilla crafting nor the 2x2 vest recipes own these recipes.
+	 */
+	@SuppressWarnings("unchecked")
 	private static void registerHardwoodCrafting(EmiRegistry registry) {
 		EmiRecipeCategory hardwood = category(registry, "hardwood_crafting", "hardwood_crafting_table");
 		if (hardwood == null) return;
-		grid(registry, hardwood, "hardwood_axe", 3, false,
-			List.of(pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, pf("hardwood"), mc("stick"), EmiStack.EMPTY,
-				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_axe"));
-		grid(registry, hardwood, "hardwood_pickaxe", 3, false,
-			List.of(pf("hardwood"), pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
-				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_pickaxe"));
-		grid(registry, hardwood, "hardwood_shovel", 3, false,
-			List.of(EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
-				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_shovel"));
-		grid(registry, hardwood, "hardwood_hoe", 3, false,
-			List.of(pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
-				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_hoe"));
-		grid(registry, hardwood, "hardwood_sword", 3, false,
-			List.of(EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY,
-				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_sword"));
-		grid(registry, hardwood, "hardwood_hammer", 3, false,
-			List.of(pf("hardwood_alloy"), pf("hardwood_alloy"), pf("hardwood_alloy"),
-				pf("hardwood_alloy"), pf("hardwood_alloy"), pf("hardwood_alloy"),
-				mc("leather"), mc("stick"), pf("rope")), pf("hardwood_hammer"));
 
+		RecipeType<?> rawType = Registries.RECIPE_TYPE.get(pfId("hardwood_crafting"));
+		if (rawType != null && pfId("hardwood_crafting").equals(Registries.RECIPE_TYPE.getId(rawType))) {
+			RecipeType<CraftingRecipe> hardwoodType = (RecipeType<CraftingRecipe>) rawType;
+			int count = 0;
+			for (var entry : EmiAgnos.getAllRecipesOfType(registry.getRecipeManager(), hardwoodType)) {
+				Identifier id = entry.id().getValue();
+				if (id == null || !PF.equals(id.getNamespace())) continue;
+				CraftingRecipe wrapped = entry.value();
+				CraftingRecipe delegate = unwrapHardwoodCrafting(wrapped);
+				if (delegate == null) continue;
+
+				boolean shapeless = delegate instanceof ShapelessRecipe;
+				List<EmiIngredient> cells = hardwoodCells(delegate);
+				if (cells.isEmpty()) continue;
+				ItemStack result = wrapped.getDisplays().isEmpty()
+					? ItemStack.EMPTY : EmiPort.getOutput(wrapped);
+				if (result.isEmpty() && !delegate.getDisplays().isEmpty()) result = EmiPort.getOutput(delegate);
+				EmiStack output = EmiStack.of(result);
+				if (output.isEmpty()) continue;
+				Identifier serializer = Registries.RECIPE_SERIALIZER.getId(wrapped.getSerializer());
+				boolean durable = pfId("hardwood_durable").equals(serializer);
+				grid(registry, hardwood, "hardwood/type/" + id.getPath(), 3, shapeless, cells, output, durable);
+				count++;
+			}
+			// This is intentionally not a fabricated '100% complete' assertion: a
+			// server which fails to synchronize custom recipes must be diagnosed.
+			if (count == 0) {
+				dev.emi.emi.runtime.EmiLog.warn("PF-EMI: No synchronized hardwood recipes. Reading bundled ProjectFlint data instead.");
+				count = registerBundledHardwoodRecipes(registry, hardwood);
+			}
+			dev.emi.emi.runtime.EmiLog.info("PF-EMI: Registered " + count + " Hardwood Table recipes");
+		} else {
+			// This also handles older servers or custom recipe synchronization gaps.
+			int bundled = registerBundledHardwoodRecipes(registry, hardwood);
+			dev.emi.emi.runtime.EmiLog.warn("PF-EMI: No synchronized Hardwood recipe type; registered " + bundled + " bundled recipes");
+		}
 		registerOtherProjectFlintCrafting(registry, hardwood);
+	}
+
+
+	/**
+	 * Fallback for serverless/un-synchronized custom recipes: read the actual JSON
+	 * files inside the installed ProjectFlint mod. No hardcoded outputs and no
+	 * ProjectFlint class imports. Minecraft recipe types still win when present.
+	 *
+	 * This client-side fallback is intentionally only invoked when the custom
+	 * type supplies no recipes. It cannot account for server datapack removals.
+	 */
+	private static int registerBundledHardwoodRecipes(EmiRegistry registry, EmiRecipeCategory hardwood) {
+		int added = 0;
+		try {
+			Class<?> loaderApi = Class.forName("net.fabricmc.loader.api.FabricLoader");
+			Object loader = loaderApi.getMethod("getInstance").invoke(null);
+			Object maybeMod = loaderApi.getMethod("getModContainer", String.class).invoke(loader, PF);
+			if (!(maybeMod instanceof java.util.Optional<?> opt) || opt.isEmpty()) return 0;
+			Class<?> modApi = Class.forName("net.fabricmc.loader.api.ModContainer");
+			Object rootPaths = modApi.getMethod("getRootPaths").invoke(opt.get());
+			if (!(rootPaths instanceof List<?> roots)) return 0;
+			for (Object root : roots) {
+				if (!(root instanceof Path rootPath)) continue;
+				Path recipeDirectory = rootPath.resolve("data/projectflint/recipe");
+				if (!Files.isDirectory(recipeDirectory)) continue;
+				try (Stream<Path> files = Files.list(recipeDirectory)) {
+					for (Path file : files.filter(f -> f.getFileName().toString().endsWith(".json"))
+						.sorted(Comparator.comparing(f -> f.getFileName().toString())).toList()) {
+						try (Reader reader = Files.newBufferedReader(file)) {
+							JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+							String type = json.has("type") ? json.get("type").getAsString() : "";
+							if (!type.equals("projectflint:hardwood_shaped")
+								&& !type.equals("projectflint:hardwood_shapeless")
+								&& !type.equals("projectflint:hardwood_durable")) continue;
+							String filename = file.getFileName().toString();
+							String recipeId = filename.substring(0, filename.length() - 5);
+							EmiStack output = bundledOutput(json.get("result"));
+							if (output.isEmpty()) continue;
+							List<EmiIngredient> cells = bundledCells(json, type);
+							if (cells.isEmpty() || cells.stream().anyMatch(EmiIngredient::isEmpty)) {
+								// For shaped recipes empty grid cells are represented by EmiStack.EMPTY.
+								if (cells.isEmpty() || !type.equals("projectflint:hardwood_shaped")) continue;
+							}
+							grid(registry, hardwood, "hardwood/bundled/" + recipeId, 3,
+								!type.equals("projectflint:hardwood_shaped"), cells, output,
+								type.equals("projectflint:hardwood_durable"));
+							added++;
+						} catch (RuntimeException | java.io.IOException ex) {
+							dev.emi.emi.runtime.EmiLog.warn("PF-EMI: Skipping invalid bundled recipe " + file.getFileName() + ": " + ex.getMessage());
+						}
+					}
+				}
+			}
+		} catch (ReflectiveOperationException | LinkageError | java.io.IOException ex) {
+			dev.emi.emi.runtime.EmiLog.warn("PF-EMI: Could not index bundled ProjectFlint recipes: " + ex.getMessage());
+		}
+		return added;
+	}
+
+	private static EmiStack bundledOutput(JsonElement result) {
+		if (result == null || !result.isJsonObject()) return EmiStack.EMPTY;
+		JsonObject data = result.getAsJsonObject();
+		if (!data.has("id")) return EmiStack.EMPTY;
+		String id = data.get("id").getAsString();
+		int count = data.has("count") ? data.get("count").getAsInt() : 1;
+		return bundledItem(id, count);
+	}
+
+	private static EmiStack bundledItem(String id, int count) {
+		Identifier identifier = Identifier.tryParse(id);
+		if (identifier == null || count <= 0) return EmiStack.EMPTY;
+		return stack(identifier.getNamespace(), identifier.getPath(), count);
+	}
+
+	private static EmiIngredient bundledIngredient(JsonElement element) {
+		if (element == null || !element.isJsonPrimitive()) return EmiStack.EMPTY;
+		String id = element.getAsString();
+		if (id.startsWith("#")) {
+			Identifier tagId = Identifier.tryParse(id.substring(1));
+			return tagId == null ? EmiStack.EMPTY : EmiIngredient.of(TagKey.of(RegistryKeys.ITEM, tagId));
+		}
+		return bundledItem(id, 1);
+	}
+
+	private static List<EmiIngredient> bundledCells(JsonObject json, String type) {
+		List<EmiIngredient> cells = new ArrayList<>();
+		if (type.equals("projectflint:hardwood_shaped")) {
+			if (!json.has("pattern") || !json.has("key")) return List.of();
+			var pattern = json.getAsJsonArray("pattern");
+			JsonObject key = json.getAsJsonObject("key");
+			if (pattern.size() > 3) return List.of();
+			for (int y = 0; y < 3; y++) {
+				String row = y < pattern.size() ? pattern.get(y).getAsString() : "";
+				if (row.length() > 3) return List.of();
+				for (int x = 0; x < 3; x++) {
+					String letter = x < row.length() ? row.substring(x, x + 1) : " ";
+					if (letter.equals(" ")) {
+						cells.add(EmiStack.EMPTY);
+					} else {
+						EmiIngredient ingredient = bundledIngredient(key.get(letter));
+						if (ingredient.isEmpty()) return List.of();
+						cells.add(ingredient);
+					}
+				}
+			}
+		} else {
+			if (json.has("ingredients")) {
+				for (JsonElement item : json.getAsJsonArray("ingredients")) cells.add(bundledIngredient(item));
+			}
+			if (type.equals("projectflint:hardwood_durable") && json.has("tool")) {
+				cells.add(bundledIngredient(json.get("tool")));
+			}
+		}
+		return cells.size() > 9 ? List.of() : cells;
+	}
+
+	/** Unwrap ProjectFlint's public CraftingRecipe interface without linking to its JAR. */
+	private static CraftingRecipe unwrapHardwoodCrafting(CraftingRecipe recipe) {
+		for (int i = 0; i < 4 && recipe != null; i++) {
+			if (recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) return recipe;
+			try {
+				Field delegateField = recipe.getClass().getDeclaredField("delegate");
+				delegateField.setAccessible(true);
+				Object value = delegateField.get(recipe);
+				if (!(value instanceof CraftingRecipe next) || value == recipe) return null;
+				recipe = next;
+			} catch (ReflectiveOperationException | SecurityException ex) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	/** Preserve the exact 3x3 arrangement or ingredient alternatives of the delegate. */
+	private static List<EmiIngredient> hardwoodCells(CraftingRecipe recipe) {
+		if (recipe instanceof ShapedRecipe shaped) {
+			List<EmiIngredient> cells = new ArrayList<>(9);
+			var ingredients = shaped.getIngredients();
+			for (int y = 0; y < 3; y++) {
+				for (int x = 0; x < 3; x++) {
+					int index = y * shaped.getWidth() + x;
+					if (x >= shaped.getWidth() || y >= shaped.getHeight() || index >= ingredients.size()) {
+						cells.add(EmiStack.EMPTY);
+						continue;
+					}
+					var ingredient = ingredients.get(index);
+					cells.add(ingredient.isPresent() ? EmiIngredient.of(ingredient.get()) : EmiStack.EMPTY);
+				}
+			}
+			return cells;
+		}
+		if (recipe instanceof ShapelessRecipe shapeless) {
+			return shapeless.getIngredientPlacement().getIngredients().stream()
+				.map(EmiIngredient::of).toList();
+		}
+		return List.of();
 	}
 
 	/**
@@ -1212,14 +1392,34 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 
 	private static void grid(EmiRegistry registry, EmiRecipeCategory category,
 		String path, int size, boolean shapeless, List<EmiIngredient> cells, EmiStack output) {
+		grid(registry, category, path, size, shapeless, cells, output, false);
+	}
+
+	private static void grid(EmiRegistry registry, EmiRecipeCategory category,
+		String path, int size, boolean shapeless, List<EmiIngredient> cells, EmiStack output, boolean durable) {
 		if (output.isEmpty() || cells.stream().anyMatch(cell -> cell == null)) return;
 		// Missing (unregistered) real ingredients invalidate the route; empty grid cells are OK.
 		for (EmiIngredient cell : cells) {
 			if (cell.isEmpty() && cell != EmiStack.EMPTY) return;
 		}
-		ProjectFlintGridRecipe recipe = new ProjectFlintGridRecipe(category, pfId("pf_emi/grid/" + path), cells, output, size, shapeless);
+		if ("hardwood_crafting".equals(category.getId().getPath())) markHardwoodRemainders(cells);
+		ProjectFlintGridRecipe recipe = new ProjectFlintGridRecipe(category, pfId("pf_emi/grid/" + path), cells, output, size, shapeless, durable);
 		registry.addRecipe(recipe);
 		ProjectFlintRecipeIndex.mark(recipe);
+	}
+
+
+	/** Source-defined, unchanged vessel/form remainders for Hardwood station crafts. */
+	private static void markHardwoodRemainders(List<EmiIngredient> cells) {
+		for (EmiIngredient ingredient : cells) {
+			for (EmiStack option : ingredient.getEmiStacks()) {
+				if (pfId("clay_water_bucket").equals(option.getId())) {
+					option.setRemainder(pf("clay_bucket"));
+				} else if (pfId("unfired_brick_mold").equals(option.getId())) {
+					option.setRemainder(pf("unfired_brick_mold"));
+				}
+			}
+		}
 	}
 
 	private static EmiIngredient rawMeats(long count) {
@@ -1248,11 +1448,27 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			"crude_harvesting_tool", "crude_multitool", "flint_multitool",
 			"flint_plant_cutters", "advanced_flint_multitool");
 
-		// Additional later-game route: coal remains normal coal from Wooden Pickaxe mining.
-		blockDrop(registry, drops, "coal_ore_wooden_pickaxe",
-			mc("coal_ore"), List.of(pf("wooden_pickaxe")),
-			List.of(loot(mc("coal"), "Normal Coal; charcoal-based lighting remains a separate unlock")),
-			List.of("Wooden Pickaxe is permitted on ordinary Coal Ore in v0.31.45-b."));
+		// ProjectFlint OreMiningRules (0.31.51-b): only approved tools harvest ore.
+		// Vanilla Wooden Pickaxe is a minecraft item, not projectflint:wooden_pickaxe.
+		EmiIngredient earlyPickaxes = any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"));
+		for (String ore : List.of("coal_ore", "deepslate_coal_ore")) {
+			blockDrop(registry, drops, "ore/" + ore + "/pickaxe",
+				mc(ore), List.of(earlyPickaxes),
+				List.of(loot(mc("coal"), "1 Coal; Wooden/Hardwood Pickaxe, 13.5 seconds for wooden-tier mining")),
+				List.of("Other tool tiers follow their vanilla mining speed and tier rules."));
+			blockDrop(registry, drops, "ore/" + ore + "/hammer",
+				mc(ore), List.of(pf("hardwood_hammer")),
+				List.of(loot(mc("coal", 2), "2 Coal; Hardwood Hammer, 13.5 seconds")),
+				List.of("Breaking without an approved tool takes 45 seconds and yields nothing."));
+		}
+		blockDrop(registry, drops, "ore/iron_hardwood_hammer",
+			mc("iron_ore"), List.of(pf("hardwood_hammer")),
+			List.of(loot(mc("raw_iron"), "Hardwood Hammer mines ordinary Iron Ore in 13.5 seconds")),
+			List.of("Deepslate Iron Ore cannot be harvested with the Hardwood Hammer."));
+		blockDrop(registry, drops, "ore/copper_hardwood_hammer",
+			mc("copper_ore"), List.of(pf("hardwood_hammer")),
+			List.of(loot(mc("raw_copper"), "Usual vanilla Copper Ore drops; Hardwood Hammer takes 13.5 seconds")),
+			List.of("Deepslate Copper Ore cannot be harvested with the Hardwood Hammer."));
 
 		// SleepingBagBlock: normal salvage vs advanced-tool full recovery.
 		blockDrop(registry, drops, "sleeping_bag_salvage",
@@ -1395,6 +1611,13 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			pf("clay_grinder"), List.of(pf("flint_multitool")), List.of(
 				new ProjectFlintLootRecipe.LootOutput(pf("super_heated_clay", 4), "Non-advanced dismantle salvage")
 			), List.of());
+
+		// 0.31.51-b: natural Stone takes 270 ticks with approved wooden-tier
+		// tools and drops Cobblestone (not a zero-tool vanilla quick break).
+		blockDrop(registry, drops, "stone/wooden_tier",
+			mc("stone"), List.of(any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"), pf("hardwood_hammer"))),
+			List.of(loot(mc("cobblestone"), "1 Cobblestone; 13.5-second natural Stone harvest")),
+			List.of("Non-approved tools cannot acquire Stone drops; unauthorized ore breaking takes 45 seconds."));
 
 		// Vanilla blocks whose normal drops are replaced by ProjectFlint progression.
 		blockDrop(registry, drops, "stone_hammer",

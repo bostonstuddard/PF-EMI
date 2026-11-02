@@ -66,6 +66,7 @@ public class JemiRecipeSlotDrawable implements IRecipeSlotDrawable {
 	}
 
 	@Override
+	@SuppressWarnings("removal") // JEI still requires this deprecated method.
 	public List<Text> getTooltip() {
 		// Unimplemented
 		// Mutable because who knows
@@ -73,6 +74,7 @@ public class JemiRecipeSlotDrawable implements IRecipeSlotDrawable {
 	}
 
 	@Override
+	@SuppressWarnings("removal") // JEI still requires this deprecated method.
 	public void getTooltip(ITooltipBuilder tooltipBuilder) {
 		// Unimplemented
 	}

@@ -12,6 +12,7 @@ public class JemiPlaceable<T extends IPlaceable<T>> implements IPlaceable<T> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked") // This generic adapter intentionally returns its concrete subclass.
 	public T setPosition(int xPos, int yPos) {
 		this.x = xPos;
 		this.y = yPos;

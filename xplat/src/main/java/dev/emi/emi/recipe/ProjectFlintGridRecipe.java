@@ -25,9 +25,15 @@ public final class ProjectFlintGridRecipe implements EmiRecipe {
 	private final EmiStack output;
 	private final int gridSize;
 	private final boolean shapeless;
+	private final int reusableToolIndex;
 
 	public ProjectFlintGridRecipe(EmiRecipeCategory category, Identifier id,
 		List<EmiIngredient> cells, EmiStack output, int gridSize, boolean shapeless) {
+		this(category, id, cells, output, gridSize, shapeless, false);
+	}
+
+	public ProjectFlintGridRecipe(EmiRecipeCategory category, Identifier id,
+		List<EmiIngredient> cells, EmiStack output, int gridSize, boolean shapeless, boolean durable) {
 		if (gridSize != 2 && gridSize != 3) throw new IllegalArgumentException("Only 2x2 or 3x3 grids supported");
 		if (cells.size() > gridSize * gridSize) throw new IllegalArgumentException("Too many grid cells");
 		this.category = category;
@@ -36,14 +42,20 @@ public final class ProjectFlintGridRecipe implements EmiRecipe {
 		this.output = output.copy();
 		this.gridSize = gridSize;
 		this.shapeless = shapeless;
+		this.reusableToolIndex = durable ? cells.size() - 1 : -1;
 	}
 
 	@Override public EmiRecipeCategory getCategory() { return category; }
 	@Override public Identifier getId() { return id; }
 	@Override public List<EmiIngredient> getInputs() {
 		List<EmiIngredient> items = new ArrayList<>();
-		for (EmiIngredient ingredient : cells) if (!ingredient.isEmpty()) items.add(ingredient);
+		for (int i = 0; i < cells.size(); i++) {
+			if (i != reusableToolIndex && !cells.get(i).isEmpty()) items.add(cells.get(i));
+		}
 		return List.copyOf(items);
+	}
+	@Override public List<EmiIngredient> getCatalysts() {
+		return reusableToolIndex < 0 ? List.of() : List.of(cells.get(reusableToolIndex));
 	}
 	@Override public List<EmiStack> getOutputs() { return List.of(output); }
 	@Override public int getDisplayWidth() { return gridSize * 18 + 64; }
@@ -54,7 +66,11 @@ public final class ProjectFlintGridRecipe implements EmiRecipe {
 	@Override public void addWidgets(WidgetHolder widgets) {
 		for (int i = 0; i < gridSize * gridSize; i++) {
 			EmiIngredient stack = i < cells.size() ? cells.get(i) : EmiStack.of(ItemStack.EMPTY);
-			widgets.addSlot(stack, (i % gridSize) * 18, (i / gridSize) * 18);
+			var slot = widgets.addSlot(stack, (i % gridSize) * 18, (i / gridSize) * 18)
+				.catalyst(i == reusableToolIndex);
+			if (i == reusableToolIndex) {
+				slot.appendTooltip(EmiPort.literal("Reusable tool/form; tools can lose 1 durability"));
+			}
 		}
 		int gridPixels = gridSize * 18;
 		widgets.addTexture(EmiTexture.EMPTY_ARROW, gridPixels + 3, (gridPixels - 17) / 2);
