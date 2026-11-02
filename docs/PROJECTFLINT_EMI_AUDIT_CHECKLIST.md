@@ -1,3 +1,54 @@
+# pf.14 incremental audit (October 29, 2026)
+
+**Pinned upstream:** `bostonstuddard/ProjectFlint` commit `169797e5440474457fd3410456bf43401214bf3c`, gameplay version `0.31.50-b`. The following checks are source-inspected and/or static-tested, NOT in-game certified.
+
+- [x] PF source confirms Hardwood Table crafting time 60 server ticks with resets and progress UI.
+- [x] EMI Hardwood 3×3 recipe pages show a visible 3-second craft label.
+- [x] PF source confirms Fat-Burning Torch starts with 0 Fat charges and crafting no longer consumes Fat.
+- [x] EMI Fat-Burning Torch displayed recipe excludes Fat, and placement guide states post-placement fueling.
+- [x] PF source confirms Bound Wood Processor in the Hardwood Table assembly JSON; EMI reflects this.
+- [x] PF source confirms 18 log/stripped-log recipes use `plank_cutting_axes` tag with Wooden and Hardwood Axes; EMI displays both.
+- [x] Static source inspection: custom shaped and shapeless recipes can be reclassified from the live PF recipe registry by 2×2/3×3 fit.
+- [x] Static source inspection: crafting entry for Tanned Utility Vest is excluded from generic Crafting.
+- [x] Static source inspection: multiblock IN/OUT materials are native EMI slots and canvas stops stealing rail tooltip hits.
+- [x] Static source inspection: description wrapping, contrasting text and recipe height account for long notes.
+- [x] Static source inspection: shapeless badge removed from the custom grid; Hardwood time label no longer lives only in a tooltip.
+- [x] PF `ClayBucketItem` inspected: living adult Cow right-click returns Clay Milk Bucket; water source fills Clay Water Bucket; placing water returns Clay Bucket.
+- [x] EMI cow milking and water bucket interactions included and marked as interactions, not kill loot.
+- [ ] Java/Gradle compilation of pf.14 against Fabric Minecraft 1.21.11.
+- [ ] In-game Light/Dark theme inspection of all affected recipe cards.
+- [ ] Mouse and A/U testing on Well / Forge material and output rails.
+- [ ] Actual Hardwood craft progress/readiness on singleplayer and dedicated server.
+- [ ] Exhaustive 0.31.50-b recipe-by-recipe, custom loot and world-interaction comparison.
+- [ ] Forge/NeoForge parity (not part of this Fabric-only source archive).
+
+---
+
+# pf.13 follow-up — Recipe category and coverage corrections (2026-10-28)
+
+**Note:** The pf.12 entries below are historical. The actual current patch is pf.13. `[x]` denotes source-level integration or an offline check, **not successful gameplay testing**. See `RECIPE_CATEGORY_AUDIT.md` for category ownership and what was moved.
+
+- [x] Removed `recent_world_processing` catch-all; split Basin, Forge, farming and torch refueling into correct categories.
+- [x] Added `personal_crafting` grid and generated recipe entries for the latest ProjectFlint personal 2x2 guide, including correct wood-family variants.
+- [x] Added six exact-pattern Hardwood tool recipes under `hardwood_crafting` (3×3); moved Hardwood material and table assembly to personal crafting.
+- [x] Preserved source-dependent dynamic Leather Repair recipe under native crafting, rather than representing variable durability as a fake fixed output.
+- [x] Mirrored valid Clay Grinder conversions in Wooden Grinder with unique IDs.
+- [x] Added all 25 source-defined Sanding Station dye recipes.
+- [x] Added Primitive Oven non-parchment/direct food routes, separated from the bound researched oven recipes.
+- [x] Added Brick Furnace exclusive Leather/Tanned Leather and Sand/Glass; not shared with Brick Blast Furnace.
+- [x] Added Pumpkin Cake slicing and ProjectFlint Brush 512-max-damage Wooden Grinder results.
+- [x] Added returned empty Clay Bucket outputs to Wooden Grinder water/milk conversions.
+- [x] Added English translations for 22 ProjectFlint EMI categories.
+- [x] `tools/verify_pf_emi_pf13.py`: 30/30 source-contract/static checks passed.
+- [ ] Full Gradle Fabric compilation, client launch and category presentation tested at multiple GUI scales.
+- [ ] Full ProjectFlint recipe-tree + every datapack JSON enumerated, compared and rebuilt with no omissions.
+- [ ] Validate recipe conditions, stateful tool/component requirements and special return items in-game.
+- [ ] Validate all block and mob loot cases, rates and tool predicates in-game.
+- [ ] Verify full vanilla 3×3 crafting applicability on Hardwood Table without exposing progression-bypassing recipes.
+- [ ] Validate Forge and NeoForge builds separately (the supplied source currently targets Fabric only).
+
+---
+
 # PF-EMI × ProjectFlint — Exhaustive Audit Checklist
 
 Target: **ProjectFlint v0.31.48-b** (`bostonstuddard/ProjectFlint` commit `6f45b748eb808e50f9945ee174f9ccf255362862`, verified 2026-10-28); PF-EMI **1.1.23-pf.12**, MC **1.21.11**.

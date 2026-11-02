@@ -2,6 +2,27 @@
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).
 
+## 1.1.23-pf.14 — UI readability, rail interactions and ProjectFlint 0.31.50-b sync (2026-10-29)
+
+- Fixed overflowing and low-contrast world/loot guidance: bounded word wrapping, content-driven height, dark text for the default light EMI recipe theme.
+- Removed the extraneous shapeless badge overlapping the result area in custom 2×2 and 3×3 recipes.
+- Made the multiblock **IN/OUT rails actual EMI item slots**, preserving alternate material variants for recipe/use lookups. Removed the full-screen widget's tooltip interception, which prevented A/U navigation, without altering the 3D scene.
+- Displayed **3 seconds (60 ticks) per craft** directly on the Hardwood 3×3 recipe pages rather than only in a hover tooltip.
+- Synced ProjectFlint **v0.31.50-b** (GitHub commit `169797e5440474457fd3410456bf43401214bf3c`): corrected Fat-Burning Torch (Stick + String + Charcoal, no Fat until placed), Hardwood Crafting Table (two Hardwood Alloy + Cobblestone + **Bound Wood Processor**), and all nine wood-family Log / Stripped Log plank transformations accepting either Wooden Axe or Hardwood Axe.
+- Added automatic category routing for newly registered *ordinary ProjectFlint* shaped/shapeless crafting recipes missed by the static list: true ≤2×2 recipes go to Personal Crafting and larger recipes go to Hardwood Crafting. Native non-crafting recipes are preserved; native crafting duplicates are hidden when mirrored. The Wooden Grinder-exclusive **Tanned Utility Vest** recipe is not displayed as generic crafting.
+- Documented **Clay Bucket → Clay Milk Bucket** from right-clicking a living adult Cow in the mob-interaction section, and filling/emptying water using Clay Buckets in world interactions. The milking process is explicitly **not a kill drop**.
+- Updated the source-only verification checklist. Local source assertions and ZIP validation are not a substitute for compiling/running Minecraft. **Only the Fabric target in this source archive has been patched; Forge/NeoForge parity is not claimed.**
+
+## 1.1.23-pf.13 — Recipe sorting and missing integration coverage (2026-10-28)
+
+- **Removed the erroneous `recent_world_processing` catch-all category.** Basin jumps, Fireclay Forge operations, strawberry planting/harvesting, and Fat-Burning Torch refueling are now displayed under meaningful, separate categories.
+- Added dedicated **Personal Crafting (2×2)** and **Hardwood Crafting Table (3×3)** recipe pages, including nine wood families, portable leatherworking, tool recipes, Fat-Burning Torch production, Hardwood material and table production, and six exact-shaped Hardwood tools. Generic native Crafting entries are selectively remapped only for those source-verified recipe IDs.
+- Added the missing **25 Sanding Station flower/ink dye** conversions and **Wooden Grinder inheritance** of Clay Grinder conversions. Added the missing Pumpkin Cake slicing and ProjectFlint Brush upgrade entries.
+- Added **Primitive Oven direct food/cooking** recipes in their actual oven category, and Brick Furnace-exclusive **Tanned Leather and Glass** production. These exclusives are deliberately omitted from Brick Blast Furnace.
+- Corrected the **empty Clay Bucket return** for Wooden Grinder recipes that use filled Clay Buckets.
+- Added English category translations, a true grid-geometry display recipe, category-by-category audit documentation, and a pf.13 static validation script.
+- **Not certified as release-ready:** all 30 local source-level checks pass, but no full Gradle compilation or in-game GUI/runtime test was possible. This is a source patch for testing; the global parity checklist remains open.
+
 ## 1.1.23-pf.12 — Source-parity corrections and loot lookup (2026-10-28)
 
 - Corrected Bookshelf research outputs to **actual bound Recipe Parchments**, with the `ProjectFlintRecipe` custom-data component and matching unfinished-bacon model override. Added the staged Bacon & Eggs research step, including its required unfinished parchment; corrected 4-book eligibility indicators for the missing pages.
