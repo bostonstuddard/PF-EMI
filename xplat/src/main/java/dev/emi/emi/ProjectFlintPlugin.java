@@ -2,17 +2,27 @@ package dev.emi.emi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.recipe.EmiWorldInteractionRecipe;
+import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.config.FluidUnit;
 import dev.emi.emi.recipe.ProjectFlintProcessRecipe;
 import dev.emi.emi.recipe.ProjectFlintLootRecipe;
+import dev.emi.emi.recipe.ProjectFlintGridRecipe;
+import dev.emi.emi.recipe.EmiShapedRecipe;
+import dev.emi.emi.recipe.EmiShapelessRecipe;
+import dev.emi.emi.platform.EmiAgnos;
+import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.component.type.NbtComponent;
@@ -31,7 +41,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.12";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.14";
 
 	private static final String PF = "projectflint";
 
@@ -61,6 +71,37 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		"warped_wooden_beam"
 	);
 
+
+	// Exact JSON recipe ids from PersonalCraftingGuideRegistry and the Hardwood tool
+	// definitions. Removing native EMI's generic Crafting display prevents the same
+	// item from having inconsistent workstation categories.
+	private static final List<String> WOOD_VARIANTS = List.of("oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "cherry", "pale_oak");
+	private static final Set<String> REMAPPED_GRID_RECIPES = createRemappedRecipeIds();
+	// Populated from the live ProjectFlint JSON crafting registry at recipe reload.
+	private static final Set<String> AUTO_REMAPPED_RECIPES = new java.util.HashSet<>();
+	private static EmiRecipeCategory personalCategory;
+
+	private static Set<String> createRemappedRecipeIds() {
+		java.util.Set<String> ids = new java.util.HashSet<>(List.of(
+			"leather_sheet_from_tanned", "leather_straps_from_sheet", "leather_repair_kit",
+			"wooden_pickaxe", "wooden_axe", "wooden_shovel", "crushed_stone_from_cobblestone",
+			"basin_crafting", "sticks_from_sheet", "sand_from_flakes",
+			"clay_block_from_clay_balls", "dirt_from_loose_soil", "loose_soil_from_dirt",
+			"dirt_piles_from_loose_soil", "fat_burning_torch",
+			"hardwood", "hardwood_crafting_table", "hardwood_pickaxe", "hardwood_axe",
+			"hardwood_shovel", "hardwood_hoe", "hardwood_sword", "hardwood_hammer"
+		));
+		for (String wood : WOOD_VARIANTS) {
+			ids.add(wood + "_planks_from_log");
+			ids.add(wood + "_planks_from_stripped_log");
+			ids.add(wood + "_sheet_from_plank");
+			ids.add(wood + "_board_from_plank");
+			ids.add(wood + "_door_hinged");
+			if (!wood.equals("oak")) ids.add("wooden_shovel_" + wood);
+		}
+		return Set.copyOf(ids);
+	}
+
 	@Override
 	public void register(EmiRegistry registry) {
 		if (!hasPfItem("rock")) {
@@ -68,6 +109,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		}
 
 		ProjectFlintRecipeIndex.reset();
+		AUTO_REMAPPED_RECIPES.clear();
 
 		/*
 		 * ProjectFlint progression is intentionally not the vanilla crafting catalog.
@@ -76,6 +118,16 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		 */
 		registry.removeRecipes(recipe -> {
 			Identifier id = recipe.getId();
+			// ProjectFlint's custom workstation recipes must not acquire an
+			// extra fake vanilla Crafting entry. Keep non-crafting EMI pages.
+			if (recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING) {
+				if (recipe.getOutputs().stream().anyMatch(out ->
+					pfId("tanned_utility_vest").equals(out.getId()))) return true;
+				if (id != null && PF.equals(id.getNamespace())) {
+					return REMAPPED_GRID_RECIPES.contains(id.getPath())
+						|| AUTO_REMAPPED_RECIPES.contains(id.getPath());
+				}
+			}
 			return id == null || !PF.equals(id.getNamespace());
 		});
 
@@ -86,7 +138,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		registerHeatProcessing(registry);
 		registerAdvancedKiln(registry);
 		registerMissingWorldRoutes(registry);
-		registerModernProjectFlintRoutes(registry);
+		registerFarmingRoutes(registry);
+		registerBasinRoutes(registry);
+		registerFireclayForgeRoutes(registry);
+		registerPersonalCrafting(registry);
+		registerHardwoodCrafting(registry);
 		registerBlockDropRecipes(registry);
 		registerMobLootRecipes(registry);
 
@@ -270,70 +326,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		EmiRecipeCategory shelf = category(registry, "bookshelf", "bookshelf");
 		EmiRecipeCategory stove = category(registry, "primitive_stove", "primitive_stove");
 
-		if (clay != null) {
-			// Current ClayGrinderRecipeGuideRegistry.
-			simple(registry, clay, "clay/bone_club", List.of(pf("filed_bone", 4)), pf("bone_club"));
-			simple(registry, clay, "clay/bone_helmet", List.of(pf("filed_bone", 5)), pf("bone_helmet"));
-			simple(registry, clay, "clay/bone_chestplate", List.of(pf("filed_bone", 8)), pf("bone_chestplate"));
-			simple(registry, clay, "clay/bone_leggings", List.of(pf("filed_bone", 7)), pf("bone_leggings"));
-			simple(registry, clay, "clay/bone_boots", List.of(pf("filed_bone", 4)), pf("bone_boots"));
-			// ClayGrinderRecipeGuideRegistry: newer tanning, brick, and fireclay conversions.
-			simple(registry, clay, "clay/tanned_helmet", List.of(pf("tanned_leather", 5)), pf("tanned_leather_helmet"));
-			simple(registry, clay, "clay/tanned_chestplate", List.of(pf("tanned_leather", 8)), pf("tanned_leather_chestplate"));
-			simple(registry, clay, "clay/tanned_leggings", List.of(pf("tanned_leather", 7)), pf("tanned_leather_leggings"));
-			simple(registry, clay, "clay/tanned_boots", List.of(pf("tanned_leather", 4)), pf("tanned_leather_boots"));
-			simple(registry, clay, "clay/fireclay_brick_block", List.of(pf("fireclay_brick", 4)), pf("fireclay_brick_block"));
-			simple(registry, clay, "clay/fireclay_brick_slab", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_slab", 2));
-			simple(registry, clay, "clay/fireclay_brick_stairs", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_stairs"));
-			simple(registry, clay, "clay/fireclay_slab_to_block", List.of(pf("fireclay_brick_slab", 2)), pf("fireclay_brick_block"));
-			simple(registry, clay, "clay/unfired_brick_recycle", List.of(pf("unfired_brick")), pf("unfired_clay_ball", 2));
-			simple(registry, clay, "clay/loose_dirt_from_slabs", List.of(pf("loose_dirt_slab", 2)), pf("loose_dirt"));
-			simple(registry, clay, "clay/clay_mortar", List.of(pf("super_heated_clay", 9)), pf("clay_mortar"));
-			simple(registry, clay, "clay/flint_chips", List.of(mc("flint")), pf("flint_chip", 4));
-			simple(registry, clay, "clay/flint_from_chips", List.of(pf("flint_chip", 4)), mc("flint"));
-			simple(registry, clay, "clay/grinded_wood", List.of(pf("sanded_wood_slab", 2)), pf("grinded_wood_slab"));
-			simple(registry, clay, "clay/sanded_reverse", List.of(pf("grinded_wood_slab")), pf("sanded_wood_slab", 2));
-			simple(registry, clay, "clay/stone_grindsaw", List.of(pf("crushed_stone", 8)), pf("stone_grindsaw"));
-			simple(registry, clay, "clay/crushed_stone", List.of(pf("very_refined_stone", 8)), pf("crushed_stone"));
-			simple(registry, clay, "clay/crushed_slab", List.of(pf("crushed_stone")), pf("crushed_stone_slab", 2));
-			simple(registry, clay, "clay/crushed_block", List.of(pf("crushed_stone_slab", 2)), pf("crushed_stone"));
-			simple(registry, clay, "clay/mortar_slab", List.of(pf("mortar_bricks")), pf("mortar_brick_slab", 2));
-			simple(registry, clay, "clay/mortar_block", List.of(pf("mortar_brick_slab", 2)), pf("mortar_bricks"));
-			simple(registry, clay, "clay/mortar_kiln_base", List.of(pf("mortar_bricks", 32)), pf("mortar_kiln_base"));
-			simple(registry, clay, "clay/sanding_paper", List.of(pf("sugarcane_roll", 4)), pf("sanding_paper"));
-			simple(registry, clay, "clay/twig_to_branch", List.of(pf("twig", 4)), pf("branch"));
-			simple(registry, clay, "clay/branch_to_twigs", List.of(pf("branch")), pf("twig", 2));
-			simple(registry, clay, "clay/unfired_kiln_glass", List.of(pf("glass_shard", 4)), pf("unfired_kiln_glass"));
-			simple(registry, clay, "clay/floor_tile", List.of(pf("wattled_daub_bricks")), pf("wattled_daub_floor_tile", 2));
-			simple(registry, clay, "clay/wooden_grinder_base", List.of(pf("woven_wood", 12)), pf("wooden_grinder_base"));
-			simple(registry, clay, "clay/woven_wood", List.of(pf("woven_wood_slab", 2)), pf("woven_wood"));
-			simple(registry, clay, "clay/woven_slab", List.of(pf("woven_wood")), pf("woven_wood_slab", 2));
-			simple(registry, clay, "clay/loose_mud_slab", List.of(pf("loose_mud_bricks")), pf("loose_mud_brick_slab", 2));
-			simple(registry, clay, "clay/loose_mud_block", List.of(pf("loose_mud_brick_slab", 2)), pf("loose_mud_bricks"));
-			simple(registry, clay, "clay/crude_clay_slab", List.of(pf("crude_clay_block")), pf("crude_clay_slab", 2));
-			simple(registry, clay, "clay/crude_clay_block", List.of(pf("crude_clay_slab", 2)), pf("crude_clay_block"));
-			simple(registry, clay, "clay/fired_clay", List.of(pf("crude_clay_block")), pf("fired_clay", 4));
-			simple(registry, clay, "clay/burnt_branch_block", List.of(pf("burnt_branch_slab", 2)), pf("burnt_branch_block"));
-			simple(registry, clay, "clay/burnt_branch_slabs", List.of(pf("burnt_branch_block")), pf("burnt_branch_slab", 2));
-			simple(registry, clay, "clay/burnt_branches", List.of(pf("burnt_branch_slab")), pf("burnt_branch", 8));
-
-			for (String mold : List.of("axe", "block", "brick", "cutters", "multitool", "pot")) {
-				simple(registry, clay, "clay/unfired_" + mold + "_mold",
-					List.of(pf("unfired_clay_mold_base")), pf("unfired_clay_" + mold + "_mold"));
-			}
-
-			logSlabPair(registry, clay, "oak", "stripped_oak_log", "oak_slab");
-			logSlabPair(registry, clay, "spruce", "stripped_spruce_log", "spruce_slab");
-			logSlabPair(registry, clay, "birch", "stripped_birch_log", "birch_slab");
-			logSlabPair(registry, clay, "jungle", "stripped_jungle_log", "jungle_slab");
-			logSlabPair(registry, clay, "acacia", "stripped_acacia_log", "acacia_slab");
-			logSlabPair(registry, clay, "dark_oak", "stripped_dark_oak_log", "dark_oak_slab");
-			logSlabPair(registry, clay, "mangrove", "stripped_mangrove_log", "mangrove_slab");
-			logSlabPair(registry, clay, "cherry", "stripped_cherry_log", "cherry_slab");
-			logSlabPair(registry, clay, "pale_oak", "stripped_pale_oak_log", "pale_oak_slab");
-			simple(registry, clay, "clay/bamboo_slab", List.of(mc("stripped_bamboo_block")), mc("bamboo_slab", 2));
-			simple(registry, clay, "clay/bamboo_block", List.of(mc("bamboo_slab", 2)), mc("stripped_bamboo_block"));
-		}
+		if (clay != null) registerClayConversions(registry, clay, "clay");
+		// Wooden Grinder can also perform all Clay Grinder one-input conversions.
+		if (wood != null) registerClayConversions(registry, wood, "wood_clay");
 
 		if (wood != null) {
 			EmiIngredient flintFile = pf("flint_file");
@@ -452,20 +447,33 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(mc("leather", 8), pf("woven_wool", 8)), maxDamageItem("leather_chestplate", 512));
 			simple(registry, wood, "wood/leather_leggings",
 				List.of(mc("leather", 7), pf("woven_wool", 7)), maxDamageItem("leather_leggings", 512));
-			simple(registry, wood, "wood/wheat_seeds",
-				List.of(pf("flax_seeds", 9), pf("clay_water_bucket")), mc("wheat_seeds", 3));
-			simple(registry, wood, "wood/flour",
-				List.of(mc("wheat", 9), pf("clay_water_bucket")), pf("flour", 9));
-			simple(registry, wood, "wood/fat",
-				List.of(rawMeats(1), pf("clay_water_bucket")), pf("fat"));
-			simple(registry, wood, "wood/milk_cups",
-				List.of(pf("wooden_cup", 2), pf("clay_milk_bucket")), pf("wooden_cup_raw_milk", 4));
+			// WoodenGrinderMenu returns one empty Clay Bucket for each filled vessel.
+			process(registry, wood, "wood/wheat_seeds",
+				List.of(pf("flax_seeds", 9), pf("clay_water_bucket")), List.of(),
+				List.of(mc("wheat_seeds", 3), pf("clay_bucket")), 0);
+			process(registry, wood, "wood/flour",
+				List.of(mc("wheat", 9), pf("clay_water_bucket")), List.of(),
+				List.of(pf("flour", 9), pf("clay_bucket")), 0);
+			process(registry, wood, "wood/fat",
+				List.of(rawMeats(1), pf("clay_water_bucket")), List.of(),
+				List.of(pf("fat"), pf("clay_bucket")), 0);
+			process(registry, wood, "wood/milk_cups",
+				List.of(pf("wooden_cup", 2), pf("clay_milk_bucket")), List.of(),
+				List.of(pf("wooden_cup_raw_milk", 4), pf("clay_bucket")), 0);
 			simple(registry, wood, "wood/utility_vest",
 				List.of(pf("tanned_leather_chestplate"), pf("leather_backpack_with_chest")), pf("tanned_utility_vest"));
 			simple(registry, wood, "wood/vanilla_bricks",
 				List.of(mc("brick", 2), mc("brick", 2)), mc("bricks"));
 			simple(registry, wood, "wood/wattled_daub_from_bricks",
 				List.of(mc("brick", 2)), pf("wattled_daub_bricks", 12));
+			// Remaining WoodenGrinderRecipeRegistry entries previously omitted.
+			process(registry, wood, "wood/pumpkin_cake_slice",
+				List.of(pf("pumpkin_cake")), List.of(pf("bone_knife")),
+				List.of(pf("pumpkin_cake_slice", 4)), 0);
+			// Requires a fully undamaged Bone Brush, consumed as an ingredient;
+			// produces ProjectFlint's 512-durability vanilla Brush variant.
+			simple(registry, wood, "wood/brush_upgrade",
+				List.of(pf("wooden_screw", 2), pf("bone_brush")), maxDamageItem("brush", 512));
 
 			EmiIngredient beamAny = anyPf(1, WOODEN_BEAMS.toArray(String[]::new));
 			simple(registry, wood, "wood/wooden_cabinet",
@@ -505,6 +513,25 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(pf("glazed_checkered_tile")), pf("checkered_tile"));
 			simple(registry, sand, "sand/recipe_parchment",
 				List.of(mc("writable_book")), pf("recipe_parchment"));
+			// SandingStationRecipeRegistry flower/ink dye transformations.
+			for (String[] dye : new String[][] {
+				{"dandelion","yellow_dye","2"}, {"wildflowers","yellow_dye","2"},
+				{"sunflower","yellow_dye","4"}, {"poppy","red_dye","2"},
+				{"red_tulip","red_dye","2"}, {"rose_bush","red_dye","4"},
+				{"blue_orchid","light_blue_dye","2"}, {"allium","magenta_dye","2"},
+				{"lilac","magenta_dye","4"}, {"azure_bluet","light_gray_dye","2"},
+				{"white_tulip","light_gray_dye","2"}, {"oxeye_daisy","light_gray_dye","2"},
+				{"orange_tulip","orange_dye","2"}, {"torchflower","orange_dye","2"},
+				{"open_eyeblossom","orange_dye","2"}, {"pink_tulip","pink_dye","2"},
+				{"pink_petals","pink_dye","2"}, {"cactus_flower","pink_dye","2"},
+				{"peony","pink_dye","4"}, {"cornflower","blue_dye","2"},
+				{"lily_of_the_valley","white_dye","2"}, {"wither_rose","black_dye","2"},
+				{"closed_eyeblossom","gray_dye","2"}, {"pitcher_plant","cyan_dye","4"},
+				{"ink_sac","black_dye","2"}
+			}) {
+				simple(registry, sand, "sand/dye/" + dye[0], List.of(mc(dye[0])), mc(dye[1], Integer.parseInt(dye[2])));
+			}
+
 		}
 
 		if (shelf != null) {
@@ -571,6 +598,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		}
 
 		if (stove != null) {
+			registerPrimitiveOvenDirectFood(registry, stove);
 			EmiIngredient parchment = pf("recipe_parchment");
 			stoveRecipe(registry, stove, "sugar", List.of(mc("sugar_cane", 4)), parchment, mc("sugar"));
 			stoveRecipe(registry, stove, "sweet_berry_jam",
@@ -640,6 +668,98 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(pf("filed_bone", 4), pf("butter"), pf("wooden_cup", 2)),
 				parchment, pf("bone_broth", 4));
 		}
+	}
+
+	/** ClayGrinderRecipeGuideRegistry is inherited by the Wooden Grinder. */
+	/** PrimitiveStoveRecipeRegistry.findDirectFood permits these WITHOUT a parchment.
+	 * Special researched meals are separate and do require their bound parchments. */
+	private static void registerPrimitiveOvenDirectFood(EmiRegistry registry, EmiRecipeCategory oven) {
+		heat(registry, oven, "oven_direct", "scrambled_egg", mc("egg"), pf("scrambled_egg", 2), 300, 1.0f);
+		heat(registry, oven, "oven_direct", "plant_seeds", pf("plant_fiber"), pf("plant_seeds"), 375, 1.0f);
+		heat(registry, oven, "oven_direct", "clay_bucket", pf("unfired_clay_bucket"), pf("clay_bucket"), 300, 1.0f);
+		heat(registry, oven, "oven_direct", "unfired_brick", pf("unfired_brick"), mc("brick"), 300, 1.0f);
+		heat(registry, oven, "oven_direct", "fireclay_brick", pf("unfired_fireclay_brick"), pf("fireclay_brick"), 300, 1.0f);
+		String[][] meats = {
+			{"raw_calamari","cooked_calamari"}, {"raw_turtle_meat","cooked_turtle_meat"},
+			{"raw_fox_meat","cooked_fox_meat"}, {"raw_frog_meat","cooked_frog_meat"},
+			{"raw_goat_meat","cooked_goat_meat"}, {"raw_horse_meat","cooked_horse_meat"},
+			{"raw_llama_meat","cooked_llama_meat"}, {"raw_dolphin_meat","cooked_dolphin_meat"},
+			{"raw_bear_meat","cooked_bear_meat"}, {"raw_camel_meat","cooked_camel_meat"}
+		};
+		for (String[] meat : meats) heat(registry, oven, "oven_direct", meat[1], pf(meat[0]), pf(meat[1]), 300, 1.0f);
+		String[][] vanilla = {
+			{"beef","cooked_beef"}, {"porkchop","cooked_porkchop"},
+			{"chicken","cooked_chicken"}, {"mutton","cooked_mutton"},
+			{"rabbit","cooked_rabbit"}, {"cod","cooked_cod"},
+			{"salmon","cooked_salmon"}, {"potato","baked_potato"}, {"kelp","dried_kelp"}
+		};
+		for (String[] entry : vanilla) heat(registry, oven, "oven_direct", entry[1], mc(entry[0]), mc(entry[1]), 300, 1.0f);
+	}
+
+	private static void registerClayConversions(EmiRegistry registry, EmiRecipeCategory target, String prefix) {
+
+			// Current ClayGrinderRecipeGuideRegistry.
+			simple(registry, target, prefix + "/bone_club", List.of(pf("filed_bone", 4)), pf("bone_club"));
+			simple(registry, target, prefix + "/bone_helmet", List.of(pf("filed_bone", 5)), pf("bone_helmet"));
+			simple(registry, target, prefix + "/bone_chestplate", List.of(pf("filed_bone", 8)), pf("bone_chestplate"));
+			simple(registry, target, prefix + "/bone_leggings", List.of(pf("filed_bone", 7)), pf("bone_leggings"));
+			simple(registry, target, prefix + "/bone_boots", List.of(pf("filed_bone", 4)), pf("bone_boots"));
+			// ClayGrinderRecipeGuideRegistry: newer tanning, brick, and fireclay conversions.
+			simple(registry, target, prefix + "/tanned_helmet", List.of(pf("tanned_leather", 5)), pf("tanned_leather_helmet"));
+			simple(registry, target, prefix + "/tanned_chestplate", List.of(pf("tanned_leather", 8)), pf("tanned_leather_chestplate"));
+			simple(registry, target, prefix + "/tanned_leggings", List.of(pf("tanned_leather", 7)), pf("tanned_leather_leggings"));
+			simple(registry, target, prefix + "/tanned_boots", List.of(pf("tanned_leather", 4)), pf("tanned_leather_boots"));
+			simple(registry, target, prefix + "/fireclay_brick_block", List.of(pf("fireclay_brick", 4)), pf("fireclay_brick_block"));
+			simple(registry, target, prefix + "/fireclay_brick_slab", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_slab", 2));
+			simple(registry, target, prefix + "/fireclay_brick_stairs", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_stairs"));
+			simple(registry, target, prefix + "/fireclay_slab_to_block", List.of(pf("fireclay_brick_slab", 2)), pf("fireclay_brick_block"));
+			simple(registry, target, prefix + "/unfired_brick_recycle", List.of(pf("unfired_brick")), pf("unfired_clay_ball", 2));
+			simple(registry, target, prefix + "/loose_dirt_from_slabs", List.of(pf("loose_dirt_slab", 2)), pf("loose_dirt"));
+			simple(registry, target, prefix + "/clay_mortar", List.of(pf("super_heated_clay", 9)), pf("clay_mortar"));
+			simple(registry, target, prefix + "/flint_chips", List.of(mc("flint")), pf("flint_chip", 4));
+			simple(registry, target, prefix + "/flint_from_chips", List.of(pf("flint_chip", 4)), mc("flint"));
+			simple(registry, target, prefix + "/grinded_wood", List.of(pf("sanded_wood_slab", 2)), pf("grinded_wood_slab"));
+			simple(registry, target, prefix + "/sanded_reverse", List.of(pf("grinded_wood_slab")), pf("sanded_wood_slab", 2));
+			simple(registry, target, prefix + "/stone_grindsaw", List.of(pf("crushed_stone", 8)), pf("stone_grindsaw"));
+			simple(registry, target, prefix + "/crushed_stone", List.of(pf("very_refined_stone", 8)), pf("crushed_stone"));
+			simple(registry, target, prefix + "/crushed_slab", List.of(pf("crushed_stone")), pf("crushed_stone_slab", 2));
+			simple(registry, target, prefix + "/crushed_block", List.of(pf("crushed_stone_slab", 2)), pf("crushed_stone"));
+			simple(registry, target, prefix + "/mortar_slab", List.of(pf("mortar_bricks")), pf("mortar_brick_slab", 2));
+			simple(registry, target, prefix + "/mortar_block", List.of(pf("mortar_brick_slab", 2)), pf("mortar_bricks"));
+			simple(registry, target, prefix + "/mortar_kiln_base", List.of(pf("mortar_bricks", 32)), pf("mortar_kiln_base"));
+			simple(registry, target, prefix + "/sanding_paper", List.of(pf("sugarcane_roll", 4)), pf("sanding_paper"));
+			simple(registry, target, prefix + "/twig_to_branch", List.of(pf("twig", 4)), pf("branch"));
+			simple(registry, target, prefix + "/branch_to_twigs", List.of(pf("branch")), pf("twig", 2));
+			simple(registry, target, prefix + "/unfired_kiln_glass", List.of(pf("glass_shard", 4)), pf("unfired_kiln_glass"));
+			simple(registry, target, prefix + "/floor_tile", List.of(pf("wattled_daub_bricks")), pf("wattled_daub_floor_tile", 2));
+			simple(registry, target, prefix + "/wooden_grinder_base", List.of(pf("woven_wood", 12)), pf("wooden_grinder_base"));
+			simple(registry, target, prefix + "/woven_wood", List.of(pf("woven_wood_slab", 2)), pf("woven_wood"));
+			simple(registry, target, prefix + "/woven_slab", List.of(pf("woven_wood")), pf("woven_wood_slab", 2));
+			simple(registry, target, prefix + "/loose_mud_slab", List.of(pf("loose_mud_bricks")), pf("loose_mud_brick_slab", 2));
+			simple(registry, target, prefix + "/loose_mud_block", List.of(pf("loose_mud_brick_slab", 2)), pf("loose_mud_bricks"));
+			simple(registry, target, prefix + "/crude_clay_slab", List.of(pf("crude_clay_block")), pf("crude_clay_slab", 2));
+			simple(registry, target, prefix + "/crude_clay_block", List.of(pf("crude_clay_slab", 2)), pf("crude_clay_block"));
+			simple(registry, target, prefix + "/fired_clay", List.of(pf("crude_clay_block")), pf("fired_clay", 4));
+			simple(registry, target, prefix + "/burnt_branch_block", List.of(pf("burnt_branch_slab", 2)), pf("burnt_branch_block"));
+			simple(registry, target, prefix + "/burnt_branch_slabs", List.of(pf("burnt_branch_block")), pf("burnt_branch_slab", 2));
+			simple(registry, target, prefix + "/burnt_branches", List.of(pf("burnt_branch_slab")), pf("burnt_branch", 8));
+
+			for (String mold : List.of("axe", "block", "brick", "cutters", "multitool", "pot")) {
+				simple(registry, target, prefix + "/unfired_" + mold + "_mold",
+					List.of(pf("unfired_clay_mold_base")), pf("unfired_clay_" + mold + "_mold"));
+			}
+
+			logSlabPair(registry, target, prefix, "oak", "stripped_oak_log", "oak_slab");
+			logSlabPair(registry, target, prefix, "spruce", "stripped_spruce_log", "spruce_slab");
+			logSlabPair(registry, target, prefix, "birch", "stripped_birch_log", "birch_slab");
+			logSlabPair(registry, target, prefix, "jungle", "stripped_jungle_log", "jungle_slab");
+			logSlabPair(registry, target, prefix, "acacia", "stripped_acacia_log", "acacia_slab");
+			logSlabPair(registry, target, prefix, "dark_oak", "stripped_dark_oak_log", "dark_oak_slab");
+			logSlabPair(registry, target, prefix, "mangrove", "stripped_mangrove_log", "mangrove_slab");
+			logSlabPair(registry, target, prefix, "cherry", "stripped_cherry_log", "cherry_slab");
+			logSlabPair(registry, target, prefix, "pale_oak", "stripped_pale_oak_log", "pale_oak_slab");
+			simple(registry, target, prefix + "/bamboo_slab", List.of(mc("stripped_bamboo_block")), mc("bamboo_slab", 2));
+			simple(registry, target, prefix + "/bamboo_block", List.of(mc("bamboo_slab", 2)), mc("stripped_bamboo_block"));
 	}
 
 	private static void registerLumberProcessing(EmiRegistry registry) {
@@ -717,6 +837,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		if (furnace != null) {
 			registerCommonHeat(registry, furnace, "brick_furnace", 1.50f);
 			registerKilnOnly(registry, furnace, "brick_furnace", 1.50f);
+			// BrickFurnaceRecipeRegistry: exclusive conversions not valid in kiln/campfire.
+			heat(registry, furnace, "brick_furnace", "tanned_leather", mc("leather"), pf("tanned_leather"), 300, 1.50f);
+			heat(registry, furnace, "brick_furnace", "glass", mc("sand"), mc("glass"), 600, 1.50f);
 		}
 		if (blast != null) {
 			registerCommonHeat(registry, blast, "brick_blast_furnace", 1.50f);
@@ -903,59 +1026,200 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(mc("white_wool")),
 			List.of(new ProjectFlintLootRecipe.LootOutput(pf("wool", 4), "Drops 3-4 ProjectFlint Wool")),
 			List.of("Use the Bone Brush on a sheep that is ready for shearing."));
+		// Clay Bucket collects a water SOURCE, then returns empty after pouring.
+		info(registry, placement, "bucket/collect_water", "Clay Bucket: Collect Water",
+			pf("clay_bucket"), true, List.of(mc("water_bucket")),
+			List.of(loot(pf("clay_water_bucket"), "Collect one water source block")),
+			List.of("Use on a water source block, not flowing water.",
+				"Placing its water returns the empty Clay Bucket."));
+
+		info(registry, placement, "torch/fat_burning_torch", "Fat-Burning Torch Refueling",
+			pf("fat_burning_torch"), true, List.of(pf("fat")), List.of(),
+			List.of("Crafted torches start with zero Fat charges.", "After placing, add Fat, then ignite with a Firestarter.",
+				"Breaking and re-placing does not restore Fat."));
+
 	}
 
 	/** World processes introduced after the original PF-EMI recipe snapshot. */
-	private static void registerModernProjectFlintRoutes(EmiRegistry registry) {
-		EmiRecipeCategory placement = category(registry, "recent_world_processing", "wood_dust");
-		if (placement != null) {
-			info(registry, placement, "placement/strawberry_seeds", "Plant Strawberry Seeds",
-				pf("strawberry_seeds"), true, List.of(mc("grass_block")), List.of(),
-				List.of("Places a Strawberry Plant on supported ground.", "Growth stages 0-3; mature fruit requires cutters."));
-			info(registry, placement, "placement/strawberry_harvest", "Strawberry Plant Harvest",
-				pf("strawberry"), true, List.of(anyPf(1,"crude_harvesting_tool","flint_plant_cutters","advanced_flint_multitool")),
-				List.of(loot(pf("strawberry", 2), "1-2 berries from mature plant; resets to growth stage 1")),
-				List.of("Plant naturally generates in forest, birch, flower forest and meadow habitats.", "Mature plants require a plant-cutting tool."));
-			process(registry, placement, "basin/tannin",
-				List.of(anyMc(1, "stripped_oak_log", "stripped_oak_wood", "stripped_birch_log", "stripped_birch_wood")),
-				List.of(pf("basin")), List.of(pf("tannin", 2)), 0);
-			process(registry, placement, "basin/wood_dust",
-				List.of(anyMc(1, "oak_planks", "spruce_planks", "birch_planks", "jungle_planks", "acacia_planks",
-					"dark_oak_planks", "mangrove_planks", "cherry_planks", "pale_oak_planks", "bamboo_planks",
-					"crimson_planks", "warped_planks")), List.of(pf("basin")), List.of(pf("wood_dust")), 0);
-			process(registry, placement, "forge/wood_to_charcoal",
-				List.of(anyMc(4, "oak_log", "birch_log", "spruce_log", "jungle_log", "acacia_log",
-					"dark_oak_log", "mangrove_log", "cherry_log", "pale_oak_log",
-					"oak_wood", "birch_wood", "spruce_wood", "jungle_wood", "acacia_wood",
-					"dark_oak_wood", "mangrove_wood", "cherry_wood", "pale_oak_wood",
-					"stripped_oak_log", "stripped_birch_log", "stripped_spruce_log", "stripped_jungle_log",
-					"stripped_acacia_log", "stripped_dark_oak_log", "stripped_mangrove_log", "stripped_cherry_log",
-					"stripped_pale_oak_log", "stripped_oak_wood", "stripped_birch_wood", "stripped_spruce_wood",
-					"stripped_jungle_wood", "stripped_acacia_wood", "stripped_dark_oak_wood",
-					"stripped_mangrove_wood", "stripped_cherry_wood", "stripped_pale_oak_wood")),
-				List.of(pf("fireclay_forge_controller"), anyPf(1,"flint_firestarter","bone_firestarter","wood_firestarter")),
-				List.of(mc("charcoal", 4)), 20 * 60);
-			process(registry, placement, "forge/hardwood_alloy",
-				List.of(pf("hardwood"), mc("charcoal")),
-				List.of(pf("fireclay_forge_controller"), anyPf(1,"flint_firestarter","bone_firestarter","wood_firestarter")),
-				List.of(pf("hardwood_alloy")), 20 * 60 * 5);
-			info(registry, placement, "torch/fat_burning_torch", "Fat-Burning Torch Refueling",
-				pf("fat_burning_torch"), true, List.of(pf("fat")), List.of(),
-				List.of("Requires Fat charges for lighting and relighting.", "Supports floor and wall mounting; burns for up to 30 minutes."));
+	/** World crop planting/harvesting is NOT a machine recipe. */
+	private static void registerFarmingRoutes(EmiRegistry registry) {
+		EmiRecipeCategory farming = categoryIcon(registry, "farming", "strawberry_seeds");
+		if (farming == null) return;
+		info(registry, farming, "farming/strawberry_planting", "Plant Strawberry Seeds",
+			pf("strawberry_seeds"), true, List.of(mc("grass_block")), List.of(),
+			List.of("Use Strawberry Seeds on grass to plant.", "Plant grows through four stages (0-3)."));
+		info(registry, farming, "farming/strawberry_harvest", "Strawberry Plant Harvest",
+			pf("strawberry_seeds"), false,
+			List.of(anyPf(1, "crude_harvesting_tool", "crude_multitool", "flint_multitool", "flint_plant_cutters", "advanced_flint_multitool")),
+			List.of(loot(pf("strawberry", 2), "1-2 Strawberries, only when mature; resets age to 1")),
+			List.of("Cutters are required at mature growth stages.", "Tool durability is consumed when harvesting."));
+	}
+
+	/** BasinBlockEntity.jumpProcess: jumping, not a grinder or a crafting grid. */
+	private static void registerBasinRoutes(EmiRegistry registry) {
+		EmiRecipeCategory basin = category(registry, "basin", "basin");
+		if (basin == null) return;
+		process(registry, basin, "basin/tannin",
+			List.of(anyMc(1, "stripped_oak_log", "stripped_oak_wood", "stripped_birch_log", "stripped_birch_wood")),
+			List.of(pf("basin")), List.of(pf("tannin", 2)), 0);
+		process(registry, basin, "basin/wood_dust",
+			List.of(anyMc(1, "oak_planks", "spruce_planks", "birch_planks", "jungle_planks", "acacia_planks",
+				"dark_oak_planks", "mangrove_planks", "cherry_planks", "pale_oak_planks", "bamboo_planks",
+				"crimson_planks", "warped_planks")),
+			List.of(pf("basin")), List.of(pf("wood_dust")), 0);
+	}
+
+	/** FireclayForgeBlockEntity is a machine, not world placement. */
+	private static void registerFireclayForgeRoutes(EmiRegistry registry) {
+		EmiRecipeCategory forge = category(registry, "fireclay_forge", "fireclay_forge_controller");
+		if (forge == null) return;
+		process(registry, forge, "forge/wood_to_charcoal",
+			List.of(anyMc(4, "oak_log", "birch_log", "spruce_log", "jungle_log", "acacia_log",
+				"dark_oak_log", "mangrove_log", "cherry_log", "pale_oak_log",
+				"oak_wood", "birch_wood", "spruce_wood", "jungle_wood", "acacia_wood",
+				"dark_oak_wood", "mangrove_wood", "cherry_wood", "pale_oak_wood",
+				"stripped_oak_log", "stripped_birch_log", "stripped_spruce_log", "stripped_jungle_log",
+				"stripped_acacia_log", "stripped_dark_oak_log", "stripped_mangrove_log", "stripped_cherry_log",
+				"stripped_pale_oak_log", "stripped_oak_wood", "stripped_birch_wood", "stripped_spruce_wood",
+				"stripped_jungle_wood", "stripped_acacia_wood", "stripped_dark_oak_wood",
+				"stripped_mangrove_wood", "stripped_cherry_wood", "stripped_pale_oak_wood")),
+			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
+			List.of(mc("charcoal", 4)), 20 * 60);
+		process(registry, forge, "forge/hardwood_alloy",
+			List.of(pf("hardwood"), mc("charcoal")),
+			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
+			List.of(pf("hardwood_alloy")), 20 * 60 * 5);
+	}
+
+	/** Explicit 2x2 JSONs. Use a real grid view, not a generic new-features category. */
+	private static void registerPersonalCrafting(EmiRegistry registry) {
+		EmiRecipeCategory personal = category(registry, "personal_crafting", "tanned_utility_vest");
+		if (personal == null) return;
+		personalCategory = personal;
+		grid(registry, personal, "leather_sheet_from_tanned", 2, true,
+			List.of(pf("tanned_leather"), pf("bone_knife")), pf("leather_sheet"));
+		grid(registry, personal, "leather_straps_from_sheet", 2, true,
+			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 2));
+		grid(registry, personal, "leather_repair_kit", 2, true,
+			List.of(pf("leather_strap"), mc("string")), pf("repair_kit"));
+		grid(registry, personal, "wooden_pickaxe", 2, true,
+			List.of(mc("stick"), mc("string"), pf("leather_strap"), pf("wooden_sheet")), mc("wooden_pickaxe"));
+		grid(registry, personal, "wooden_axe", 2, true,
+			List.of(pf("tannin"), pf("leather_sheet"), mc("stick"), pf("wooden_sheet")), mc("wooden_axe"));
+		for (String kind : WOOD_VARIANTS) {
+			EmiStack planks = mc(kind + "_planks");
+			EmiStack log = mc(kind + "_log");
+			EmiStack stripped = mc("stripped_" + kind + "_log");
+			EmiIngredient cuttingAxe = any(1, mc("wooden_axe"), pf("hardwood_axe"));
+			grid(registry, personal, kind + "_planks_from_log", 2, true,
+				List.of(log, cuttingAxe), mc(kind + "_planks", 2));
+			grid(registry, personal, kind + "_planks_from_stripped_log", 2, true,
+				List.of(stripped, cuttingAxe.copy()), mc(kind + "_planks", 2));
+			grid(registry, personal, kind + "_sheet_from_plank", 2, true,
+				List.of(planks, pf("bone_knife")), pf("wooden_sheet", 3));
+			grid(registry, personal, kind + "_board_from_plank", 2, true,
+				List.of(planks, pf("flint_file")), pf("wooden_board"));
+			grid(registry, personal, kind + "_door_hinged", 2, true,
+				List.of(pf("wooden_door_hinge"), planks, planks.copy(), planks.copy()), mc(kind + "_door"));
+			grid(registry, personal, kind.equals("oak") ? "wooden_shovel" : "wooden_shovel_" + kind, 2, true,
+				List.of(planks, mc("stick"), pf("leather_strap")), mc("wooden_shovel"));
 		}
-		// Hardwood Crafting Table has its own delayed 3x3 crafting grid; do not pretend
-		// its recipes are identical to regular vanilla crafting-table behavior.
+		grid(registry, personal, "crushed_stone_from_cobblestone", 2, true, List.of(mc("cobblestone")), pf("crushed_stone"));
+		grid(registry, personal, "basin_crafting", 2, true,
+			List.of(pf("leather_sheet"), pf("wooden_sheet"), mc("cobblestone"), mc("cobblestone")), pf("basin"));
+		grid(registry, personal, "sticks_from_sheet", 2, true, List.of(pf("wooden_sheet")), mc("stick", 4));
+		grid(registry, personal, "sand_from_flakes", 2, true,
+			List.of(pf("sand_flake"), pf("sand_flake"), pf("sand_flake"), pf("sand_flake")), mc("sand"));
+		grid(registry, personal, "clay_block_from_clay_balls", 2, true,
+			List.of(mc("clay_ball"), mc("clay_ball"), mc("clay_ball"), mc("clay_ball")), mc("clay"));
+		grid(registry, personal, "dirt_from_loose_soil", 2, true, List.of(pf("loose_soil")), mc("dirt"));
+		grid(registry, personal, "loose_soil_from_dirt", 2, true, List.of(mc("dirt")), pf("loose_soil"));
+		grid(registry, personal, "dirt_piles_from_loose_soil", 2, true,
+			List.of(pf("loose_soil"), mc("wooden_shovel")), pf("dirt_pile", 4));
+		grid(registry, personal, "fat_burning_torch", 2, true,
+			List.of(mc("stick"), mc("string"), mc("charcoal")), pf("fat_burning_torch"));
+		// Vanilla/native recipes remain authoritative for conditional repair behavior.
+		// Avoid inventing an unconditional repair output for any damaged armor item.
+		// Basic 2x2 Hardwood and table-assembly JSONs also work before owning the table.
+		grid(registry, personal, "hardwood", 2, true,
+			List.of(pf("clay_water_bucket"), pf("wood_dust"), pf("wood_dust"), pf("tannin")), pf("hardwood"));
+		grid(registry, personal, "hardwood_crafting_table", 2, true,
+			List.of(pf("hardwood_alloy"), pf("hardwood_alloy"), mc("cobblestone"), pf("bound_wood_processor")),
+			pf("hardwood_crafting_table"));
+	}
+
+	/** Actual 3x3 shapes from ProjectFlint JSONs, not just a list of materials. */
+	private static void registerHardwoodCrafting(EmiRegistry registry) {
 		EmiRecipeCategory hardwood = category(registry, "hardwood_crafting", "hardwood_crafting_table");
-		if (hardwood != null) {
-			process(registry, hardwood, "hardwood/material",
-				List.of(pf("wood_dust", 2), pf("tannin"), pf("clay_water_bucket")),
-				List.of(), List.of(pf("hardwood")), 0);
-			process(registry, hardwood, "hardwood/table_assembly",
-				List.of(pf("hardwood_alloy", 2), mc("cobblestone")), List.of(pf("lumber_processor")),
-				List.of(pf("hardwood_crafting_table")), 0);
-			// The exact shaped recipes for the Wooden/Hardwood tool set are native
-			// ProjectFlint recipe-manager entries, retained by the namespace filter.
+		if (hardwood == null) return;
+		grid(registry, hardwood, "hardwood_axe", 3, false,
+			List.of(pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, pf("hardwood"), mc("stick"), EmiStack.EMPTY,
+				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_axe"));
+		grid(registry, hardwood, "hardwood_pickaxe", 3, false,
+			List.of(pf("hardwood"), pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
+				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_pickaxe"));
+		grid(registry, hardwood, "hardwood_shovel", 3, false,
+			List.of(EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
+				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_shovel"));
+		grid(registry, hardwood, "hardwood_hoe", 3, false,
+			List.of(pf("hardwood"), pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY,
+				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_hoe"));
+		grid(registry, hardwood, "hardwood_sword", 3, false,
+			List.of(EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY, EmiStack.EMPTY, pf("hardwood"), EmiStack.EMPTY,
+				EmiStack.EMPTY, mc("stick"), EmiStack.EMPTY), pf("hardwood_sword"));
+		grid(registry, hardwood, "hardwood_hammer", 3, false,
+			List.of(pf("hardwood_alloy"), pf("hardwood_alloy"), pf("hardwood_alloy"),
+				pf("hardwood_alloy"), pf("hardwood_alloy"), pf("hardwood_alloy"),
+				mc("leather"), mc("stick"), pf("rope")), pf("hardwood_hammer"));
+
+		registerOtherProjectFlintCrafting(registry, hardwood);
+	}
+
+	/**
+	 * Catch any new native ProjectFlint crafting JSON missed by the hardcoded
+	 * release catalog. Route by actual grid requirements: 2x2 vs 3x3.
+	 * Recipes with specialized non-vanilla types remain under their own categories.
+	 */
+	private static void registerOtherProjectFlintCrafting(EmiRegistry registry, EmiRecipeCategory hardwood) {
+		for (var entry : EmiAgnos.getAllRecipesOfType(registry.getRecipeManager(), RecipeType.CRAFTING)) {
+			CraftingRecipe recipe = entry.value();
+			Identifier id = EmiPort.getId(recipe);
+			if (id == null || !PF.equals(id.getNamespace()) || REMAPPED_GRID_RECIPES.contains(id.getPath())) continue;
+			// The Tanned Utility Vest is NEVER a crafting-table recipe.
+			if (id.getPath().equals("tanned_utility_vest")) continue;
+			int size;
+			boolean shapeless;
+			List<EmiIngredient> cells;
+			if (recipe instanceof ShapedRecipe shaped) {
+				size = shaped.getWidth() <= 2 && shaped.getHeight() <= 2 ? 2 : 3;
+				List<EmiIngredient> nativeCells = new EmiShapedRecipe(shaped).getInputs();
+				cells = size == 2 ? List.of(nativeCells.get(0), nativeCells.get(1), nativeCells.get(3), nativeCells.get(4))
+					: nativeCells;
+				shapeless = false;
+			} else if (recipe instanceof ShapelessRecipe sh) {
+				cells = new EmiShapelessRecipe(sh).getInputs();
+				size = cells.size() <= 4 ? 2 : 3;
+				shapeless = true;
+			} else continue;
+			EmiRecipeCategory category = size == 2 ? personalCategory : hardwood;
+			if (category == null) continue;
+			EmiStack output = EmiStack.of(EmiPort.getOutput(recipe));
+			if (output.isEmpty()) continue;
+			AUTO_REMAPPED_RECIPES.add(id.getPath());
+			grid(registry, category, "synced/" + id.getPath(), size, shapeless, cells, output);
 		}
+	}
+
+	private static void grid(EmiRegistry registry, EmiRecipeCategory category,
+		String path, int size, boolean shapeless, List<EmiIngredient> cells, EmiStack output) {
+		if (output.isEmpty() || cells.stream().anyMatch(cell -> cell == null)) return;
+		// Missing (unregistered) real ingredients invalidate the route; empty grid cells are OK.
+		for (EmiIngredient cell : cells) {
+			if (cell.isEmpty() && cell != EmiStack.EMPTY) return;
+		}
+		ProjectFlintGridRecipe recipe = new ProjectFlintGridRecipe(category, pfId("pf_emi/grid/" + path), cells, output, size, shapeless);
+		registry.addRecipe(recipe);
+		ProjectFlintRecipeIndex.mark(recipe);
 	}
 
 	private static EmiIngredient rawMeats(long count) {
@@ -1226,6 +1490,14 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		EmiRecipeCategory mobs = category(registry, "mob_drops", "animal_bones");
 		if (mobs == null) return;
 
+		// The Clay Bucket is a cow interaction, NOT an item dropped by killing a cow.
+		// Keep it indexed here as players naturally inspect cow loot to find milk.
+		info(registry, mobs, "mob/cow_milking", "Cow: Milk with Clay Bucket",
+			pf("clay_bucket"), true, List.of(mc("cow_spawn_egg")),
+			List.of(loot(pf("clay_milk_bucket"), "Cow must be an adult")),
+			List.of("Right-click a living adult cow with an empty Clay Bucket.",
+				"The cow survives. This is milking, not a death drop."));
+
 		mob(registry, mobs, "chicken", mc("chicken_spawn_egg"), List.of(
 			loot(mc("chicken"), "Vanilla base drop"),
 			loot(mc("feather", 2), "0-2 Feathers"),
@@ -1419,12 +1691,13 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	private static void logSlabPair(
 		EmiRegistry registry,
 		EmiRecipeCategory category,
+		String prefix,
 		String id,
 		String log,
 		String slab
 	) {
-		simple(registry, category, "clay/" + id + "_slab", List.of(mc(log)), mc(slab, 2));
-		simple(registry, category, "clay/" + id + "_log", List.of(mc(slab, 2)), mc(log));
+		simple(registry, category, prefix + "/" + id + "_slab", List.of(mc(log)), mc(slab, 2));
+		simple(registry, category, prefix + "/" + id + "_log", List.of(mc(slab, 2)), mc(log));
 	}
 
 	private static EmiRecipeCategory category(
@@ -1440,6 +1713,16 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		registry.addCategory(category);
 		registry.addWorkstation(category, workstation);
 		ProjectFlintRecipeIndex.mark(workstation);
+		return category;
+	}
+
+	/** Informational category (crops, block events): icon is not a crafting station. */
+	private static EmiRecipeCategory categoryIcon(EmiRegistry registry, String path, String iconPath) {
+		EmiStack icon = pf(iconPath);
+		if (icon.isEmpty()) return null;
+		EmiRecipeCategory category = new EmiRecipeCategory(pfId(path), icon);
+		registry.addCategory(category);
+		ProjectFlintRecipeIndex.mark(icon);
 		return category;
 	}
 
