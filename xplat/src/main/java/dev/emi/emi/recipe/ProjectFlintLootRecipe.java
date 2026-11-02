@@ -87,14 +87,35 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 		return outputs.stream().map(LootOutput::stack).map(EmiStack::copy).toList();
 	}
 
-	@Override
-	public int getDisplayWidth() {
-		return 196;
+	// No free-floating text: each note is wrapped to fit a conservative 192px line.
+	private static List<String> wrap(String text) {
+		List<String> result = new ArrayList<>();
+		for (String paragraph : text.split("\\n", -1)) {
+			StringBuilder line = new StringBuilder();
+			for (String word : paragraph.trim().split("\\s+")) {
+				if (line.length() > 0 && line.length() + 1 + word.length() > 30) {
+					result.add(line.toString());
+					line.setLength(0);
+				}
+				if (word.length() > 30) {
+					if (line.length() > 0) { result.add(line.toString()); line.setLength(0); }
+					for (int i = 0; i < word.length(); i += 30) result.add(word.substring(i, Math.min(word.length(), i + 30)));
+				} else {
+					if (line.length() > 0) line.append(' ');
+					line.append(word);
+				}
+			}
+			if (line.length() > 0) result.add(line.toString());
+		}
+		return result;
 	}
 
 	@Override
+	public int getDisplayWidth() { return 210; }
+
+	@Override
 	public int getDisplayHeight() {
-		return notes.isEmpty() ? 54 : Math.min(82, 54 + notes.size() * 10);
+		return Math.max(54, 46 + notes.stream().mapToInt(note -> wrap(note).size()).sum() * 11);
 	}
 
 	@Override
@@ -113,8 +134,8 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 			EmiPort.ordered(EmiPort.literal(title)),
 			2,
 			2,
-			0xFFFFFFFF,
-			true
+			0xFF242424,
+			false
 		));
 
 		int subjectY = 18;
@@ -142,15 +163,12 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 
 		int noteY = 42;
 		for (String note : notes) {
-			if (noteY + 9 > widgets.getHeight()) break;
-			widgets.add(new TextWidget(
-				EmiPort.ordered(EmiPort.literal(note)),
-				2,
-				noteY,
-				0xFFB8B8B8,
-				false
-			));
-			noteY += 10;
+			for (String line : wrap(note)) {
+				widgets.add(new TextWidget(
+					EmiPort.ordered(EmiPort.literal(line)), 2, noteY, 0xFF303030, false
+				));
+				noteY += 11;
+			}
 		}
 	}
 }
