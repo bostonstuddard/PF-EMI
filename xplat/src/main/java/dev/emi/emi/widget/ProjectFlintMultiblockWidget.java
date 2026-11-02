@@ -27,7 +27,7 @@ import org.joml.Matrix3x2fStack;
  * for a dynamically-scaled isometric model.
  */
 public final class ProjectFlintMultiblockWidget extends Widget {
-	public static final String PF_EMI_MULTIBLOCK_WIDGET = "pf.12-viewport-fit-3d";
+	public static final String PF_EMI_MULTIBLOCK_WIDGET = "pf.14-native-slots-3d";
 
 	private static final int COLOR_BG = 0xB00E0E0E;
 	private static final int COLOR_VIEWPORT = 0xB0161616;
@@ -85,8 +85,7 @@ public final class ProjectFlintMultiblockWidget extends Widget {
 
 		renderHeader(context);
 		renderRailBackgrounds(context);
-		renderMaterialRail(context, draw, delta);
-		renderOutputRail(context, draw, delta);
+		// IN/OUT items are clickable EMI slots layered over this viewport.
 
 		Bounds viewport = viewportBounds();
 		context.fill(viewport.x(), viewport.y(), viewport.width(), viewport.height(), COLOR_VIEWPORT);
@@ -139,59 +138,6 @@ public final class ProjectFlintMultiblockWidget extends Widget {
 			right.y() + 3,
 			COLOR_MUTED
 		);
-	}
-
-	private void renderMaterialRail(
-		EmiDrawContext context,
-		DrawContext draw,
-		float delta
-	) {
-		Bounds rail = leftRailBounds();
-		int slotX = rail.x() + 5;
-		int slotY = rail.y() + 14;
-
-		for (Material material : definition.materials()) {
-			if (slotY + 18 > rail.bottom() - 2) break;
-			drawRailSlot(context, slotX, slotY);
-			material.stack().resolveDisplay(material.amount())
-				.render(draw, slotX + 1, slotY + 1, delta);
-			slotY += 20;
-		}
-	}
-
-	private void renderOutputRail(
-		EmiDrawContext context,
-		DrawContext draw,
-		float delta
-	) {
-		Bounds rail = rightRailBounds();
-		int slotX = rail.x() + 5;
-		int slotY = rail.y() + 14;
-
-		if (definition.outputs().isEmpty()) {
-			context.drawCenteredText(
-				EmiPort.literal("-"),
-				rail.x() + rail.width() / 2,
-				slotY + 4,
-				COLOR_MUTED
-			);
-			return;
-		}
-
-		for (Output output : definition.outputs()) {
-			if (slotY + 18 > rail.bottom() - 2) break;
-			drawRailSlot(context, slotX, slotY);
-			output.stack().render(draw, slotX + 1, slotY + 1, delta);
-			slotY += 20;
-		}
-	}
-
-	private void drawRailSlot(EmiDrawContext context, int sx, int sy) {
-		context.fill(sx, sy, 18, 18, COLOR_VIEWPORT);
-		context.fill(sx, sy, 18, 1, COLOR_BORDER);
-		context.fill(sx, sy + 17, 18, 1, COLOR_BORDER);
-		context.fill(sx, sy, 1, 18, COLOR_BORDER);
-		context.fill(sx + 17, sy, 1, 18, COLOR_BORDER);
 	}
 
 	private void renderControls(
@@ -472,8 +418,8 @@ public final class ProjectFlintMultiblockWidget extends Widget {
 			return lines;
 		}
 
-		List<TooltipComponent> railTip = railTooltip(mouseX, mouseY);
-		if (!railTip.isEmpty()) return railTip;
+		// Material and output rails use native EMI SlotWidgets. Do not intercept
+		// their hover with this full-canvas widget: doing so breaks A/U/recipe lookup.
 
 		List<RenderedCell> cells = projectedCells();
 		for (int i = cells.size() - 1; i >= 0; i--) {
@@ -486,42 +432,6 @@ public final class ProjectFlintMultiblockWidget extends Widget {
 			).contains(mouseX, mouseY)) {
 				return cellTooltip(cell);
 			}
-		}
-
-		return List.of();
-	}
-
-	private List<TooltipComponent> railTooltip(int mouseX, int mouseY) {
-		Bounds left = leftRailBounds();
-		int slotX = left.x() + 5;
-		int slotY = left.y() + 14;
-
-		for (Material material : definition.materials()) {
-			if (slotY + 18 > left.bottom() - 2) break;
-			if (new Bounds(slotX, slotY, 18, 18).contains(mouseX, mouseY)) {
-				List<TooltipComponent> lines = new ArrayList<>();
-				lines.add(component(material.stack().label()));
-				lines.add(component("Required: " + material.amount()));
-				if (material.catalyst()) lines.add(component("Formation / tool item"));
-				if (!material.note().isBlank()) lines.add(component(material.note()));
-				return lines;
-			}
-			slotY += 20;
-		}
-
-		Bounds right = rightRailBounds();
-		slotX = right.x() + 5;
-		slotY = right.y() + 14;
-
-		for (Output output : definition.outputs()) {
-			if (slotY + 18 > right.bottom() - 2) break;
-			if (new Bounds(slotX, slotY, 18, 18).contains(mouseX, mouseY)) {
-				List<TooltipComponent> lines = new ArrayList<>();
-				lines.add(component(output.label()));
-				if (!output.note().isBlank()) lines.add(component(output.note()));
-				return lines;
-			}
-			slotY += 20;
 		}
 
 		return List.of();
