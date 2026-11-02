@@ -1,3 +1,22 @@
+# PF-EMI pf.15 — ProjectFlint v0.31.52-b addendum
+
+- [x] Checked current upstream version and pinned GitHub commit `37c5f2af2a9939ac71c9d04664954caf10beeb7c`.
+- [x] Reviewed the new dedicated Hardwood recipe type, registration, JSON serializer types, and the 0.31.51-b/0.31.52-b release notes.
+- [x] Implemented runtime source-driven `hardwood_crafting` discovery, preserving real shaped/shapeless/durable input formats and outputs.
+- [x] Added Fabric installed-mod data fallback for missing synchronized Hardwood recipes; no static hardcoded six-tool limitation.
+- [x] Retired obsolete personal 2x2 wooden-tool, hinged-door and Hardwood Table assembly views.
+- [x] Corrected source-defined ore mining/drop explanations and vanilla wooden pickaxe ID.
+- [x] Distinguished reusable tools/forms and vessel remainders in Hardwood crafting entries.
+- [x] Java syntax parsed for modified classes and passed offline source assertions.
+- [ ] Fabric Gradle compilation, blocked by unavailable Gradle distribution/network.
+- [ ] Count recipes in a running Fabric Minecraft client and verify every 3x3 pattern, alternative input, tag and return item.
+- [ ] Confirm custom recipe sync with dedicated multiplayer servers and datapack overrides.
+- [ ] Confirm the Hardwood Crafting Table bootstrap recipe is reachable in ProjectFlint gameplay (source appears self-dependent).
+
+The historical checklist below is retained as-is; it is NOT a completed runtime checklist.
+
+---
+
 # pf.14 incremental audit (October 29, 2026)
 
 **Pinned upstream:** `bostonstuddard/ProjectFlint` commit `169797e5440474457fd3410456bf43401214bf3c`, gameplay version `0.31.50-b`. The following checks are source-inspected and/or static-tested, NOT in-game certified.
