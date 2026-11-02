@@ -2,6 +2,25 @@
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).
 
+## 1.1.23-pf.16 — JEI compatibility warning and fluid-amount fix (2026-11-01)
+
+- Keep required legacy JEI interface implementations for compatibility while routing their implementation through the current `add(...)` APIs. Apply **method-scoped** `@SuppressWarnings("removal")` only where the current JEI interface still demands an implementation of a deprecated-for-removal method. This hides known compatibility warnings; it does **not** make the deprecated JEI contracts future-proof.
+- Fix a real fluid-ingredient bug: `JemiRecipeSlotBuilder.add(Fluid, long)` previously discarded the requested amount and used one bucket; it now forwards the actual amount.
+- Restrict the unchecked self-cast suppression in `JemiPlaceable` to its `setPosition` method, removing one generic unchecked compiler note without broad Gradle lint suppression.
+- Preserve ProjectFlint **0.31.52-b** recipe integration and all pf.15 gameplay-facing behavior; no recipe, multiblock, or loot changes.
+- **Verification:** local Java syntax parsing and patch integrity only. The user's pasted log had no errors in the shown compilation stages but did not include `BUILD SUCCESSFUL` or `BUILD FAILED`. Full Gradle / runtime verification must be done on a system with dependencies available.
+
+## 1.1.23-pf.15 — ProjectFlint 0.31.52-b Hardwood recipe-type integration (2026-11-01)
+
+- Target ProjectFlint **0.31.52-b** at GitHub commit `37c5f2af2a9939ac71c9d04664954caf10beeb7c`. v0.31.52-b is the RecipeDisplay import fix; the substantial mechanics and new recipe system came in 0.31.51-b.
+- **Read the new `projectflint:hardwood_crafting` recipe type at runtime.** Discover `hardwood_shaped`, `hardwood_shapeless`, and `hardwood_durable` wrappers, preserve each shaped 3x3 grid and shapeless ingredient alternatives, and use the real result stack. This replaces the previous incorrect six-recipe hand-maintained Hardwood tool list, and automatically includes Hardwood Sticks, beams, masonry, books, paper, armor, dyes, doors, staged Rope, new tools and other registered station-only recipes.
+- **Handle unsynchronized/custom-server recipe data:** if the new recipe type supplies no client entries, read actual station-only JSONs from the installed ProjectFlint Fabric mod's `data/projectflint/recipe` resources; do not invent a vanilla crafting recipe or require a compile-time ProjectFlint dependency. Server-synchronized recipes take priority over this bundled fallback. In the fallback case, custom datapack removals/overrides may not be reflected and must be verified in-game.
+- **Remove retired recipe views:** legacy personal 2x2 wooden axe/pickaxe/shovel, hinged doors, and the incorrectly personal-craftable Hardwood Table. The replacement workstation-only JSONs belong in the Hardwood 3x3 category. Keep real personal-grid recipes (including wood processing and Fat Torch) in their correct category.
+- Update block-drop guidance to ProjectFlint's **OreMiningRules**: 13.5-second wooden-tier Stone/Coal breaking, Hardwood Hammer's 2-Coal yield, ordinary Iron/Copper access for the Hammer, no extra deepslate Iron/Copper Hammer tier, and 45-second unqualified ore breaking without drops. Correct the old `projectflint:wooden_pickaxe` lookup to vanilla `minecraft:wooden_pickaxe`.
+- Display reusable tools and forms as catalysts for Hardwood durable recipes; show Clay Bucket and Unfired Brick Mold remainders instead of presenting them as permanently consumed.
+- ProjectFlint item components remain authoritative for the new Hardwood durability values (**320 uses**, Hammer **560**). The Hardwood Table's 3-second per-craft delay remains visible in the 3x3 EMI pages.
+- Updated release script and Fabric build names. Static verification only; a full Minecraft build and runtime validation are not claimed.
+
 ## 1.1.23-pf.14 — UI readability, rail interactions and ProjectFlint 0.31.50-b sync (2026-10-29)
 
 - Fixed overflowing and low-contrast world/loot guidance: bounded word wrapping, content-driven height, dark text for the default light EMI recipe theme.
