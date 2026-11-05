@@ -52,7 +52,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.15";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.17";
 
 	private static final String PF = "projectflint";
 
@@ -106,7 +106,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			ids.add(wood + "_planks_from_stripped_log");
 			ids.add(wood + "_sheet_from_plank");
 			ids.add(wood + "_board_from_plank");
-
+			ids.add(wood + "_door_hinged");
 		}
 		return Set.copyOf(ids);
 	}
@@ -149,6 +149,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		registerMissingWorldRoutes(registry);
 		registerFarmingRoutes(registry);
 		registerBasinRoutes(registry);
+		registerUndergroundHazards(registry);
 		registerFireclayForgeRoutes(registry);
 		registerPersonalCrafting(registry);
 		registerHardwoodCrafting(registry);
@@ -849,6 +850,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			// BrickFurnaceRecipeRegistry: exclusive conversions not valid in kiln/campfire.
 			heat(registry, furnace, "brick_furnace", "tanned_leather", mc("leather"), pf("tanned_leather"), 300, 1.50f);
 			heat(registry, furnace, "brick_furnace", "glass", mc("sand"), mc("glass"), 600, 1.50f);
+			heat(registry, furnace, "brick_furnace", "stone_from_cobblestone", mc("cobblestone"), mc("stone"), 300, 1.50f);
 		}
 		if (blast != null) {
 			registerCommonHeat(registry, blast, "brick_blast_furnace", 1.50f);
@@ -1042,10 +1044,16 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of("Use on a water source block, not flowing water.",
 				"Placing its water returns the empty Clay Bucket."));
 
+		// ProjectFlint v0.31.55-b Axle is placeable infrastructure only, not a power transmitter.
+		info(registry, placement, "placement/axle", "Place Axle",
+			pf("axle"), true, List.of(), List.of(),
+			List.of("Place the Axle to orient its shaft along the chosen axis.",
+				"Recover it by hand in five ticks. Axles do not transmit power yet."));
+
 		info(registry, placement, "torch/fat_burning_torch", "Fat-Burning Torch Refueling",
 			pf("fat_burning_torch"), true, List.of(pf("fat")), List.of(),
 			List.of("Crafted torches start with zero Fat charges.", "After placing, add Fat, then ignite with a Firestarter.",
-				"Breaking and re-placing does not restore Fat."));
+				"Breaking and re-placing does not restore Fat.", "Wall-mounted Torches now face outward correctly in all four directions."));
 
 	}
 
@@ -1064,7 +1072,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of("Cutters are required at mature growth stages.", "Tool durability is consumed when harvesting."));
 	}
 
-	/** BasinBlockEntity.jumpProcess: jumping, not a grinder or a crafting grid. */
+	/**
+	 * v0.31.55 BasinBlockEntity and BasinMaterialProcessingSystem. The output
+	 * lists show EACH possible drop separately, never treating independent rolls
+	 * as mutually exclusive or guaranteed. Jumping costs one hunger point.
+	 */
 	private static void registerBasinRoutes(EmiRegistry registry) {
 		EmiRecipeCategory basin = category(registry, "basin", "basin");
 		if (basin == null) return;
@@ -1076,6 +1088,68 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				"dark_oak_planks", "mangrove_planks", "cherry_planks", "pale_oak_planks", "bamboo_planks",
 				"crimson_planks", "warped_planks")),
 			List.of(pf("basin")), List.of(pf("wood_dust")), 0);
+
+		basinMaterial(registry, basin, "raw_iron", "Raw Iron", mc("raw_iron"), List.of(
+			loot(pf("iron_dust"), "Guaranteed: 1 Iron Dust"),
+			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 75%"),
+			loot(pf("slag"), "Independent: +1 Slag, 50%")));
+		basinMaterial(registry, basin, "raw_copper", "Raw Copper", mc("raw_copper"), List.of(
+			loot(pf("copper_dust"), "Guaranteed: 1 Copper Dust"),
+			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 83%"),
+			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 24%"),
+			loot(pf("nickel_dust"), "Independent: +1 Nickel Dust, 10%"),
+			loot(pf("silver_dust"), "Independent: +1 Silver Dust, 2%")));
+		basinMaterial(registry, basin, "andesite", "Andesite", mc("andesite"), List.of(
+			loot(pf("fertilizer"), "Exclusive result: 1 Fertilizer (50%) or 2 Fertilizer (50%)")));
+		basinMaterial(registry, basin, "granite", "Granite", mc("granite"), List.of(
+			loot(pf("fertilizer"), "Exclusive result: 1 Fertilizer (50%) or 2 Fertilizer (50%)")));
+		basinMaterial(registry, basin, "stone", "Stone", mc("stone"), List.of(
+			loot(pf("stone_dust"), "Exclusive result: 1 Stone Dust (50%) or 2 Stone Dust (50%)")));
+		basinMaterial(registry, basin, "diorite", "Diorite", mc("diorite"), List.of(
+			loot(pf("stone_dust"), "Exclusive result: 1 Stone Dust (50%) or 2 Stone Dust (50%)")));
+		basinMaterial(registry, basin, "stone_dust", "Stone Dust", pf("stone_dust"), List.of(
+			loot(pf("slag"), "50% chance of 1 Slag; otherwise no output")));
+		basinMaterial(registry, basin, "gravel", "Gravel", mc("gravel"), List.of(
+			loot(mc("flint"), "Guaranteed: 1 Flint"),
+			loot(pf("quartz_dust"), "Independent: +1 Quartz Dust, 20%"),
+			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 1%")));
+		basinMaterial(registry, basin, "sand", "Sand", mc("sand"), List.of(
+			loot(pf("potassium_dust"), "Guaranteed: 1 Potassium Dust"),
+			loot(pf("mica_dust"), "Independent: +1 Mica Dust, 5%"),
+			loot(pf("gold_dust"), "Independent: +1 Gold Dust, 1%")));
+		basinMaterial(registry, basin, "slag", "Slag", pf("slag"), List.of(
+			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 33%"),
+			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 33%"),
+			loot(pf("silicon_dust"), "Independent: +1 Silicon Dust, 33%")));
+	}
+
+	private static void basinMaterial(EmiRegistry registry, EmiRecipeCategory basin, String id, String label,
+		EmiIngredient material, List<ProjectFlintLootRecipe.LootOutput> potentialDrops) {
+		info(registry, basin, "basin/material/" + id, "Basin: " + label, material, true,
+			List.of(pf("basin")), potentialDrops, List.of(
+				"Place one material inside the Basin, then jump on the Basin to wash it.",
+				"Cost: 1 food point per item (not one full hunger icon).",
+				"Hover each output for its exact chance. All bonus rolls are independent.",
+				"Multiple different bonuses may occur; Slag/Stone Dust may yield nothing."));
+	}
+
+	/** Server-side environmental effects are conditions, not item crafts/drops. */
+	private static void registerUndergroundHazards(EmiRegistry registry) {
+		EmiStack icon = mc("deepslate");
+		if (icon.isEmpty()) return;
+		EmiRecipeCategory environment = new EmiRecipeCategory(pfId("environmental_hazards"), icon);
+		registry.addCategory(environment);
+		info(registry, environment, "environment/speluncaphobia", "Speluncaphobia: Below Y=0",
+			icon, false, List.of(), List.of(), List.of(
+				"Below Y=0 while not in direct daytime sunlight or block light 13+.",
+				"Stacks every 60 seconds, up to level IV; increases hunger use above 6 food points.",
+				"Also slows natural healing. Does not cause direct lethal damage.",
+				"Bright daytime open sky without rain OR block light >=13 removes the effect."));
+		info(registry, environment, "environment/claustrophobia", "Claustrophobia: Below Y=-40",
+			icon, false, List.of(), List.of(), List.of(
+				"Below Y=-40 without sunlight or block light 13+.",
+				"Movement speed -7%; attack damage -1; combines with Speluncaphobia.",
+				"Strong light or sunlight removes both underground effects."));
 	}
 
 	/** FireclayForgeBlockEntity is a machine, not world placement. */
@@ -1124,6 +1198,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(planks, pf("bone_knife")), pf("wooden_sheet", 3));
 			grid(registry, personal, kind + "_board_from_plank", 2, true,
 				List.of(planks, pf("flint_file")), pf("wooden_board"));
+			// Restored in ProjectFlint 0.31.55-b: genuine early 2x2 hinged doors.
+			grid(registry, personal, kind + "_door_hinged", 2, true,
+				List.of(pf("wooden_door_hinge"), planks.copy(), planks.copy(), planks.copy()), mc(kind + "_door"));
 		}
 		grid(registry, personal, "crushed_stone_from_cobblestone", 2, true, List.of(mc("cobblestone")), pf("crushed_stone"));
 		grid(registry, personal, "basin_crafting", 2, true,
@@ -1448,27 +1525,56 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			"crude_harvesting_tool", "crude_multitool", "flint_multitool",
 			"flint_plant_cutters", "advanced_flint_multitool");
 
-		// ProjectFlint OreMiningRules (0.31.51-b): only approved tools harvest ore.
-		// Vanilla Wooden Pickaxe is a minecraft item, not projectflint:wooden_pickaxe.
+		// v0.31.55 OreMiningRules: ALL Deepslate is inaccessible, including Coal Ore.
+		// Stone-family timings: pickaxes 270 ticks; Hardwood Hammer 240 ticks.
 		EmiIngredient earlyPickaxes = any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"));
-		for (String ore : List.of("coal_ore", "deepslate_coal_ore")) {
-			blockDrop(registry, drops, "ore/" + ore + "/pickaxe",
-				mc(ore), List.of(earlyPickaxes),
-				List.of(loot(mc("coal"), "1 Coal; Wooden/Hardwood Pickaxe, 13.5 seconds for wooden-tier mining")),
-				List.of("Other tool tiers follow their vanilla mining speed and tier rules."));
-			blockDrop(registry, drops, "ore/" + ore + "/hammer",
-				mc(ore), List.of(pf("hardwood_hammer")),
-				List.of(loot(mc("coal", 2), "2 Coal; Hardwood Hammer, 13.5 seconds")),
-				List.of("Breaking without an approved tool takes 45 seconds and yields nothing."));
-		}
+		blockDrop(registry, drops, "ore/coal_ore/pickaxe",
+			mc("coal_ore"), List.of(earlyPickaxes),
+			List.of(loot(mc("coal"), "1 Coal; Wooden/Hardwood Pickaxe, 13.5 seconds")),
+			List.of("Higher-tier compatible vanilla Pickaxes obey vanilla timings."));
+		blockDrop(registry, drops, "ore/coal_ore/hammer",
+			mc("coal_ore"), List.of(pf("hardwood_hammer")),
+			List.of(loot(mc("coal", 2), "2 Coal; Hardwood Hammer, 12 seconds")),
+			List.of("Unqualified tools: 45 seconds and no loot."));
 		blockDrop(registry, drops, "ore/iron_hardwood_hammer",
 			mc("iron_ore"), List.of(pf("hardwood_hammer")),
-			List.of(loot(mc("raw_iron"), "Hardwood Hammer mines ordinary Iron Ore in 13.5 seconds")),
-			List.of("Deepslate Iron Ore cannot be harvested with the Hardwood Hammer."));
+			List.of(loot(mc("raw_iron"), "Exactly 1 Raw Iron; Hardwood Hammer, 13.5 seconds")),
+			List.of("Deepslate Iron Ore is completely inaccessible."));
 		blockDrop(registry, drops, "ore/copper_hardwood_hammer",
 			mc("copper_ore"), List.of(pf("hardwood_hammer")),
-			List.of(loot(mc("raw_copper"), "Usual vanilla Copper Ore drops; Hardwood Hammer takes 13.5 seconds")),
-			List.of("Deepslate Copper Ore cannot be harvested with the Hardwood Hammer."));
+			List.of(loot(mc("raw_copper"), "Exactly 1 Raw Copper; Hardwood Hammer, 13.5 seconds")),
+			List.of("Deepslate Copper Ore is completely inaccessible."));
+		for (String stone : List.of("stone", "cobblestone", "andesite", "granite", "diorite", "tuff")) {
+			blockDrop(registry, drops, "stone/" + stone + "/early_pickaxe",
+				mc(stone), List.of(earlyPickaxes),
+				List.of(loot(mc(stone.equals("stone") ? "cobblestone" : stone), "13.5 seconds with Wooden/Hardwood Pickaxe")),
+				List.of("Stone-family blocks require an appropriate held tool; the Utility Vest alone is insufficient."));
+			blockDrop(registry, drops, "stone/" + stone + "/hammer",
+				mc(stone), List.of(pf("hardwood_hammer")),
+				List.of(loot(mc(stone.equals("stone") ? "cobblestone" : stone), "12 seconds with Hardwood Hammer")),
+				List.of("Hands, food and unrelated tools cannot break the vanilla stone family."));
+		}
+		info(registry, drops, "drops/locked_deepslate", "Deepslate: Locked Progression",
+			anyMc(1, "deepslate", "cobbled_deepslate", "polished_deepslate", "deepslate_bricks",
+				"deepslate_tiles", "deepslate_coal_ore", "deepslate_copper_ore", "deepslate_iron_ore",
+				"deepslate_gold_ore", "deepslate_redstone_ore", "deepslate_lapis_ore",
+				"deepslate_diamond_ore", "deepslate_emerald_ore"), true,
+			List.of(), List.of(),
+			List.of("No current survival tool can break Deepslate or any Deepslate Ore.",
+				"No drops are obtainable, including with higher-tier vanilla Pickaxes."));
+
+		// Explicit recoverable decorations; no generic 'wear a Vest' salvage bypass.
+		for (String decoration : List.of("fat_burning_torch", "flint_torch", "nest", "axle")) {
+			blockDrop(registry, drops, "decoration/" + decoration, pf(decoration), List.of(),
+				List.of(loot(pf(decoration), "Recovered intact by hand (5 ticks)")),
+				List.of(decoration.equals("nest") ? "Stored Nest eggs are ejected on recovery."
+					: decoration.equals("axle") ? "Axle is orientation-aware but does not transmit mechanical power yet."
+					: "No Utility Vest or mining tool is required."));
+		}
+		for (String torch : List.of("torch", "soul_torch", "redstone_torch")) {
+			blockDrop(registry, drops, "decoration/vanilla_" + torch, mc(torch), List.of(),
+				List.of(loot(mc(torch), "Recovered by hand (5 ticks); wall variant also supported")), List.of());
+		}
 
 		// SleepingBagBlock: normal salvage vs advanced-tool full recovery.
 		blockDrop(registry, drops, "sleeping_bag_salvage",
