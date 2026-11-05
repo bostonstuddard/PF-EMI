@@ -149,7 +149,7 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 			catalystX += 19;
 		}
 
-		widgets.addTexture(EmiTexture.EMPTY_ARROW, 65, subjectY + 1);
+		if (!outputs.isEmpty()) widgets.addTexture(EmiTexture.EMPTY_ARROW, 65, subjectY + 1);
 
 		int outputX = 96;
 		for (LootOutput output : outputs) {

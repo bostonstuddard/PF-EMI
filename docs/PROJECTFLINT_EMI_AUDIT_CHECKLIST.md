@@ -805,3 +805,28 @@ A reference in the PF-EMI plugin is **not proof of a valid or correct recipe**, 
 - [ ] Post-test second independent audit with screenshots/logs and save the specific commit hash.
 
 **Static inventory size:** 293 statically named registration calls, 220 unique literal custom item names, 7 explicit multiblock definitions. This does **not** measure total real gameplay coverage.
+
+
+## pf.17 — ProjectFlint v0.31.55-b delta (pinned SHA `54184ab574bc1999ad616d91518d4681365fca96`)
+
+- [x] Source-audit v0.31.53/b Fat Torch wall direction fixes; informational note updated.
+- [x] Source-audit v0.31.54/b tool-only stone mining and removal of generalized Utility Vest salvage.
+- [x] Replace outdated Deepslate Coal harvest pages with explicit locked Deepslate reference.
+- [x] Correct 270/240-tick stone/coal speeds, two-Coal Hammer yield and exact one-unit Iron/Copper Hammer returns.
+- [x] New Basin inputs: Raw Iron, Raw Copper, Andesite, Granite, Stone, Diorite, Stone Dust, Gravel, Sand, Slag.
+- [x] Preserve independent bonus-roll probabilities and zero-result possibilities; distinguish 50/50 main quantity outputs.
+- [x] Add single-food-point / Basin jump conditions to material pages.
+- [x] Register Axle hand recovery, placement/orientation notes; keep it in Hardwood Crafting category by custom recipe type.
+- [x] Register hand recovery for small torches and Nest (with stored egg ejection).
+- [x] Brick Furnace exclusive Cobblestone → Stone at effective 200 ticks.
+- [x] Retain dedicated Hardwood shape/durable recipe discovery: new Hardwood Sticks, alternate Basin, slab/stair and material recipes require no hand-maintained duplicate list.
+- [x] Restore the nine 2×2 hinged-door recipes based on the upstream RecipeManagerMixin rules.
+- [x] Add Y/light-gated Speluncaphobia/Claustrophobia explanatory category.
+- [x] Run 53 source contract checks and Java parser on changed sources.
+- [ ] Compile Fabric on Gradle 9.2.1 in a network-enabled/previously-cached developer machine.
+- [ ] Browse each new Basin recipe and tooltip in Minecraft 1.21.11 Fabric with ProjectFlint v0.31.55-b.
+- [ ] Confirm the Hardwood categories include Axle, Basin Alternative, all new slab/stair/tool combinations without duplicated vanilla entries.
+- [ ] Test unqualified mining, Deepslate, hand recovery/Nest drops and timed 3×3 crafting in singleplayer and dedicated multiplayer.
+- [ ] Confirm cross-loader behavior separately; pf.17 source patch is Fabric-targeted only.
+
+The checks marked [x] are **source/static validation**, not in-game test completion; see `docs/PF17_PROJECTFLINT_0.31.55_PARITY.md`.

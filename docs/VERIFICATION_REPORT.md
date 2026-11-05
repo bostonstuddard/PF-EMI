@@ -25,3 +25,13 @@
 - Test the 60-tick server crafting delay, shaped/shapeless/durable remainders, tooltip contrast and multiblock item-rail interactions.
 - Check dedicated-server recipe synchronization vs bundled fallback; test recipe datapack overrides/removals.
 - Forge/NeoForge are not supported for this Fabric ProjectFlint update. No 100% parity claim.
+
+
+## pf.17 — ProjectFlint 0.31.55-b (2026-11-04)
+
+- Verified against ProjectFlint's latest `main` commit `54184ab574bc1999ad616d91518d4681365fca96` and source files described in `PF17_PROJECTFLINT_0.31.55_PARITY.md`.
+- 53/53 offline contract checks passed using `python tools/verify_pf_emi_pf17.py`.
+- JDK 21 JavaCompiler/JavacTask parsed the two modified Java files with zero syntax diagnostics. This is parsing only, **not compilation** against mod dependencies.
+- Gradle 9.2.1 was not cached; wrapper download failed with `UnknownHostException: services.gradle.org`. Consequently no full Fabric build or in-game runtime test is claimed.
+- Tested ZIP CRC integrity and required patch-only paths. No full source, Gradle cache, output binaries, or third-party textures bundled.
+- Intentionally left runtime and cross-loader checklist entries unchecked.

@@ -2,6 +2,18 @@
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).
 
+## 1.1.23-pf.17 — ProjectFlint 0.31.55-b integration (2026-11-04)
+
+- Pinned compatibility reference: `bostonstuddard/ProjectFlint` commit `54184ab574bc1999ad616d91518d4681365fca96` (`0.31.55-b`), incorporating v0.31.53-b and 0.31.54-b changes.
+- Added ten Basin material processes with **all individual independent output chances** displayed in hover text, including raw metals, gravel/sand, stone, fertilizer, Slag recycling and zero-drop outcomes. Each operation consumes one food point and requires the player to jump on the Basin; these are not normal crafting recipes.
+- Added Brick Furnace **Cobblestone → Stone** (300 base ticks, 200 effective ticks at 1.5× furnace speed); not available in Brick Blast Furnace or primitive kilns.
+- Hardwood 3×3 recipes continue to be indexed from the installed ProjectFlint `hardwood_crafting` type / bundled recipe JSON fallback; this automatically includes the **Axle**, alternate Basin, revised Hardwood Sticks tool recipes, corrected slabs, and stone-group stairs/slabs. Retired/renamed recipes are not hardcoded back into EMI.
+- Restored actual early 2×2 Hinged Door recipes with three planks and one Wooden Door Hinge for each of nine overworld wood types; no workstation confusion.
+- Added block-recovery pages for hand-breakable Axle, Nest and Torches (including vanilla Torch families), with a note that Nest contents are returned. The Axle is infrastructure only, not a mechanical power provider.
+- Updated block-drop pages to **exclude all Deepslate** (including Deepslate Coal Ore) and reflect exact Coal Hammer yield, Stone-family tool timings, and the one Raw Iron/Raw Copper Hammer drops. No new block-breaking behavior is introduced in PF-EMI.
+- Added non-crafting Underground Hazards guides for Speluncaphobia and Claustrophobia, including their Y thresholds and artificial-light/daylight exemptions.
+- Preserved JEI compatibility work from pf.16 and source-only patch protocol. Static tests and ZIP validation do not equal a full Gradle or Minecraft runtime test.
+
 ## 1.1.23-pf.16 — JEI compatibility warning and fluid-amount fix (2026-11-01)
 
 - Keep required legacy JEI interface implementations for compatibility while routing their implementation through the current `add(...)` APIs. Apply **method-scoped** `@SuppressWarnings("removal")` only where the current JEI interface still demands an implementation of a deprecated-for-removal method. This hides known compatibility warnings; it does **not** make the deprecated JEI contracts future-proof.

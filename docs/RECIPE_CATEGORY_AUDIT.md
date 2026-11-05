@@ -24,3 +24,13 @@ The major 0.31.51-b addition is a dedicated `projectflint:hardwood_crafting` rec
 - The source scan fallback mirrors built-in mod recipe JSONs when the synchronized custom type has **zero** entries. Server datapack removals and overrides cannot be inferred from bundled JSONs; test with actual multiplayer server packs.
 - Build and in-game GUI/recipe tests have not run here; partial source checks alone are not a compatibility certificate.
 - **Upstream bootstrap concern:** ProjectFlint's `hardwood_crafting_table.json` itself now uses the station-only `hardwood_shapeless` type. It appears to require the Hardwood Table to craft a Hardwood Table. PF-EMI mirrors the source rather than silently moving it to Personal Crafting; ProjectFlint may need a separate bootstrap route.
+
+
+### pf.17: v0.31.55-b additions
+
+- **Hardwood 3×3**, source-driven: `axle`, `basin_alternative`, Hardwood-Sticks tool recipes, revised slabs/stone stairs and associated new station-only JSONs. Do not add these to plain Crafting.
+- **Personal 2×2**: restored nine hinged-door patterns (Wooden Door Hinge + 3 planks).
+- **Basin**: ten extra material wash entries with separate independent roll tooltips; none are Crafting recipes.
+- **Brick Furnace**: Cobblestone → Stone (200 ticks effective), absent from Brick Blast Furnace.
+- **Block Drops/Recovery**: hand pickup of Axle, Nest, Fat/Flint/vanilla Torches; Stone-family and revised ore tiers; Deepslate forbidden.
+- **Underground Hazards**: non-crafting effects and light mitigation.
