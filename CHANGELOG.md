@@ -2,6 +2,17 @@
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).
 
+## 1.1.23-pf.18 — ProjectFlint 0.31.57-b and player-facing recipe cleanup (2026-11-05)
+
+- Updated the ProjectFlint compatibility reference to commit `7e7321a06daff837866c6ba95c4436f2e83c8824` (0.31.57-b), including the 0.31.56 physical Basin update.
+- Replaced the old wall-of-text Basin pages with compact input/station/output layouts. Each shows the exact 2–3 stomp requirement, one food point per stomp, and per-output odds on hover; mutually exclusive quantities are differentiated from independent bonus rolls.
+- Corrected all Basin material rules to 0.31.57-b, including Cobblestone, Clay, Rare Earth Dust, Tin Dust, new bonus drops, and Stone's possible zero-output washes. Wood Dust and Tannin remain in the same category.
+- Shortened other world/loot guide screens to a maximum of two visible hint lines. Additional useful notes are accessible by hovering the source item. Multi-row drop pages no longer hide results beyond the sixth slot.
+- Added Fireclay Forge processing for MBSSIG Dust + a full Charcoal burn → Pure Mica Insulated Glass. The existing Hardwood Alloy/Charcoal pathways remain.
+- Added the first Hardwood Crafting Table as personal 2×2 crafting (2 Hardwood Alloy, Cobblestone, Bound Wood Processor); corrected personal Leather Strap and Repair Kit counts. Dedicated Hardwood Table recipes, including the Borosilicate/insulated-glass dust chain, continue to be discovered from the installed ProjectFlint custom recipe type or bundled JSON fallback.
+- Improved reusable-tool recognition for Hardwood durable recipes with both Bone Knife and Flint File, avoiding misleading consumed-tool entries.
+- **Validation:** offline source-contract checks and Java syntax parsing; no full Gradle build or game/GUI test was available here. Fabric only.
+
 ## 1.1.23-pf.17 — ProjectFlint 0.31.55-b integration (2026-11-04)
 
 - Pinned compatibility reference: `bostonstuddard/ProjectFlint` commit `54184ab574bc1999ad616d91518d4681365fca96` (`0.31.55-b`), incorporating v0.31.53-b and 0.31.54-b changes.

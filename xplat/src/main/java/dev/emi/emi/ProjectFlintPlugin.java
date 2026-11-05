@@ -26,6 +26,7 @@ import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.config.FluidUnit;
 import dev.emi.emi.recipe.ProjectFlintProcessRecipe;
 import dev.emi.emi.recipe.ProjectFlintLootRecipe;
+import dev.emi.emi.recipe.ProjectFlintBasinRecipe;
 import dev.emi.emi.recipe.ProjectFlintGridRecipe;
 import dev.emi.emi.recipe.EmiShapedRecipe;
 import dev.emi.emi.recipe.EmiShapelessRecipe;
@@ -52,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.17";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.18";
 
 	private static final String PF = "projectflint";
 
@@ -99,6 +100,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			"basin_crafting", "sticks_from_sheet", "sand_from_flakes",
 			"clay_block_from_clay_balls", "dirt_from_loose_soil", "loose_soil_from_dirt",
 			"dirt_piles_from_loose_soil", "fat_burning_torch",
+			"hardwood_crafting_table",
 			"hardwood"
 		));
 		for (String wood : WOOD_VARIANTS) {
@@ -1073,64 +1075,82 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	}
 
 	/**
-	 * v0.31.55 BasinBlockEntity and BasinMaterialProcessingSystem. The output
-	 * lists show EACH possible drop separately, never treating independent rolls
-	 * as mutually exclusive or guaranteed. Jumping costs one hunger point.
+	 * Basin entries mirror ProjectFlint 0.31.57's processing table. Each output
+	 * corresponds to ONE roll, preserving duplicate independent rolls and
+	 * mutually exclusive 1/2 results. Percentages live on output tooltips,
+	 * not in paragraphs printed across the player's recipe screen.
 	 */
 	private static void registerBasinRoutes(EmiRegistry registry) {
 		EmiRecipeCategory basin = category(registry, "basin", "basin");
 		if (basin == null) return;
-		process(registry, basin, "basin/tannin",
-			List.of(anyMc(1, "stripped_oak_log", "stripped_oak_wood", "stripped_birch_log", "stripped_birch_wood")),
-			List.of(pf("basin")), List.of(pf("tannin", 2)), 0);
-		process(registry, basin, "basin/wood_dust",
-			List.of(anyMc(1, "oak_planks", "spruce_planks", "birch_planks", "jungle_planks", "acacia_planks",
-				"dark_oak_planks", "mangrove_planks", "cherry_planks", "pale_oak_planks", "bamboo_planks",
-				"crimson_planks", "warped_planks")),
-			List.of(pf("basin")), List.of(pf("wood_dust")), 0);
-
-		basinMaterial(registry, basin, "raw_iron", "Raw Iron", mc("raw_iron"), List.of(
-			loot(pf("iron_dust"), "Guaranteed: 1 Iron Dust"),
-			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 75%"),
-			loot(pf("slag"), "Independent: +1 Slag, 50%")));
-		basinMaterial(registry, basin, "raw_copper", "Raw Copper", mc("raw_copper"), List.of(
-			loot(pf("copper_dust"), "Guaranteed: 1 Copper Dust"),
-			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 83%"),
-			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 24%"),
-			loot(pf("nickel_dust"), "Independent: +1 Nickel Dust, 10%"),
-			loot(pf("silver_dust"), "Independent: +1 Silver Dust, 2%")));
-		basinMaterial(registry, basin, "andesite", "Andesite", mc("andesite"), List.of(
-			loot(pf("fertilizer"), "Exclusive result: 1 Fertilizer (50%) or 2 Fertilizer (50%)")));
-		basinMaterial(registry, basin, "granite", "Granite", mc("granite"), List.of(
-			loot(pf("fertilizer"), "Exclusive result: 1 Fertilizer (50%) or 2 Fertilizer (50%)")));
-		basinMaterial(registry, basin, "stone", "Stone", mc("stone"), List.of(
-			loot(pf("stone_dust"), "Exclusive result: 1 Stone Dust (50%) or 2 Stone Dust (50%)")));
-		basinMaterial(registry, basin, "diorite", "Diorite", mc("diorite"), List.of(
-			loot(pf("stone_dust"), "Exclusive result: 1 Stone Dust (50%) or 2 Stone Dust (50%)")));
-		basinMaterial(registry, basin, "stone_dust", "Stone Dust", pf("stone_dust"), List.of(
-			loot(pf("slag"), "50% chance of 1 Slag; otherwise no output")));
-		basinMaterial(registry, basin, "gravel", "Gravel", mc("gravel"), List.of(
-			loot(mc("flint"), "Guaranteed: 1 Flint"),
-			loot(pf("quartz_dust"), "Independent: +1 Quartz Dust, 20%"),
-			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 1%")));
-		basinMaterial(registry, basin, "sand", "Sand", mc("sand"), List.of(
-			loot(pf("potassium_dust"), "Guaranteed: 1 Potassium Dust"),
-			loot(pf("mica_dust"), "Independent: +1 Mica Dust, 5%"),
-			loot(pf("gold_dust"), "Independent: +1 Gold Dust, 1%")));
-		basinMaterial(registry, basin, "slag", "Slag", pf("slag"), List.of(
-			loot(pf("iron_dust"), "Independent: +1 Iron Dust, 33%"),
-			loot(pf("copper_dust"), "Independent: +1 Copper Dust, 33%"),
-			loot(pf("silicon_dust"), "Independent: +1 Silicon Dust, 33%")));
+		EmiIngredient planks = EmiIngredient.of(TagKey.of(RegistryKeys.ITEM, id("minecraft", "planks")));
+		basin(registry, basin, "wood_dust", planks, 2, List.of(
+			loot(pf("wood_dust"), "Always: 1 Wood Dust")));
+		basin(registry, basin, "tannin", anyMc(1, "stripped_oak_log", "stripped_oak_wood", "stripped_birch_log", "stripped_birch_wood"), 3,
+			List.of(loot(pf("tannin", 2), "Always: 2 Tannin")));
+		basin(registry, basin, "raw_iron", mc("raw_iron"), 3, List.of(
+			loot(pf("iron_dust"), "Always: 1 Iron Dust"),
+			loot(pf("iron_dust"), "+1 Iron Dust: 75%"),
+			loot(pf("slag"), "+1 Slag: 50%"),
+			loot(pf("gold_dust"), "+1 Gold Dust: 3%")));
+		basin(registry, basin, "raw_copper", mc("raw_copper"), 3, List.of(
+			loot(pf("copper_dust"), "Always: 1 Copper Dust"),
+			loot(pf("copper_dust"), "+1 Copper Dust: 83%"),
+			loot(pf("copper_dust"), "+1 Copper Dust: 24%"),
+			loot(pf("nickel_dust"), "+1 Nickel Dust: 10%"),
+			loot(pf("silver_dust"), "+1 Silver Dust: 2%"),
+			loot(pf("slag"), "+1 Slag: 5%")));
+		basin(registry, basin, "andesite", mc("andesite"), 3, List.of(
+			loot(pf("fertilizer"), "1 Fertilizer: 50% (or 2 instead)"),
+			loot(pf("fertilizer", 2), "2 Fertilizer: 50% (or 1 instead)"),
+			loot(pf("stone_dust"), "+1 Stone Dust: 33%")));
+		basin(registry, basin, "granite", mc("granite"), 3, List.of(
+			loot(pf("fertilizer"), "1 Fertilizer: 50% (or 2 instead)"),
+			loot(pf("fertilizer", 2), "2 Fertilizer: 50% (or 1 instead)"),
+			loot(pf("stone_dust"), "+1 Stone Dust: 33%")));
+		for (String stone : List.of("stone", "cobblestone")) {
+			basin(registry, basin, stone, mc(stone), 3, List.of(
+				loot(pf("stone_dust"), "+1 Stone Dust: 66%"),
+				loot(pf("stone_dust"), "+1 Stone Dust: 44%"),
+				loot(pf("stone_dust"), "+1 Stone Dust: 13.33%")));
+		}
+		basin(registry, basin, "diorite", mc("diorite"), 3, List.of(
+			loot(pf("stone_dust"), "1 Stone Dust: 50% (or 2 instead)"),
+			loot(pf("stone_dust", 2), "2 Stone Dust: 50% (or 1 instead)")));
+		basin(registry, basin, "stone_dust", pf("stone_dust"), 2,
+			List.of(loot(pf("slag"), "Slag: 50% (otherwise nothing)")));
+		basin(registry, basin, "gravel", mc("gravel"), 2, List.of(
+			loot(mc("flint"), "Always: 1 Flint"),
+			loot(pf("quartz_dust"), "+1 Quartz Dust: 20%"),
+			loot(pf("iron_dust"), "+1 Iron Dust: 1%")));
+		basin(registry, basin, "sand", mc("sand"), 2, List.of(
+			loot(pf("potassium_dust"), "Always: 1 Potassium Dust"),
+			loot(pf("tin_dust"), "+1 Tin Dust: 15%"),
+			loot(pf("mica_dust"), "+1 Mica Dust: 5%"),
+			loot(pf("gold_dust"), "+1 Gold Dust: 1%")));
+		basin(registry, basin, "clay", mc("clay"), 3, List.of(
+			loot(pf("mica_dust"), "Mica Dust: 5%"),
+			loot(pf("rare_earth_dust"), "Rare Earth Dust: 3.33%"),
+			loot(pf("silver_dust"), "Silver Dust: 0.33%"),
+			loot(pf("gold_dust"), "Gold Dust: 2%")));
+		basin(registry, basin, "rare_earth_dust", pf("rare_earth_dust"), 3, List.of(
+			loot(pf("lithium_dust"), "Lithium Dust: 22.3%"),
+			loot(pf("iron_dust"), "Iron Dust: 15%"),
+			loot(pf("aluminum_dust"), "Aluminum Dust: 4.8%"),
+			loot(pf("gallium_dust"), "Gallium Dust: 0.85%")));
+		basin(registry, basin, "slag", pf("slag"), 3, List.of(
+			loot(pf("iron_dust"), "Iron Dust: 33%"),
+			loot(pf("copper_dust"), "Copper Dust: 33%"),
+			loot(pf("silicon_dust"), "Silicon Dust: 33%")));
 	}
 
-	private static void basinMaterial(EmiRegistry registry, EmiRecipeCategory basin, String id, String label,
-		EmiIngredient material, List<ProjectFlintLootRecipe.LootOutput> potentialDrops) {
-		info(registry, basin, "basin/material/" + id, "Basin: " + label, material, true,
-			List.of(pf("basin")), potentialDrops, List.of(
-				"Place one material inside the Basin, then jump on the Basin to wash it.",
-				"Cost: 1 food point per item (not one full hunger icon).",
-				"Hover each output for its exact chance. All bonus rolls are independent.",
-				"Multiple different bonuses may occur; Slag/Stone Dust may yield nothing."));
+	private static void basin(EmiRegistry registry, EmiRecipeCategory category, String path,
+		EmiIngredient input, int stomps, List<ProjectFlintLootRecipe.LootOutput> outputs) {
+		if (input.isEmpty() || outputs.stream().anyMatch(o -> o.stack().isEmpty())) return;
+		ProjectFlintBasinRecipe recipe = new ProjectFlintBasinRecipe(
+			category, pfId("pf_emi/basin/" + path), input, pf("basin"), outputs, stomps);
+		registry.addRecipe(recipe);
+		ProjectFlintRecipeIndex.mark(recipe);
 	}
 
 	/** Server-side environmental effects are conditions, not item crafts/drops. */
@@ -1172,6 +1192,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("hardwood"), mc("charcoal")),
 			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
 			List.of(pf("hardwood_alloy")), 20 * 60 * 5);
+		process(registry, forge, "forge/mica_insulated_glass",
+			List.of(pf("mbssig_dust"), mc("charcoal")),
+			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
+			List.of(pf("pure_mica_insulated_glass")), 20 * 60 * 5);
 	}
 
 	/** Explicit 2x2 JSONs. Use a real grid view, not a generic new-features category. */
@@ -1182,9 +1206,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		grid(registry, personal, "leather_sheet_from_tanned", 2, true,
 			List.of(pf("tanned_leather"), pf("bone_knife")), pf("leather_sheet"));
 		grid(registry, personal, "leather_straps_from_sheet", 2, true,
-			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 2));
+			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 3));
 		grid(registry, personal, "leather_repair_kit", 2, true,
-			List.of(pf("leather_strap"), mc("string")), pf("repair_kit"));
+			List.of(pf("leather_strap"), mc("string"), mc("string")), pf("repair_kit", 2));
 		for (String kind : WOOD_VARIANTS) {
 			EmiStack planks = mc(kind + "_planks");
 			EmiStack log = mc(kind + "_log");
@@ -1222,6 +1246,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		// was moved to projectflint:hardwood_crafting in 0.31.51-b.
 		grid(registry, personal, "hardwood", 2, true,
 			List.of(pf("clay_water_bucket"), pf("wood_dust"), pf("wood_dust"), pf("tannin")), pf("hardwood"));
+		// The first Hardwood Table must be craftable BEFORE owning a table.
+		grid(registry, personal, "hardwood_crafting_table", 2, true,
+			List.of(pf("hardwood_alloy"), pf("hardwood_alloy"), mc("cobblestone"), pf("bound_wood_processor")),
+			pf("hardwood_crafting_table"));
 	}
 
 	/**
@@ -1911,7 +1939,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		List<ProjectFlintLootRecipe.LootOutput> outputs
 	) {
 		info(registry, category, "mob/" + id, "Mob Loot: " + pretty(id), spawnEgg, false, List.of(), outputs,
-			List.of("Shows ProjectFlint-modified/default no-Looting ranges.", "Baby Ageable mobs do not receive ProjectFlint's added meat."));
+			List.of("Drops shown without Looting.", "Baby animals do not drop added meat."));
 	}
 
 	private static ProjectFlintLootRecipe.LootOutput loot(EmiStack stack, String note) {

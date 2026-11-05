@@ -1,36 +1,14 @@
-# PF-EMI pf.15 — ProjectFlint 0.31.52-b category audit
+# PF-EMI Recipe Category Audit — ProjectFlint 0.31.57-b
 
-GitHub source commit: `37c5f2af2a9939ac71c9d04664954caf10beeb7c`.
+**Category ownership (current):**
 
-The major 0.31.51-b addition is a dedicated `projectflint:hardwood_crafting` recipe type. The previous fixed list of six Hardwood tools is no longer authoritative. The pf.15 integration queries that recipe type and unwraps `HardwoodCraftingRecipe` (and the durable delegate) into standard shaped/shapeless recipes. This preserves recipes for tools, blocks, beams, slabs, doors, paper/books, armor, dyes, Rope stages, and the new Hardwood Sticks.
+| Category | What belongs here |
+|---|---|
+| Personal Crafting (2×2) | Portable small-grid recipes, including the first Hardwood Crafting Table, Leather Straps and Repair Kits |
+| Hardwood Crafting Table (3×3) | Every recipe whose source type is `projectflint:hardwood_crafting` (shaped, shapeless, durable), including the newly added dust/glass progression |
+| Basin | Physical one-item stomp processing; 2–3 stomps, one food point per stomp, independent chance outputs |
+| Fireclay Forge | Hardwood Alloy and Pure Mica Insulated Glass heated over one complete Charcoal firing, and wood-fuel Charcoal byproduct |
+| Wooden/Clay Grinder, Sanding Station, Kilns, Brick Furnace | Machine-specific recipes only; no inferred ordinary crafting duplicates |
+| Block Drops, Mob Loot, World Interactions, Farming, Underground Hazards | Contextual displays, not crafting stations |
 
-## Classification
-
-- **Hardwood Crafting Table (3x3):** All `projectflint:hardwood_crafting` entries, regardless of whether their recipe input could geometrically fit in 2x2. These are station-only by gameplay rule, not ordinary vanilla crafting. Always show the 60-tick per-craft delay.
-- **Personal Crafting (2x2):** Genuine portable JSONs. Do not re-add retired `wooden_axe`, `wooden_pickaxe`, `wooden_shovel*`, or `*_door_hinged` variants. `hardwood_crafting_table` now has the station-only recipe type and cannot be represented as 2x2.
-- **Sanding Station / Wooden Grinder / Clay Grinder:** Existing machine-specific operations stay in their own categories. New Hardwood alternatives at a table are *distinct* station recipes and must not replace the machine actions.
-- **Block Drops:** v0.31.51-b OreMiningRules distinguish Stone/Coal, Iron/Copper stone variants, higher-tier ores and deepslate. Entries show the correct tool and yield; no unrestricted hand/food mining drop should be shown.
-
-## Explicitly pinned upstream changes
-
-- New registered item `projectflint:hardwood_sticks`; two Hardwood yield two Hardwood Sticks. Two planks yield three regular Sticks, but only at the Hardwood Table.
-- Five normal Hardwood tools use 320 durability and Hardwood Hammer uses 560; their new shaped patterns include Leather Straps (Shovel excepted).
-- Hardwood Table may use new durable recipes; `Bone Knife` / `Flint File` lose durability and the Unfired Brick Mold is reusable. Clay Water Bucket recipes return the empty bucket.
-- New Hardwood station output paths include wooden slabs, beams, books, armor, forged tools, dyes with tripled outputs, masonry, fireclay, wooden storage, Well Pulley and staged Rope.
-- Legacy early-stage smelting of Unfired Brick, Unfired Clay Bucket, and Unfired Fireclay Brick has been retired from the vanilla station category by ProjectFlint's `RecipeManagerMixin`; primitive heat-processing entries are separate.
-
-## Known limitations / testing
-
-- The source scan fallback mirrors built-in mod recipe JSONs when the synchronized custom type has **zero** entries. Server datapack removals and overrides cannot be inferred from bundled JSONs; test with actual multiplayer server packs.
-- Build and in-game GUI/recipe tests have not run here; partial source checks alone are not a compatibility certificate.
-- **Upstream bootstrap concern:** ProjectFlint's `hardwood_crafting_table.json` itself now uses the station-only `hardwood_shapeless` type. It appears to require the Hardwood Table to craft a Hardwood Table. PF-EMI mirrors the source rather than silently moving it to Personal Crafting; ProjectFlint may need a separate bootstrap route.
-
-
-### pf.17: v0.31.55-b additions
-
-- **Hardwood 3×3**, source-driven: `axle`, `basin_alternative`, Hardwood-Sticks tool recipes, revised slabs/stone stairs and associated new station-only JSONs. Do not add these to plain Crafting.
-- **Personal 2×2**: restored nine hinged-door patterns (Wooden Door Hinge + 3 planks).
-- **Basin**: ten extra material wash entries with separate independent roll tooltips; none are Crafting recipes.
-- **Brick Furnace**: Cobblestone → Stone (200 ticks effective), absent from Brick Blast Furnace.
-- **Block Drops/Recovery**: hand pickup of Axle, Nest, Fat/Flint/vanilla Torches; Stone-family and revised ore tiers; Deepslate forbidden.
-- **Underground Hazards**: non-crafting effects and light mitigation.
+The generic newly-added-content category is not used. Do not route by output name when a distinct source recipe type or workstation exists. Source audit: `docs/PF18_PROJECTFLINT_0.31.57_PARITY.md`. Actual runtime recipe availability may depend on the connected server; test separately.

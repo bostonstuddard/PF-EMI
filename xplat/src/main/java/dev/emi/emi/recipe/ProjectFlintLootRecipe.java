@@ -93,13 +93,13 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 		for (String paragraph : text.split("\\n", -1)) {
 			StringBuilder line = new StringBuilder();
 			for (String word : paragraph.trim().split("\\s+")) {
-				if (line.length() > 0 && line.length() + 1 + word.length() > 30) {
+				if (line.length() > 0 && line.length() + 1 + word.length() > 26) {
 					result.add(line.toString());
 					line.setLength(0);
 				}
-				if (word.length() > 30) {
+				if (word.length() > 26) {
 					if (line.length() > 0) { result.add(line.toString()); line.setLength(0); }
-					for (int i = 0; i < word.length(); i += 30) result.add(word.substring(i, Math.min(word.length(), i + 30)));
+					for (int i = 0; i < word.length(); i += 26) result.add(word.substring(i, Math.min(word.length(), i + 26)));
 				} else {
 					if (line.length() > 0) line.append(' ');
 					line.append(word);
@@ -113,9 +113,22 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 	@Override
 	public int getDisplayWidth() { return 210; }
 
+	/** A compact overview. Further details live in the item tooltip. */
+	private List<String> headingLines() {
+		List<String> lines = wrap(title);
+		return lines.subList(0, Math.min(lines.size(), 2));
+	}
+
+	private List<String> hintLines() {
+		if (notes.isEmpty()) return List.of();
+		List<String> lines = wrap(notes.get(0));
+		return lines.subList(0, Math.min(lines.size(), 2));
+	}
+
 	@Override
 	public int getDisplayHeight() {
-		return Math.max(54, 46 + notes.stream().mapToInt(note -> wrap(note).size()).sum() * 11);
+		int headingExtra = (headingLines().size() - 1) * 11;
+		return 48 + headingExtra + 11 * hintLines().size() + 19 * Math.max(0, (outputs.size() - 1) / 6);
 	}
 
 	@Override
@@ -130,17 +143,20 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 
 	@Override
 	public void addWidgets(WidgetHolder widgets) {
-		widgets.add(new TextWidget(
-			EmiPort.ordered(EmiPort.literal(title)),
-			2,
-			2,
-			0xFF242424,
-			false
-		));
+		int headingY = 2;
+		for (String heading : headingLines()) {
+			widgets.add(new TextWidget(EmiPort.ordered(EmiPort.literal(heading)),
+				2, headingY, 0xFF242424, false));
+			headingY += 11;
+		}
 
-		int subjectY = 18;
-		widgets.addSlot(subject, 2, subjectY)
-			.catalyst(!subjectIsInput);
+		int subjectY = 18 + (headingLines().size() - 1) * 11;
+		var subjectSlot = widgets.addSlot(subject, 2, subjectY).catalyst(!subjectIsInput);
+		// The full explanation remains readable on demand, not permanently spread
+		// across the page. Keep the ordinary recipe page to a two-line hint.
+		for (String note : notes) {
+			if (!note.isBlank()) subjectSlot.appendTooltip(EmiPort.literal(note));
+		}
 
 		int catalystX = 22;
 		for (EmiIngredient catalyst : catalysts) {
@@ -151,24 +167,19 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 
 		if (!outputs.isEmpty()) widgets.addTexture(EmiTexture.EMPTY_ARROW, 65, subjectY + 1);
 
-		int outputX = 96;
-		for (LootOutput output : outputs) {
-			if (outputX + 18 > widgets.getWidth()) break;
-			var slot = widgets.addSlot(output.stack(), outputX, subjectY).recipeContext(this);
-			if (!output.note().isBlank()) {
-				slot.appendTooltip(EmiPort.literal(output.note()));
-			}
-			outputX += 19;
+		for (int i = 0; i < outputs.size(); i++) {
+			LootOutput output = outputs.get(i);
+			int x = 96 + (i % 6) * 19;
+			int y = subjectY + (i / 6) * 19;
+			var slot = widgets.addSlot(output.stack(), x, y).recipeContext(this);
+			if (!output.note().isBlank()) slot.appendTooltip(EmiPort.literal(output.note()));
 		}
 
-		int noteY = 42;
-		for (String note : notes) {
-			for (String line : wrap(note)) {
-				widgets.add(new TextWidget(
-					EmiPort.ordered(EmiPort.literal(line)), 2, noteY, 0xFF303030, false
-				));
-				noteY += 11;
-			}
+		int noteY = subjectY + 24 + 19 * Math.max(0, (outputs.size() - 1) / 6);
+		for (String line : hintLines()) {
+			widgets.add(new TextWidget(EmiPort.ordered(EmiPort.literal(line)),
+				2, noteY, 0xFF303030, false));
+			noteY += 11;
 		}
 	}
 }

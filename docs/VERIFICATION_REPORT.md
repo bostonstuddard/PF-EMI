@@ -35,3 +35,13 @@
 - Gradle 9.2.1 was not cached; wrapper download failed with `UnknownHostException: services.gradle.org`. Consequently no full Fabric build or in-game runtime test is claimed.
 - Tested ZIP CRC integrity and required patch-only paths. No full source, Gradle cache, output binaries, or third-party textures bundled.
 - Intentionally left runtime and cross-loader checklist entries unchecked.
+
+
+## pf.18 — ProjectFlint 0.31.57-b (2026-11-05)
+
+- GitHub reference: `7e7321a06daff837866c6ba95c4436f2e83c8824`. Source reviewed: 0.31.57-b release notes, `BasinMaterialProcessingSystem`, `BasinBlockEntity`, JSON bootstrap and glass recipes, and Fireclay Forge processing.
+- 62/62 source-contract checks passed using `python tools/verify_pf_emi_pf18.py`; these check selected parity invariants, not all vanilla or mod recipes.
+- JDK 21 JavaCompiler AST parsed four new/modified Java files with zero syntax diagnostics. Not dependency-aware bytecode compilation.
+- Attempted `:fabric:compileJava` with Gradle wrapper; failed **before compilation** because Gradle 9.2.1 was not cached and `services.gradle.org` could not resolve (`UnknownHostException`).
+- No live EMI layout, hover behavior, Basin RNG/hunger, singleplayer or multiplayer tests were possible. Those checks remain outstanding.
+- Scope: Fabric 1.21.11 ProjectFlint integration; no Forge/NeoForge claim.

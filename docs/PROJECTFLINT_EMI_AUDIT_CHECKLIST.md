@@ -830,3 +830,20 @@ A reference in the PF-EMI plugin is **not proof of a valid or correct recipe**, 
 - [ ] Confirm cross-loader behavior separately; pf.17 source patch is Fabric-targeted only.
 
 The checks marked [x] are **source/static validation**, not in-game test completion; see `docs/PF17_PROJECTFLINT_0.31.55_PARITY.md`.
+
+
+## pf.18 — ProjectFlint 0.31.57-b parity and client UI
+
+- [x] Audit exact Basin ingredient list, 2/3 stomp counts and one food point **per stomp** against the pinned ProjectFlint source.
+- [x] Represent fixed, mutually exclusive and independent Basin outputs separately; distinguish non-guaranteed/zero-result washes.
+- [x] Use compact player-facing Basin pages; attach chance details to output hover, not an always-visible wall of text.
+- [x] Limit other informational pages to two visible hint lines and preserve details on input hover.
+- [x] Show outputs in extra rows rather than truncating after six slots.
+- [x] Route first Hardwood Table to genuine personal 2×2 and correct Leather Strap/Repair Kit yields.
+- [x] Preserve dynamic Hardwood-only 3×3 category discovery; add MBSSIG Forge processing.
+- [x] Mark reusable Bone Knife/Flint File in durable Hardwood recipes as catalysts.
+- [x] Run offline source-contract checks and Java syntax parsing.
+- [ ] Successfully compile pf.18 against all Minecraft 1.21.11 / Fabric / Architectury / EMI dependencies.
+- [ ] Verify rendered text and slots at small/default/large GUI scales in-game, with hover, A/U, recipe tree, and scroll.
+- [ ] Validate Basin probabilities, real food/stomp cost and multiplayer synchronization with ProjectFlint 0.31.57-b.
+- [ ] Validate all newly added Hardwood recipe pages and Forge glass sequence with loaded mod JAR.

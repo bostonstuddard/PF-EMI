@@ -1,31 +1,36 @@
-# PF-EMI 1.1.23-pf.17 — PATCH MANIFEST
+# PF-EMI 1.1.23-pf.18 — Patch manifest
 
-Target PF-EMI source: `1.1.23-pf.16`, Minecraft `1.21.11` Fabric.
-ProjectFlint source reference: `0.31.55-b`, GitHub commit `54184ab574bc1999ad616d91518d4681365fca96`.
+Apply to existing PF-EMI **pf.17** source; target ProjectFlint **0.31.57-b** (`7e7321a06daff837866c6ba95c4436f2e83c8824`).
+No parent directory is included; all files are source-root-relative.
 
-Unzip into the **existing PF-EMI repository root**, overwrite modified files, then run `APPLY_PF_EMI_PF_17.bat`.
-The patch is not a complete source checkout or runnable JAR.
+## Changed/new files
 
-## Source changes
+- `APPLY_PF_EMI_PF_18.bat` — SHA-256 `93ef6d945e3fb9e029b1afd05005b5e36f0d10eb981be9ac5e4a9d39435ab5a7`
+- `CHANGELOG.md` — SHA-256 `5afbbc1626e81a88aa849c823f5bb6024615f2eba0c9b40294cfacc68c6a74bb`
+- `README.md` — SHA-256 `78f5f5938ed600d36746e929b752ddc961150a4ef52eb7e20faef9ded293d264`
+- `build.bat` — SHA-256 `fc008fe0619a9f64b08812b33418cd5b964f5d09fa7ecef900a4be1883313982`
+- `gradle.properties` — SHA-256 `791beba17eec2d4d8a802c1d9251211b16d0a54612df59aec54f41ea999e4180`
+- `docs/PF18_PROJECTFLINT_0.31.57_PARITY.md` — SHA-256 `fca998cc01d4c01ae96c72f4765e53e88a2ef68ca799d60c3905f7e75cf57e97`
+- `docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md` — SHA-256 `b5975fd2634118f86b3bf4209b0276bb0aa3501d2f250ea85285268bd11f55cf`
+- `docs/RECIPE_CATEGORY_AUDIT.md` — SHA-256 `d5a43f828848ede2925c0ed76f6d4c813a0eff00a479e2b1ca77e2c21b57283c`
+- `docs/VERIFICATION_REPORT.md` — SHA-256 `46aae4a3bdd9d5021da2f78e0b18f386851f7039e0801bd0cacfcae84babdabf`
+- `tools/verify_pf_emi_pf18.py` — SHA-256 `f68a2b18fcd2427c3164166272ae54736481d66662f465986444a257048c33a4`
+- `xplat/src/main/java/dev/emi/emi/ProjectFlintPlugin.java` — SHA-256 `aa932b8d84f3683a620a9b454573c4a12f547ffa768e26b9984900b23ffd0f61`
+- `xplat/src/main/java/dev/emi/emi/recipe/ProjectFlintBasinRecipe.java` — SHA-256 `c9f6400a3e93c17bb19c290e2489cc6074a4927ae6c394eec4619caecbf79db2`
+- `xplat/src/main/java/dev/emi/emi/recipe/ProjectFlintGridRecipe.java` — SHA-256 `763db9a7d3f240d98ef8082abf9efcf44f5855ec84f377700cb8ed28dc1214c0`
+- `xplat/src/main/java/dev/emi/emi/recipe/ProjectFlintLootRecipe.java` — SHA-256 `c4a2e8e2f3cf4cfb63f7e05c54253eca5a04c766fed931a8d555097c6c53465b`
 
-- `APPLY_PF_EMI_PF_17.bat` — SHA256 prefix `6bbbbaa9d12f0c8f`
-- `CHANGELOG.md` — SHA256 prefix `accd1d76f01d9c18`
-- `README.md` — SHA256 prefix `1fafdc23f78a23e1`
-- `build.bat` — SHA256 prefix `bf4eeea8b9ba97d9`
-- `docs/PF17_PROJECTFLINT_0.31.55_PARITY.md` — SHA256 prefix `e5f5c20b1eac6e5f`
-- `docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md` — SHA256 prefix `b4cf69610ab5c491`
-- `docs/RECIPE_CATEGORY_AUDIT.md` — SHA256 prefix `77666b77bc700022`
-- `docs/VERIFICATION_REPORT.md` — SHA256 prefix `a65315ee3045ddcf`
-- `gradle.properties` — SHA256 prefix `3d52d7507422b819`
-- `tools/verify_pf_emi_pf17.py` — SHA256 prefix `6f9d942af04164e9`
-- `xplat/src/main/java/dev/emi/emi/ProjectFlintPlugin.java` — SHA256 prefix `410980626574306d`
-- `xplat/src/main/java/dev/emi/emi/recipe/ProjectFlintLootRecipe.java` — SHA256 prefix `beb1f03f1bb8f2a2`
-- `xplat/src/main/resources/assets/emi/lang/en_us.json` — SHA256 prefix `edc7ceb5b5d35606`
-- `xplat/src/main/resources/assets/pf_emi/lang/en_us.json` — SHA256 prefix `cc1b1b45dec30219`
+## Checks
 
-## Validation
+- 62/62 source-contract checks passed (`python tools/verify_pf_emi_pf18.py`).
+- Four changed/new Java compilation units parsed with Java 21 AST (zero syntax errors).
+- Full Gradle build attempted, but Gradle 9.2.1 cannot be fetched (`UnknownHostException: services.gradle.org`).
+- GUI/player-server runtime checks are outstanding; do not report a release-ready status.
 
-- 53/53 source-contract assertions passed.
-- Two edited Java files parsed with zero JDK 21 syntax errors.
-- Gradle compilation and in-game singleplayer/dedicated-server tests were **not** possible here (uncached Gradle 9.2.1; outbound connection unavailable).
-- Source-derived behavior is documented in `docs/PF17_PROJECTFLINT_0.31.55_PARITY.md`.
+## Installation
+
+1. Extract this ZIP **directly into your existing pf.17 source root**, overwriting changed files.
+2. Run `APPLY_PF_EMI_PF_18.bat` to clean generated outputs and build Fabric.
+3. Test Basin hover odds, stomp counts, custom Hardwood recipes and Forge glass in a ProjectFlint 0.31.57-b client.
+
+This is a **patch-only source archive**, not a deployable mod JAR.
