@@ -97,7 +97,7 @@ public final class ProjectFlintProcessRecipe implements EmiRecipe {
 
 	@Override
 	public boolean supportsRecipeTree() {
-		return false;
+		return !inputs.isEmpty() && !outputs.isEmpty();
 	}
 
 	@Override

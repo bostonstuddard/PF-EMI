@@ -1,6 +1,5 @@
 package dev.emi.emi.recipe;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,16 +44,19 @@ public final class ProjectFlintGridRecipe implements EmiRecipe {
 		this.gridSize = gridSize;
 		this.shapeless = shapeless;
 		Set<Integer> tools = new HashSet<>();
-		if (durable) {
-			tools.add(cells.size() - 1);
-			// ProjectFlint DurableCraftingRecipe also returns (and wears) Flint Files
-			// and Bone Knives used as secondary ingredients.
-			for (int i = 0; i < cells.size(); i++) {
-				for (EmiStack candidate : cells.get(i).getEmiStacks()) {
-					if (candidate.isEmpty() || candidate.getId() == null) continue;
-					String name = candidate.getId().toString();
-					if (name.equals("projectflint:flint_file") || name.equals("projectflint:bone_knife")) tools.add(i);
-				}
+		if (durable && !cells.isEmpty()) tools.add(cells.size() - 1);
+		// Mark reusable tools for all station tiers. A tool is still part of the
+		// transfer grid but should not be mistaken for a consumed ingredient.
+		for (int i = 0; i < cells.size(); i++) {
+			for (EmiStack candidate : cells.get(i).getEmiStacks()) {
+				if (candidate.isEmpty() || candidate.getId() == null) continue;
+				String name = candidate.getId().toString();
+				if (name.equals("projectflint:flint_file")
+					|| name.equals("projectflint:bone_knife")
+					|| name.equals("projectflint:flint_plant_cutters")
+					|| name.equals("minecraft:wooden_axe")
+					|| name.equals("projectflint:hardwood_axe")
+					|| name.equals("projectflint:unfired_brick_mold")) tools.add(i);
 			}
 		}
 		this.reusableToolIndices = Set.copyOf(tools);
@@ -62,21 +64,20 @@ public final class ProjectFlintGridRecipe implements EmiRecipe {
 
 	@Override public EmiRecipeCategory getCategory() { return category; }
 	@Override public Identifier getId() { return id; }
-	@Override public List<EmiIngredient> getInputs() {
-		List<EmiIngredient> items = new ArrayList<>();
-		for (int i = 0; i < cells.size(); i++) {
-			if (!reusableToolIndices.contains(i) && !cells.get(i).isEmpty()) items.add(cells.get(i));
-		}
-		return List.copyOf(items);
-	}
+	// EMI recipe transfer needs the COMPLETE crafting grid, including empty cells
+	// and reusable tools. The former implementation dropped both and could not fill
+	// shaped slots or find the tools already in the player inventory.
+	@Override public List<EmiIngredient> getInputs() { return cells; }
+	public int gridSize() { return gridSize; }
+	public boolean isShapeless() { return shapeless; }
 	@Override public List<EmiIngredient> getCatalysts() {
 		return reusableToolIndices.stream().sorted().map(cells::get).toList();
 	}
 	@Override public List<EmiStack> getOutputs() { return List.of(output); }
 	@Override public int getDisplayWidth() { return gridSize * 18 + 64; }
 	@Override public int getDisplayHeight() { return gridSize * 18 + (gridSize == 3 ? 16 : 0); }
-	@Override public boolean supportsRecipeTree() { return false; }
-	@Override public boolean hideCraftable() { return true; }
+	@Override public boolean supportsRecipeTree() { return true; }
+	@Override public boolean hideCraftable() { return false; }
 
 	@Override public void addWidgets(WidgetHolder widgets) {
 		for (int i = 0; i < gridSize * gridSize; i++) {

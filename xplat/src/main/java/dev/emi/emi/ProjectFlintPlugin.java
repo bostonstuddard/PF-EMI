@@ -53,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.18";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.19";
 
 	private static final String PF = "projectflint";
 
@@ -101,7 +101,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			"clay_block_from_clay_balls", "dirt_from_loose_soil", "loose_soil_from_dirt",
 			"dirt_piles_from_loose_soil", "fat_burning_torch",
 			"hardwood_crafting_table",
-			"hardwood"
+			"hardwood", "personal_wooden_cups", "personal_wooden_cups_raw_milk",
+			"personal_pmi_sheets"
 		));
 		for (String wood : WOOD_VARIANTS) {
 			ids.add(wood + "_planks_from_log");
@@ -129,6 +130,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		 */
 		registry.removeRecipes(recipe -> {
 			Identifier id = recipe.getId();
+			// Hide vanilla-furnace displays for ProjectFlint's primitive meats.
+			// This is VIEWER-ONLY: their native JSON registrations remain in the
+			// ProjectFlint gameplay mod until it retires them explicitly.
+			if (id != null && PF.equals(id.getNamespace())
+				&& id.getPath().equals("personal_pmi_sheets")) return true;
+			if (id != null && PF.equals(id.getNamespace())
+				&& (recipe.getCategory() == VanillaEmiRecipeCategories.SMELTING
+					|| recipe.getCategory() == VanillaEmiRecipeCategories.SMOKING
+					|| recipe.getCategory() == VanillaEmiRecipeCategories.BLASTING
+					|| recipe.getCategory() == VanillaEmiRecipeCategories.CAMPFIRE_COOKING)
+				&& id.getPath().matches("raw_(calamari|turtle_meat|fox_meat|frog_meat|goat_meat|horse_meat|llama_meat|dolphin_meat|bear_meat|camel_meat)_(smelting|smoking|blasting|campfire_cooking)")) return true;
 			// ProjectFlint's custom workstation recipes must not acquire an
 			// extra fake vanilla Crafting entry. Keep non-crafting EMI pages.
 			if (recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING) {
@@ -157,6 +169,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		registerHardwoodCrafting(registry);
 		registerBlockDropRecipes(registry);
 		registerMobLootRecipes(registry);
+		registerStationTransferHandlers(registry);
 
 		// Register structure guides from the SAME entrypoint so they cannot vanish
 		// because a second EMI plugin was omitted/reordered.
@@ -164,6 +177,27 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 
 		// Last: make the item index match the recipes/routes that are actually visible.
 		registry.removeEmiStacks(ProjectFlintRecipeIndex::shouldHide);
+	}
+
+	/** Register only exact known ProjectFlint workstation layouts.
+	 * Output slots, fake previews, and fuel/progress controls are never fill targets.
+	 */
+	@SuppressWarnings("unchecked")
+	private static void registerStationTransferHandlers(EmiRegistry registry) {
+		stationHandler(registry, "clay_grinder", "clay_grinder", 0);
+		stationHandler(registry, "wooden_grinder", "wooden_grinder", 0, 1);
+		stationHandler(registry, "sanding_station", "sanding_station", 0);
+		stationHandler(registry, "brick_furnace", "brick_furnace", 1);
+		stationHandler(registry, "brick_blast_furnace", "brick_blast_furnace", 1);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void stationHandler(EmiRegistry registry, String menuId, String categoryId, int... inputs) {
+		var id = pfId(menuId);
+		var menu = net.minecraft.registry.Registries.SCREEN_HANDLER.get(id);
+		if (menu == null || !id.equals(net.minecraft.registry.Registries.SCREEN_HANDLER.getId(menu))) return;
+		registry.addRecipeHandler((net.minecraft.screen.ScreenHandlerType<net.minecraft.screen.ScreenHandler>) menu,
+			new dev.emi.emi.handler.ProjectFlintStationRecipeHandler(categoryId, inputs));
 	}
 
 	private static void registerWorldInteractions(EmiRegistry registry) {
@@ -1052,10 +1086,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of("Place the Axle to orient its shaft along the chosen axis.",
 				"Recover it by hand in five ticks. Axles do not transmit power yet."));
 
+		// Pure Mica Insulated Glass is transparent and only returns intact when
+		// recovered with the Tanned Utility Vest equipped (0.31.60/0.31.61).
+		info(registry, placement, "placement/pure_mica_glass_recovery", "Pure Mica Glass Recovery",
+			pf("pure_mica_insulated_glass"), true, List.of(pf("tanned_utility_vest")), List.of(),
+			List.of("Wear the Tanned Utility Vest to recover intact by hand.",
+				"This glass lets light through like regular Glass."));
+
 		info(registry, placement, "torch/fat_burning_torch", "Fat-Burning Torch Refueling",
 			pf("fat_burning_torch"), true, List.of(pf("fat")), List.of(),
 			List.of("Crafted torches start with zero Fat charges.", "After placing, add Fat, then ignite with a Firestarter.",
-				"Breaking and re-placing does not restore Fat.", "Wall-mounted Torches now face outward correctly in all four directions."));
+				"Each Fat charge lasts 50 minutes. Cannot be relit below Y=0."));
 
 	}
 
@@ -1099,7 +1140,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			loot(pf("copper_dust"), "+1 Copper Dust: 24%"),
 			loot(pf("nickel_dust"), "+1 Nickel Dust: 10%"),
 			loot(pf("silver_dust"), "+1 Silver Dust: 2%"),
-			loot(pf("slag"), "+1 Slag: 5%")));
+			loot(pf("slag"), "+1 Slag: 12.5%")));
 		basin(registry, basin, "andesite", mc("andesite"), 3, List.of(
 			loot(pf("fertilizer"), "1 Fertilizer: 50% (or 2 instead)"),
 			loot(pf("fertilizer", 2), "2 Fertilizer: 50% (or 1 instead)"),
@@ -1122,15 +1163,17 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		basin(registry, basin, "gravel", mc("gravel"), 2, List.of(
 			loot(mc("flint"), "Always: 1 Flint"),
 			loot(pf("quartz_dust"), "+1 Quartz Dust: 20%"),
-			loot(pf("iron_dust"), "+1 Iron Dust: 1%")));
+			loot(pf("iron_dust"), "+1 Iron Dust: 1%"),
+			loot(pf("rare_earth_dust"), "+1 Rare Earth Dust: 4%")));
 		basin(registry, basin, "sand", mc("sand"), 2, List.of(
 			loot(pf("potassium_dust"), "Always: 1 Potassium Dust"),
 			loot(pf("tin_dust"), "+1 Tin Dust: 15%"),
 			loot(pf("mica_dust"), "+1 Mica Dust: 5%"),
-			loot(pf("gold_dust"), "+1 Gold Dust: 1%")));
+			loot(pf("gold_dust"), "+1 Gold Dust: 1%"),
+			loot(pf("rare_earth_dust"), "+1 Rare Earth Dust: 4%")));
 		basin(registry, basin, "clay", mc("clay"), 3, List.of(
 			loot(pf("mica_dust"), "Mica Dust: 5%"),
-			loot(pf("rare_earth_dust"), "Rare Earth Dust: 3.33%"),
+			loot(pf("rare_earth_dust"), "Rare Earth Dust: 4%"),
 			loot(pf("silver_dust"), "Silver Dust: 0.33%"),
 			loot(pf("gold_dust"), "Gold Dust: 2%")));
 		basin(registry, basin, "rare_earth_dust", pf("rare_earth_dust"), 3, List.of(
@@ -1141,7 +1184,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		basin(registry, basin, "slag", pf("slag"), 3, List.of(
 			loot(pf("iron_dust"), "Iron Dust: 33%"),
 			loot(pf("copper_dust"), "Copper Dust: 33%"),
-			loot(pf("silicon_dust"), "Silicon Dust: 33%")));
+			loot(pf("silicon_dust"), "Silicon Dust: 33%"),
+			loot(pf("rare_earth_dust"), "Rare Earth Dust: 1.8%")));
 	}
 
 	private static void basin(EmiRegistry registry, EmiRecipeCategory category, String path,
@@ -1209,6 +1253,12 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 3));
 		grid(registry, personal, "leather_repair_kit", 2, true,
 			List.of(pf("leather_strap"), mc("string"), mc("string")), pf("repair_kit", 2));
+		// Real 2x2 cup recipes (Hardwood Table has higher-output equivalents).
+		grid(registry, personal, "personal_wooden_cups", 2, true,
+			List.of(pf("wooden_sheet"), pf("bone_knife")), pf("wooden_cup", 3), true);
+		grid(registry, personal, "personal_wooden_cups_raw_milk", 2, true,
+			List.of(pf("wooden_cup"), pf("wooden_cup"), pf("clay_milk_bucket")),
+			pf("wooden_cup_raw_milk", 5));
 		for (String kind : WOOD_VARIANTS) {
 			EmiStack planks = mc(kind + "_planks");
 			EmiStack log = mc(kind + "_log");
@@ -1471,7 +1521,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			Identifier id = EmiPort.getId(recipe);
 			if (id == null || !PF.equals(id.getNamespace()) || REMAPPED_GRID_RECIPES.contains(id.getPath())) continue;
 			// The Tanned Utility Vest is NEVER a crafting-table recipe.
-			if (id.getPath().equals("tanned_utility_vest")) continue;
+			if (id.getPath().equals("tanned_utility_vest") || id.getPath().equals("personal_pmi_sheets")) continue;
 			int size;
 			boolean shapeless;
 			List<EmiIngredient> cells;
@@ -1507,7 +1557,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		for (EmiIngredient cell : cells) {
 			if (cell.isEmpty() && cell != EmiStack.EMPTY) return;
 		}
-		if ("hardwood_crafting".equals(category.getId().getPath())) markHardwoodRemainders(cells);
+		markCraftingRemainders(cells);
 		ProjectFlintGridRecipe recipe = new ProjectFlintGridRecipe(category, pfId("pf_emi/grid/" + path), cells, output, size, shapeless, durable);
 		registry.addRecipe(recipe);
 		ProjectFlintRecipeIndex.mark(recipe);
@@ -1515,13 +1565,21 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 
 
 	/** Source-defined, unchanged vessel/form remainders for Hardwood station crafts. */
-	private static void markHardwoodRemainders(List<EmiIngredient> cells) {
+	private static void markCraftingRemainders(List<EmiIngredient> cells) {
 		for (EmiIngredient ingredient : cells) {
 			for (EmiStack option : ingredient.getEmiStacks()) {
 				if (pfId("clay_water_bucket").equals(option.getId())) {
 					option.setRemainder(pf("clay_bucket"));
+				} else if (pfId("clay_milk_bucket").equals(option.getId())) {
+					option.setRemainder(pf("clay_bucket"));
 				} else if (pfId("unfired_brick_mold").equals(option.getId())) {
 					option.setRemainder(pf("unfired_brick_mold"));
+				} else if (pfId("bone_knife").equals(option.getId())
+					|| pfId("flint_file").equals(option.getId())
+					|| pfId("flint_plant_cutters").equals(option.getId())
+					|| pfId("hardwood_axe").equals(option.getId())
+					|| id("minecraft", "wooden_axe").equals(option.getId())) {
+					option.setRemainder(option.copy());
 				}
 			}
 		}
@@ -1911,8 +1969,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			loot(pf("animal_bones", 3), "2-3 Animal Bones")
 		));
 		mob(registry, mobs, "turtle", mc("turtle_spawn_egg"), List.of(
-			loot(pf("raw_turtle_meat"), "1 adult turtle; cooked variant if killed on fire"),
-			loot(pf("cooked_turtle_meat"), "Alternative when the turtle is on fire (not an additional drop)")
+			loot(pf("raw_turtle_meat"), "1; cooked if killed on fire")
 		));
 		mob(registry, mobs, "camel", mc("camel_spawn_egg"), List.of(
 			loot(pf("raw_camel_meat", 4), "3-4; cooked if killed on fire")
@@ -1939,7 +1996,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		List<ProjectFlintLootRecipe.LootOutput> outputs
 	) {
 		info(registry, category, "mob/" + id, "Mob Loot: " + pretty(id), spawnEgg, false, List.of(), outputs,
-			List.of("Drops shown without Looting.", "Baby animals do not drop added meat."));
+			List.of());
 	}
 
 	private static ProjectFlintLootRecipe.LootOutput loot(EmiStack stack, String note) {

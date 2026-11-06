@@ -133,7 +133,9 @@ public final class ProjectFlintLootRecipe implements EmiRecipe {
 
 	@Override
 	public boolean supportsRecipeTree() {
-		return false;
+		// Real block recovery has an ingredient and an output. Spawn eggs are
+		// display subjects, not a source material for automatic crafting trees.
+		return subjectIsInput && !outputs.isEmpty();
 	}
 
 	@Override

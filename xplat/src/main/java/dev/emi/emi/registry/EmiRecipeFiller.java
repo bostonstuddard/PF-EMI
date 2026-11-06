@@ -87,7 +87,9 @@ public class EmiRecipeFiller {
 				if (slot instanceof CraftingResultSlot crs) {
 					RecipeInputInventory inv = ((CraftingResultSlotAccessor) crs).getInput();
 					if (inv != null && inv.getWidth() > 0 && inv.getHeight() > 0) {
-						return List.of(new CoercedRecipeHandler<T>(crs));
+						boolean hardwood = type != null
+							&& "projectflint:hardwood_crafting".equals(net.minecraft.registry.Registries.SCREEN_HANDLER.getId(type).toString());
+						return List.of(new CoercedRecipeHandler<T>(crs, hardwood));
 					}
 				}
 			}

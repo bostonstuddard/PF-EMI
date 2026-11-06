@@ -10,6 +10,7 @@ import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.recipe.EmiCraftingRecipe;
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
+import dev.emi.emi.recipe.ProjectFlintGridRecipe;
 import dev.emi.emi.api.recipe.handler.EmiCraftContext;
 import dev.emi.emi.api.recipe.handler.StandardRecipeHandler;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
@@ -53,7 +54,8 @@ public class InventoryRecipeHandler implements StandardRecipeHandler<PlayerScree
 
 	@Override
 	public List<Slot> getCraftingSlots(EmiRecipe recipe, PlayerScreenHandler handler) {
-		if (recipe instanceof EmiCraftingRecipe craf && craf.shapeless) {
+		if (recipe instanceof ProjectFlintGridRecipe grid && grid.gridSize() == 2
+			|| recipe instanceof EmiCraftingRecipe craf && craf.shapeless) {
 			List<Slot> list = Lists.newArrayList();
 			list.add(handler.getSlot(1));
 			list.add(handler.getSlot(2));
@@ -71,6 +73,7 @@ public class InventoryRecipeHandler implements StandardRecipeHandler<PlayerScree
 
 	@Override
 	public boolean supportsRecipe(EmiRecipe recipe) {
+		if (recipe instanceof ProjectFlintGridRecipe grid) return grid.gridSize() == 2;
 		if (recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING && recipe.supportsRecipeTree()) {
 			if (recipe instanceof EmiCraftingRecipe crafting) {
 				return crafting.canFit(2, 2);
@@ -84,6 +87,10 @@ public class InventoryRecipeHandler implements StandardRecipeHandler<PlayerScree
 	public boolean canCraft(EmiRecipe recipe, EmiCraftContext<PlayerScreenHandler> context) {
 		ScreenHandler sh = context.getScreenHandler();
 		if (sh instanceof AbstractCraftingScreenHandler acsh) {
+			if (recipe instanceof ProjectFlintGridRecipe grid) {
+				return grid.gridSize() <= acsh.getWidth() && grid.gridSize() <= acsh.getHeight()
+					&& StandardRecipeHandler.super.canCraft(recipe, context);
+			}
 			if (recipe instanceof EmiCraftingRecipe crafting) {
 				return crafting.canFit(acsh.getWidth(), acsh.getHeight())
                         && StandardRecipeHandler.super.canCraft(recipe, context);

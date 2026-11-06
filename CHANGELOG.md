@@ -1,3 +1,15 @@
+## v1.1.23-pf.19 — 0.31.61 ProjectFlint compatibility, EMI recipe trees and transfer
+
+- Updated integration for ProjectFlint 0.31.58–0.31.61-b (the latest source, superseding 0.31.60-b). Hardwood-only PMI Sheets are discovered through the registered station type and the stale personal recipe is excluded.
+- Restored recipe trees for ProjectFlint grid recipes and actual input/output processes, while leaving mob spawn eggs informational.
+- Enabled recipe-fill buttons for ProjectFlint Personal 2×2 crafting in the player inventory and Hardwood 3×3 crafting in the custom Hardwood Table menu, plus the correctly slotted Clay/Wooden Grinder, Sanding Station and Brick Furnace input menus. Correct grid-cell alignment includes empty shaped slots and required reusable tools.
+- Indexed current personal Wooden Cup and Clay Milk Bucket processing with distinct 2×2 and Hardwood outputs; marked Clay Milk Bucket, Clay Water Bucket, and durable tool/mold remainders appropriately.
+- Updated Basin material outputs: Copper Slag 12.5%; 4% Rare Earth from Gravel/Sand/Clay; 1.8% Rare Earth from Slag. Maintains 2–3 stomps costing 1 food each, and describes the current four-item FIFO capacity.
+- Removed the inconsistent duplicate Cooked Turtle Meat mob-loot slot and the redundant universal Looting note. Fire-kill alternatives remain indicated consistently as a condition on the raw-meat entry.
+- Hid ProjectFlint-specific raw-meat native furnace/campfire displays from EMI, keeping the custom primitive heat-processing displays. **ProjectFlint itself still registers these native cooking recipes**; this viewer-only filter does not remove gameplay recipes.
+- Preserved pf.18 compact player-facing UI, structure viewer and JEI compatibility.
+- Included a static regression suite and documentation; full Gradle and in-world testing remain pending.
+
 # PF-EMI — Unified Changelog
 
 This is the single changelog for the ProjectFlint compatibility branch of EMI. Minecraft **1.21.11**, Fabric is the supported build target for the packaged `build.bat`. Entries describe **PF-EMI compatibility features**, not changes to ProjectFlint gameplay itself. For release readiness and exact gameplay parity, see [`docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md`](docs/PROJECTFLINT_EMI_AUDIT_CHECKLIST.md).

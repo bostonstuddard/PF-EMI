@@ -45,3 +45,18 @@
 - Attempted `:fabric:compileJava` with Gradle wrapper; failed **before compilation** because Gradle 9.2.1 was not cached and `services.gradle.org` could not resolve (`UnknownHostException`).
 - No live EMI layout, hover behavior, Basin RNG/hunger, singleplayer or multiplayer tests were possible. Those checks remain outstanding.
 - Scope: Fabric 1.21.11 ProjectFlint integration; no Forge/NeoForge claim.
+
+
+## pf.19 / ProjectFlint v0.31.61-b
+
+- Current authoritative upstream commit was inspected (0.31.61-b), including 0.31.58–0.31.61 release documents and direct recipe JSON.
+- Corrected all identified UI, sorting and source-data issues in PF-EMI's code; manual runtime testing remains unchecked.
+- Native meat cooking remains gameplay-valid upstream. PF-EMI's hide filter is viewer-only.
+- Confirm current validation results using `python tools/verify_pf_emi_pf19.py`.
+
+### pf.19 local verification
+
+- `python tools/verify_pf_emi_pf19.py`: 39 of 39 local source-contract checks passed.
+- JDK 21 JavacTask parsed all **9** new/modified Java files with zero parser diagnostics; not a mod dependency compile.
+- Attempted `:xplat:compileJava --offline --no-daemon` after using an LF-normalized temporary shell wrapper. It failed before project configuration with `java.net.UnknownHostException: services.gradle.org` while fetching Gradle 9.2.1.
+- No in-game UI, recipe transfer, recipe tree, or singleplayer/multiplayer verification is claimed.
