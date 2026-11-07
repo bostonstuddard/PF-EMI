@@ -1,3 +1,17 @@
+## v1.1.23-pf.22 — ProjectFlint v0.31.69 recipe and interaction support
+
+### World Interactions
+- Added Wooden Chest upgrading: use a Wooden Chest Frame on a placed Woven Chest to create a Wooden Chest without losing its contents.
+
+### Hardwood Crafting Table
+- Prepared the new Hardwood-from-Dust shaped recipe: five Wood Dust around the upper ring, one Water Bucket in the middle, and three Tannin along the bottom. The recipe appears when the installed ProjectFlint version provides it, and the Bucket is returned. The personal Hardwood recipe is unchanged.
+
+### Dynamite Blasting
+- In v0.31.69+, EMI shows the proposed 3-block ore radius (4 ores max), 2.25-block stone radius (2 stones max, 65% chance), 3-second fuse, and 25% Basin-yield bonus. Older ProjectFlint versions retain their proper numbers.
+
+### Block Drops
+- With ProjectFlint v0.31.69+, Packed Mud and Mud Bricks are shown as recoverable using Wooden or Hardwood Pickaxes.
+
 ## v1.1.23-pf.21 — Planned ProjectFlint v0.31.68-b blasting and mining reference
 
 ### Dynamite Blasting

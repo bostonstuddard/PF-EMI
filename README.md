@@ -1,12 +1,10 @@
-# EMI - Port Forward
+# EMI - Project Flint
 
 **PF-EMI** or **EMI - Port Forward** started as a _standalone port forward_ for 1.21.11 for my mod, ProjectFlint, and has now become a widely used port for 1.21.2+, featuring NeoForge, Forge, and Fabric versions. Port Forward exists to not only port forward the last features from the prev. version of EMI, but also so it can add new features for the newest versions, improving EMI overall. Below is EMI's direct description.
 
-# Github Branches
+# ProjectFlint branch
 
-While source code can be provided for older versions, the only versions receiving active updates will have specific Github Branches, however, in the future, I'd like to get all branches for all released versions put into github.
-
-The main branch serves as the specific branch for just my standalone mod needs for ProjectFlint.
+This branch is the source code for the *standalone* mod jar. This branch is NOT for the EMI - Port Forward public use, and will not work for anything besides ProjectFlint. ProjectFlint is it's own mod, with it's own items, and this is built for that. Please refer to a different branch for info on the mod you are *probably* looking for.
 
 # EMI's Main Changes
 EMI is a featureful and accessible item and recipe viewer for Minecraft.
