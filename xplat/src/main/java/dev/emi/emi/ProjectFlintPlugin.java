@@ -53,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.21";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.22";
 
 	private static final String PF = "projectflint";
 
@@ -344,6 +344,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("wooden_grinder_base"), pf("stone_grindsaw")), List.of(), pf("wooden_grinder"));
 		world(registry, "woven_chest_upgrade",
 			List.of(pf("mortar_chest"), pf("woven_chest_frame")), List.of(), pf("woven_chest"));
+		// Place the Wooden Chest Frame against an existing Woven Chest. The frame
+		// is consumed, the block is upgraded, and all nine stored items carry over.
+		// The Woven Chest is the placed, non-consumed target rather than a crafting ingredient.
+		world(registry, "wooden_chest_upgrade",
+			List.of(pf("wooden_chest_frame")), List.of(pf("woven_chest")), pf("wooden_chest"));
 		world(registry, "loose_dirt_slab",
 			List.of(pf("loose_dirt")), List.of(multitool), pf("loose_dirt_slab"));
 		world(registry, "unfired_woven_bowl",
@@ -1125,22 +1130,20 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	}
 
 	/**
-	 * Planned ProjectFlint 0.31.68-b blasting presentation. PF-EMI describes
-	 * the proposed weaker 1.20x independent yield rolls only; actual blast
-	 * radius, breakable block count and rock resistance belong to ProjectFlint.
+	 * Keep recipe-viewer probabilities aligned with the installed gameplay mod.
+	 * 0.31.69 uses +25% independent Basin yields, 0.31.68 used +20%,
+	 * and the earlier explosive used +50%. All over-100% rolls keep their
+	 * guaranteed items and independent fractional bonus rolls.
 	 */
-	private static final double WEAK_DYNAMITE_YIELD_MULTIPLIER = 1.20;
+	private static final double DYNAMITE_YIELD_MULTIPLIER_03169 = 1.25;
+	private static final double DYNAMITE_YIELD_MULTIPLIER_03168 = 1.20;
 	private static final double LEGACY_DYNAMITE_YIELD_MULTIPLIER = 1.50;
-	private static Boolean projectFlintHas068;
+	private static Integer detectedProjectFlintPatch;
 
-	/**
-	 * Never advertise upcoming 0.31.68 gameplay while the player actually has
-	 * 0.31.67 (or an older ProjectFlint) installed. Only the game mod determines
-	 * what its current blast and mining code truly does.
-	 */
-	private static boolean projectFlintAtLeast03168() {
-		if (projectFlintHas068 != null) return projectFlintHas068;
-		boolean supported = false;
+	/** The gameplay mod is authoritative; do not advertise future rules early. */
+	private static int projectFlintPatch() {
+		if (detectedProjectFlintPatch != null) return detectedProjectFlintPatch;
+		int patchVersion = -1;
 		try {
 			Class<?> loaderApi = Class.forName("net.fabricmc.loader.api.FabricLoader");
 			Object loader = loaderApi.getMethod("getInstance").invoke(null);
@@ -1157,27 +1160,32 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 					int major = Integer.parseInt(match.group(1));
 					int minor = Integer.parseInt(match.group(2));
 					int patch = Integer.parseInt(match.group(3));
-					supported = major > 0 || minor > 31 || minor == 31 && patch >= 68;
+					patchVersion = major > 0 || minor > 31 ? 1000 : minor == 31 ? patch : -1;
 				}
 			}
-		} catch (ReflectiveOperationException | RuntimeException | LinkageError ex) {
-			// Unknown build: keep the displayed rules consistent with 0.31.67.
+		} catch (ReflectiveOperationException | RuntimeException | LinkageError ignored) {
+			// Unknown build: don't guess its physics, crafting patterns, or permissions.
 		}
-		projectFlintHas068 = supported;
-		return supported;
+		detectedProjectFlintPatch = patchVersion;
+		return patchVersion;
 	}
+
+	private static boolean projectFlintAtLeast03168() { return projectFlintPatch() >= 68; }
+	private static boolean projectFlintAtLeast03169() { return projectFlintPatch() >= 69; }
 
 	private static void registerDynamiteBlasting(EmiRegistry registry) {
 		EmiRecipeCategory blasting = categoryIcon(registry, "dynamite_blasting", "dynamite");
 		if (blasting == null) return;
-		boolean proposed068 = projectFlintAtLeast03168();
 		info(registry, blasting, "dynamite/placement", "Weak Dynamite",
 			pf("dynamite"), true,
 			List.of(any(1, mc("flint_and_steel"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter"))),
-			List.of(), proposed068
-				? List.of("Small blast; stone resists more than ore.",
-					"Place with a Firestarter offhand. Fuse: 4.5 seconds.")
-				: List.of("Fuse: 4.5 seconds. Use a Firestarter offhand."));
+			List.of(), projectFlintAtLeast03169()
+				? List.of("3-second fuse; up to 4 ores and 2 stone blocks.",
+					"Ore: 3 blocks. Stone: 2.25 blocks; 65% break chance.")
+				: projectFlintAtLeast03168()
+					? List.of("4.5-second fuse; up to 2 ores and 1 stone block.",
+						"Ore: 1.75 blocks. Stone: 1.25 blocks; 50% break chance.")
+					: List.of("Fuse: 4.5 seconds. Use a Firestarter offhand."));
 		blasting(registry, blasting, "stone", mc("stone"), List.of(
 			br(pf("stone_dust"), .66), br(pf("stone_dust"), .44), br(pf("stone_dust"), .1333)));
 		blasting(registry, blasting, "cobblestone", mc("cobblestone"), List.of(
@@ -1200,6 +1208,13 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			br(pf("stone_dust"), .23), br(pf("carbon_dust"), .024)));
 	}
 
+	/** These numbers affect EMI's presentation, never ProjectFlint's explosions. */
+	private static double dynamiteYieldMultiplier() {
+		if (projectFlintAtLeast03169()) return DYNAMITE_YIELD_MULTIPLIER_03169;
+		if (projectFlintAtLeast03168()) return DYNAMITE_YIELD_MULTIPLIER_03168;
+		return LEGACY_DYNAMITE_YIELD_MULTIPLIER;
+	}
+
 	private record BlastRoll(EmiStack item, double normalChance) {}
 	private static BlastRoll br(EmiStack item, double chance) { return new BlastRoll(item, chance); }
 	private static void blasting(EmiRegistry registry, EmiRecipeCategory category,
@@ -1207,8 +1222,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		List<ProjectFlintLootRecipe.LootOutput> outputs = new ArrayList<>();
 		for (BlastRoll roll : rolls) {
 			if (roll.item().isEmpty()) return;
-			double boosted = roll.normalChance() *
-				(projectFlintAtLeast03168() ? WEAK_DYNAMITE_YIELD_MULTIPLIER : LEGACY_DYNAMITE_YIELD_MULTIPLIER);
+			double boosted = roll.normalChance() * dynamiteYieldMultiplier();
 			// A roll above 100% guarantees its integer part, then rolls the
 			// fractional remainder once. Do not clamp 120% down to 100%.
 			long guaranteed = (long) Math.floor(boosted);
@@ -1221,10 +1235,16 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				outputs.add(loot(roll.item().copy(), odds + "% chance"));
 			}
 		}
+		boolean rock = List.of("stone", "cobblestone", "andesite", "granite", "diorite").contains(path);
+		List<String> notes = projectFlintAtLeast03169()
+			? rock ? List.of("65% break chance within 2.25 blocks; max 2 rocks.")
+				: List.of("Within 3 blocks; max 4 ore blocks per blast.")
+			: projectFlintAtLeast03168()
+				? rock ? List.of("50% break chance within 1.25 blocks; max 1 rock.")
+					: List.of("Within 1.75 blocks; max 2 ore blocks per blast.")
+				: List.of("Drops roll when this block breaks.");
 		info(registry, category, "dynamite/blast/" + path, "Blast: " + pretty(path),
-			block, true, List.of(pf("dynamite")), outputs,
-			List.of("Drops are rolled only if this block breaks.",
-				"Every output chance is independent."));
+			block, true, List.of(pf("dynamite")), outputs, notes);
 	}
 
 	/**
@@ -1463,9 +1483,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				CraftingRecipe delegate = unwrapHardwoodCrafting(wrapped);
 				if (delegate == null) { unresolved.add(id.getPath()); continue; }
 
-				// Do not hardcode the pre-0.31.68 Dynamite pattern. The actual
-				// source recipe's 3x3 cells must determine the EMI display: the
-				// planned layout is PFP / PRP / CCC once shipped upstream.
+				// Read the current Hardwood pattern from the gameplay mod instead
+				// of copying an obsolete or hypothetical shaped recipe into EMI.
 				boolean shapeless = delegate instanceof ShapelessRecipe;
 				List<EmiIngredient> cells = hardwoodCells(delegate);
 				if (cells.isEmpty()) { unresolved.add(id.getPath()); continue; }
@@ -1495,6 +1514,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			int bundled = registerBundledHardwoodRecipes(registry, hardwood, null);
 			dev.emi.emi.runtime.EmiLog.warn("PF-EMI: No synchronized Hardwood recipe type; registered " + bundled + " bundled recipes");
 		}
+		// In ProjectFlint 0.31.69+, Hardwood made from Wood Dust must be
+		// imported from the real Hardwood recipe: DDD / DWD / TTT.
+		// D=Wood Dust x5, W=Water Bucket x1, T=Tannin x3; output Hardwood.
+		// Do not create a fake recipe here. The synchronized type or bundled
+		// gameplay JSON above supplies the real grid, amount and Bucket remainder.
 		registerOtherProjectFlintCrafting(registry, hardwood);
 	}
 
@@ -1715,7 +1739,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	private static void markCraftingRemainders(List<EmiIngredient> cells) {
 		for (EmiIngredient ingredient : cells) {
 			for (EmiStack option : ingredient.getEmiStacks()) {
-				if (pfId("clay_water_bucket").equals(option.getId())) {
+				if (id("minecraft", "water_bucket").equals(option.getId())) {
+					option.setRemainder(mc("bucket"));
+				} else if (pfId("clay_water_bucket").equals(option.getId())) {
 					option.setRemainder(pf("clay_bucket"));
 				} else if (pfId("clay_milk_bucket").equals(option.getId())) {
 					option.setRemainder(pf("clay_bucket"));
@@ -1781,7 +1807,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			mc("copper_ore"), List.of(pf("hardwood_hammer")),
 			List.of(loot(mc("raw_copper"), "Exactly 1 Raw Copper; Hardwood Hammer, 13.5 seconds")),
 			List.of("Deepslate Copper Ore is completely inaccessible."));
-		for (String stone : List.of("stone", "cobblestone", "andesite", "granite", "diorite", "tuff")) {
+		for (String stone : List.of("stone", "cobblestone", "andesite", "granite", "diorite")) {
 			blockDrop(registry, drops, "stone/" + stone + "/early_pickaxe",
 				mc(stone), List.of(earlyPickaxes),
 				List.of(loot(mc(stone.equals("stone") ? "cobblestone" : stone), "13.5 seconds with Wooden/Hardwood Pickaxe")),
@@ -1800,12 +1826,13 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of("No current survival tool can break Deepslate or any Deepslate Ore.",
 				"No drops are obtainable, including with higher-tier vanilla Pickaxes."));
 
-		// Upcoming 0.31.68 restriction: no harvest recipe or tool-drop is
-		// presented for natural Dripstone. ProjectFlint itself enforces mining.
+		// v0.31.68+: no early-game drop recipes for advanced geology.
+		// Later-tier vanilla pickaxes are separate; do not label these unobtainable forever.
 		if (projectFlintAtLeast03168()) {
-			info(registry, drops, "drops/locked_dripstone", "Dripstone",
-				anyMc(1, "dripstone_block", "pointed_dripstone"), true,
-				List.of(), List.of(), List.of("Requires a later mining tier."));
+			info(registry, drops, "drops/advanced_geology", "Advanced Geology",
+				anyMc(1, "dripstone_block", "pointed_dripstone", "tuff", "calcite",
+					"basalt", "smooth_basalt", "blackstone", "amethyst_block"), true,
+				List.of(), List.of(), List.of("Requires a later mining tool."));
 		}
 
 		// Explicit recoverable decorations; no generic 'wear a Vest' salvage bypass.
@@ -1844,6 +1871,19 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			pf("crushed_stone"), List.of(pf("advanced_flint_multitool")), List.of(
 				new ProjectFlintLootRecipe.LootOutput(pf("crushed_stone"), "Player-placed Crushed Stone only")
 			), List.of());
+
+		// v0.31.69+ treats Packed Mud and Mud Bricks as recoverable
+		// pickaxe masonry, at the same early tier as Fireclay Bricks.
+		// Do not imply the new mining permission exists on older game builds.
+		if (projectFlintAtLeast03169()) {
+			EmiIngredient masonryPickaxes = any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"));
+			for (String mud : List.of("packed_mud", "mud_bricks")) {
+				blockDrop(registry, drops, "masonry/" + mud,
+					mc(mud), List.of(masonryPickaxes),
+					List.of(loot(mc(mud), "Recovered intact")),
+					List.of("Use a Wooden or Hardwood Pickaxe."));
+			}
+		}
 
 		blockDrop(registry, drops, "loose_mud_bricks",
 			pf("loose_mud_bricks"), List.of(flintTier), List.of(
