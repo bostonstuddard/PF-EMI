@@ -1,3 +1,37 @@
+## v1.1.23-pf.21 — Planned ProjectFlint v0.31.68-b blasting and mining reference
+
+### Dynamite Blasting
+- Updated displayed per-block blast yield chances from 50% bonus to **20% bonus** (each roll ×1.20). A 50% base chance now becomes 60%. Probabilities over 100% retain their guaranteed item plus a chance for an extra item.
+- Shortened the blast page descriptions. Weak Dynamite now describes its smaller intended blast and the higher resistance of common rock; output chances remain on item hover.
+- Kept the eight supported stone and surface-ore target types; their *destruction probability and the actual explosion radius* must be implemented in ProjectFlint, not PF-EMI.
+
+### Crafting and Mining
+- Prepared for the revised Hardwood 3×3 Dynamite pattern, **PFP / PRP / CCC** (`P` Black Powder, `F` Fuse, `R` Red Dye, `C` Copper Dust). PF-EMI reads the actual recipe supplied by ProjectFlint, so it will display this revised pattern when the upstream mod ships it, without showing a fictional recipe while v0.31.67 is installed.
+- Added a Dripstone restriction guide without inventing block-drop recipes. The actual harvest restriction must be enforced by ProjectFlint v0.31.68.
+- No gameplay rules are changed by this PF-EMI patch; full compile and in-game tests are required.
+
+## v1.1.23-pf.20 — ProjectFlint v0.31.67-b integration
+
+### Personal Crafting
+- Restored Wooden Axe, Wooden Pickaxe and Wooden Shovel recipes; added Wooden Sword and Wooden Hoe recipes.
+- Corrected Leather Sheet cutting to 2 Leather Straps and Leather Repair Kits to 1 per personal craft. Hardwood Crafting Table versions keep their larger outputs.
+- Removed the retired Stripped Log → Wooden Sheet shortcut from EMI; the Wooden Grinder still makes 4 Wooden Sheets from a Wooden Beam with a Flint File.
+
+### Hardwood Crafting Table
+- Added access to new Dirt/Mud building pieces, Powder, Fuse, Dynamite and the expanded tool/woodbuilding recipes through ProjectFlint's dedicated 3×3 recipe type.
+- Fixed missing wrapped Hardwood recipes when the server provides shaped recipes but cannot expose certain durable-tool delegates. Reusable tools and returned containers remain displayed.
+
+### Processing
+- Wooden Grinder: Loose Mud Bricks require 8 Mud Piles (not 16); the regular Bricks recipe requires 2 Loose Mud Bricks (not 4).
+- Basin: added Coal and Charcoal processes, including Sulfur, Carbon and Wood Dust chances. Corrected the fertilizer and Stone Dust bonus rolls for Andesite, Granite and Diorite.
+- Brick Furnace: Fuse-Ready Dust → Fine Fuse Powder takes 200 seconds.
+- Fireclay Forge: Carbon Dust → Pure Carbon Dust requires 400 seconds of Charcoal heating across two batches.
+
+### World and Block Interactions
+- Added the 4-Rock Crude Stone Hammer processing outcome for Stone. This also works with Crude, Flint and Advanced Flint Multitools.
+- Added a separate Dynamite Blasting category for the eight allowed stone/ore types and their increased independent drop chances.
+- Added Packed Mud's movement-speed effect to World Interactions.
+
 ## v1.1.23-pf.19 — 0.31.61 ProjectFlint compatibility, EMI recipe trees and transfer
 
 - Updated integration for ProjectFlint 0.31.58–0.31.61-b (the latest source, superseding 0.31.60-b). Hardwood-only PMI Sheets are discovered through the registered station type and the stale personal recipe is excluded.

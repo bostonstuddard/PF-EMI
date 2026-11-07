@@ -17,5 +17,6 @@
   "emi.category.projectflint.world_placement": "World Placement",
   "emi.category.projectflint.block_drops": "Block Drops",
   "emi.category.projectflint.mob_drops": "Mob Loot",
-  "emi.category.projectflint.environmental_hazards": "Underground Hazards and Safety"
+  "emi.category.projectflint.environmental_hazards": "Underground Hazards and Safety",
+  "emi.category.projectflint.dynamite_blasting": "Dynamite Blasting"
 }

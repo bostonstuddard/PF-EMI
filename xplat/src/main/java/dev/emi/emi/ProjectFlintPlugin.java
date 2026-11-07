@@ -53,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.19";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.21";
 
 	private static final String PF = "projectflint";
 
@@ -102,7 +102,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			"dirt_piles_from_loose_soil", "fat_burning_torch",
 			"hardwood_crafting_table",
 			"hardwood", "personal_wooden_cups", "personal_wooden_cups_raw_milk",
-			"personal_pmi_sheets"
+			"personal_pmi_sheets", "wooden_axe", "wooden_pickaxe",
+			"wooden_shovel", "wooden_sword_personal", "wooden_hoe_personal"
 		));
 		for (String wood : WOOD_VARIANTS) {
 			ids.add(wood + "_planks_from_log");
@@ -134,7 +135,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			// This is VIEWER-ONLY: their native JSON registrations remain in the
 			// ProjectFlint gameplay mod until it retires them explicitly.
 			if (id != null && PF.equals(id.getNamespace())
-				&& id.getPath().equals("personal_pmi_sheets")) return true;
+				&& (id.getPath().equals("personal_pmi_sheets")
+				|| id.getPath().equals("primitive_wooden_sheet_from_stripped_log"))) return true;
 			if (id != null && PF.equals(id.getNamespace())
 				&& (recipe.getCategory() == VanillaEmiRecipeCategories.SMELTING
 					|| recipe.getCategory() == VanillaEmiRecipeCategories.SMOKING
@@ -146,10 +148,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			if (recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING) {
 				if (recipe.getOutputs().stream().anyMatch(out ->
 					pfId("tanned_utility_vest").equals(out.getId()))) return true;
-				if (id != null && PF.equals(id.getNamespace())) {
-					return REMAPPED_GRID_RECIPES.contains(id.getPath())
-						|| AUTO_REMAPPED_RECIPES.contains(id.getPath());
-				}
+				// PF's native crafting pages duplicate our workstation-specific grids.
+				// New PF recipes are routed by registerOtherProjectFlintCrafting;
+				// unknown special types are never misrepresented as vanilla crafts.
+				if (id != null && PF.equals(id.getNamespace())) return true;
 			}
 			return id == null || !PF.equals(id.getNamespace());
 		});
@@ -161,6 +163,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		registerHeatProcessing(registry);
 		registerAdvancedKiln(registry);
 		registerMissingWorldRoutes(registry);
+		registerDynamiteBlasting(registry);
 		registerFarmingRoutes(registry);
 		registerBasinRoutes(registry);
 		registerUndergroundHazards(registry);
@@ -441,9 +444,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, wood, "wood/wattle_door",
 				List.of(pf("wattled_daub_bricks", 16), pf("wooden_door_hinge")), pf("wattled_daub_door"));
 			simple(registry, wood, "wood/loose_mud_bricks",
-				List.of(pf("fired_clay", 4), pf("mud_pile", 16)), pf("loose_mud_bricks"));
+				List.of(pf("fired_clay", 4), pf("mud_pile", 8)), pf("loose_mud_bricks"));
 			simple(registry, wood, "wood/bricks",
-				List.of(pf("loose_mud_bricks", 4), pf("wooden_screw", 2)), mc("bricks"));
+				List.of(pf("loose_mud_bricks", 2), pf("wooden_screw", 2)), mc("bricks"));
 			simple(registry, wood, "wood/primitive_stove",
 				List.of(pf("smooth_limestone"), mc("bricks", 2)), pf("primitive_stove"));
 			simple(registry, wood, "wood/bone_knife",
@@ -887,6 +890,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			heat(registry, furnace, "brick_furnace", "tanned_leather", mc("leather"), pf("tanned_leather"), 300, 1.50f);
 			heat(registry, furnace, "brick_furnace", "glass", mc("sand"), mc("glass"), 600, 1.50f);
 			heat(registry, furnace, "brick_furnace", "stone_from_cobblestone", mc("cobblestone"), mc("stone"), 300, 1.50f);
+			// Exclusive Brick Furnace recipe: fixed 4,000-tick (200-second) cycle.
+			heat(registry, furnace, "brick_furnace", "fine_fuse_powder", pf("fuse_ready_dust"), pf("fine_fuse_powder"), 4000, 1.0f);
 		}
 		if (blast != null) {
 			registerCommonHeat(registry, blast, "brick_blast_furnace", 1.50f);
@@ -1093,6 +1098,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of("Wear the Tanned Utility Vest to recover intact by hand.",
 				"This glass lets light through like regular Glass."));
 
+		info(registry, placement, "packed_mud/speed", "Packed Mud",
+			mc("packed_mud"), true, List.of(), List.of(),
+			List.of("Walking on Packed Mud gives a 10% speed boost."));
+
 		info(registry, placement, "torch/fat_burning_torch", "Fat-Burning Torch Refueling",
 			pf("fat_burning_torch"), true, List.of(pf("fat")), List.of(),
 			List.of("Crafted torches start with zero Fat charges.", "After placing, add Fat, then ignite with a Firestarter.",
@@ -1116,9 +1125,112 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	}
 
 	/**
-	 * Basin entries mirror ProjectFlint 0.31.57's processing table. Each output
-	 * corresponds to ONE roll, preserving duplicate independent rolls and
-	 * mutually exclusive 1/2 results. Percentages live on output tooltips,
+	 * Planned ProjectFlint 0.31.68-b blasting presentation. PF-EMI describes
+	 * the proposed weaker 1.20x independent yield rolls only; actual blast
+	 * radius, breakable block count and rock resistance belong to ProjectFlint.
+	 */
+	private static final double WEAK_DYNAMITE_YIELD_MULTIPLIER = 1.20;
+	private static final double LEGACY_DYNAMITE_YIELD_MULTIPLIER = 1.50;
+	private static Boolean projectFlintHas068;
+
+	/**
+	 * Never advertise upcoming 0.31.68 gameplay while the player actually has
+	 * 0.31.67 (or an older ProjectFlint) installed. Only the game mod determines
+	 * what its current blast and mining code truly does.
+	 */
+	private static boolean projectFlintAtLeast03168() {
+		if (projectFlintHas068 != null) return projectFlintHas068;
+		boolean supported = false;
+		try {
+			Class<?> loaderApi = Class.forName("net.fabricmc.loader.api.FabricLoader");
+			Object loader = loaderApi.getMethod("getInstance").invoke(null);
+			Object container = loaderApi.getMethod("getModContainer", String.class).invoke(loader, PF);
+			if (container instanceof java.util.Optional<?> found && found.isPresent()) {
+				Class<?> modApi = Class.forName("net.fabricmc.loader.api.ModContainer");
+				Class<?> metadataApi = Class.forName("net.fabricmc.loader.api.metadata.ModMetadata");
+				Class<?> versionApi = Class.forName("net.fabricmc.loader.api.Version");
+				Object metadata = modApi.getMethod("getMetadata").invoke(found.get());
+				Object version = metadataApi.getMethod("getVersion").invoke(metadata);
+				String value = String.valueOf(versionApi.getMethod("getFriendlyString").invoke(version));
+				var match = java.util.regex.Pattern.compile("^(?:v)?(\\d+)\\.(\\d+)\\.(\\d+)").matcher(value);
+				if (match.find()) {
+					int major = Integer.parseInt(match.group(1));
+					int minor = Integer.parseInt(match.group(2));
+					int patch = Integer.parseInt(match.group(3));
+					supported = major > 0 || minor > 31 || minor == 31 && patch >= 68;
+				}
+			}
+		} catch (ReflectiveOperationException | RuntimeException | LinkageError ex) {
+			// Unknown build: keep the displayed rules consistent with 0.31.67.
+		}
+		projectFlintHas068 = supported;
+		return supported;
+	}
+
+	private static void registerDynamiteBlasting(EmiRegistry registry) {
+		EmiRecipeCategory blasting = categoryIcon(registry, "dynamite_blasting", "dynamite");
+		if (blasting == null) return;
+		boolean proposed068 = projectFlintAtLeast03168();
+		info(registry, blasting, "dynamite/placement", "Weak Dynamite",
+			pf("dynamite"), true,
+			List.of(any(1, mc("flint_and_steel"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter"))),
+			List.of(), proposed068
+				? List.of("Small blast; stone resists more than ore.",
+					"Place with a Firestarter offhand. Fuse: 4.5 seconds.")
+				: List.of("Fuse: 4.5 seconds. Use a Firestarter offhand."));
+		blasting(registry, blasting, "stone", mc("stone"), List.of(
+			br(pf("stone_dust"), .66), br(pf("stone_dust"), .44), br(pf("stone_dust"), .1333)));
+		blasting(registry, blasting, "cobblestone", mc("cobblestone"), List.of(
+			br(pf("stone_dust"), .66), br(pf("stone_dust"), .44), br(pf("stone_dust"), .1333)));
+		for (String rock : List.of("andesite", "granite")) {
+			blasting(registry, blasting, rock, mc(rock), List.of(
+				br(pf("fertilizer"), 1), br(pf("fertilizer"), .5), br(pf("stone_dust"), .33)));
+		}
+		blasting(registry, blasting, "diorite", mc("diorite"), List.of(
+			br(pf("stone_dust"), 1), br(pf("stone_dust"), .5)));
+		blasting(registry, blasting, "iron_ore", mc("iron_ore"), List.of(
+			br(pf("iron_dust"), 1), br(pf("iron_dust"), .75),
+			br(pf("slag"), .5), br(pf("gold_dust"), .03)));
+		blasting(registry, blasting, "copper_ore", mc("copper_ore"), List.of(
+			br(pf("copper_dust"), 1), br(pf("copper_dust"), .83),
+			br(pf("copper_dust"), .24), br(pf("nickel_dust"), .10),
+			br(pf("silver_dust"), .02), br(pf("slag"), .125)));
+		blasting(registry, blasting, "coal_ore", mc("coal_ore"), List.of(
+			br(pf("sulfur_dust"), .45), br(pf("stone_dust"), .43),
+			br(pf("stone_dust"), .23), br(pf("carbon_dust"), .024)));
+	}
+
+	private record BlastRoll(EmiStack item, double normalChance) {}
+	private static BlastRoll br(EmiStack item, double chance) { return new BlastRoll(item, chance); }
+	private static void blasting(EmiRegistry registry, EmiRecipeCategory category,
+		String path, EmiIngredient block, List<BlastRoll> rolls) {
+		List<ProjectFlintLootRecipe.LootOutput> outputs = new ArrayList<>();
+		for (BlastRoll roll : rolls) {
+			if (roll.item().isEmpty()) return;
+			double boosted = roll.normalChance() *
+				(projectFlintAtLeast03168() ? WEAK_DYNAMITE_YIELD_MULTIPLIER : LEGACY_DYNAMITE_YIELD_MULTIPLIER);
+			// A roll above 100% guarantees its integer part, then rolls the
+			// fractional remainder once. Do not clamp 120% down to 100%.
+			long guaranteed = (long) Math.floor(boosted);
+			if (guaranteed > 0) outputs.add(loot(roll.item().copy().setAmount(guaranteed),
+				guaranteed == 1 ? "Guaranteed" : guaranteed + " guaranteed"));
+			double remainder = boosted - guaranteed;
+			if (remainder > 0.00001) {
+				String odds = java.math.BigDecimal.valueOf(remainder * 100)
+					.setScale(2, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+				outputs.add(loot(roll.item().copy(), odds + "% chance"));
+			}
+		}
+		info(registry, category, "dynamite/blast/" + path, "Blast: " + pretty(path),
+			block, true, List.of(pf("dynamite")), outputs,
+			List.of("Drops are rolled only if this block breaks.",
+				"Every output chance is independent."));
+	}
+
+	/**
+	 * Basin entries mirror ProjectFlint 0.31.67's processing rolls. Each output
+	 * corresponds to ONE independent roll, even for duplicate dusts.
+	 * Percentages live on output tooltips,
 	 * not in paragraphs printed across the player's recipe screen.
 	 */
 	private static void registerBasinRoutes(EmiRegistry registry) {
@@ -1142,12 +1254,12 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			loot(pf("silver_dust"), "+1 Silver Dust: 2%"),
 			loot(pf("slag"), "+1 Slag: 12.5%")));
 		basin(registry, basin, "andesite", mc("andesite"), 3, List.of(
-			loot(pf("fertilizer"), "1 Fertilizer: 50% (or 2 instead)"),
-			loot(pf("fertilizer", 2), "2 Fertilizer: 50% (or 1 instead)"),
+			loot(pf("fertilizer"), "1 guaranteed"),
+			loot(pf("fertilizer"), "+1 Fertilizer: 50%"),
 			loot(pf("stone_dust"), "+1 Stone Dust: 33%")));
 		basin(registry, basin, "granite", mc("granite"), 3, List.of(
-			loot(pf("fertilizer"), "1 Fertilizer: 50% (or 2 instead)"),
-			loot(pf("fertilizer", 2), "2 Fertilizer: 50% (or 1 instead)"),
+			loot(pf("fertilizer"), "1 guaranteed"),
+			loot(pf("fertilizer"), "+1 Fertilizer: 50%"),
 			loot(pf("stone_dust"), "+1 Stone Dust: 33%")));
 		for (String stone : List.of("stone", "cobblestone")) {
 			basin(registry, basin, stone, mc(stone), 3, List.of(
@@ -1156,8 +1268,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				loot(pf("stone_dust"), "+1 Stone Dust: 13.33%")));
 		}
 		basin(registry, basin, "diorite", mc("diorite"), 3, List.of(
-			loot(pf("stone_dust"), "1 Stone Dust: 50% (or 2 instead)"),
-			loot(pf("stone_dust", 2), "2 Stone Dust: 50% (or 1 instead)")));
+			loot(pf("stone_dust"), "1 guaranteed"),
+			loot(pf("stone_dust"), "+1 Stone Dust: 50%")));
 		basin(registry, basin, "stone_dust", pf("stone_dust"), 2,
 			List.of(loot(pf("slag"), "Slag: 50% (otherwise nothing)")));
 		basin(registry, basin, "gravel", mc("gravel"), 2, List.of(
@@ -1186,6 +1298,14 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			loot(pf("copper_dust"), "Copper Dust: 33%"),
 			loot(pf("silicon_dust"), "Silicon Dust: 33%"),
 			loot(pf("rare_earth_dust"), "Rare Earth Dust: 1.8%")));
+		basin(registry, basin, "charcoal", mc("charcoal"), 2, List.of(
+			loot(pf("sulfur_dust"), "Sulfur Dust: 20%"),
+			loot(pf("wood_dust"), "Wood Dust: 15%")));
+		basin(registry, basin, "coal", mc("coal"), 3, List.of(
+			loot(pf("sulfur_dust"), "Sulfur Dust: 45%"),
+			loot(pf("stone_dust"), "Stone Dust: 43%"),
+			loot(pf("stone_dust"), "+1 Stone Dust: 23%"),
+			loot(pf("carbon_dust"), "Carbon Dust: 2.4%")));
 	}
 
 	private static void basin(EmiRegistry registry, EmiRecipeCategory category, String path,
@@ -1240,6 +1360,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("mbssig_dust"), mc("charcoal")),
 			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
 			List.of(pf("pure_mica_insulated_glass")), 20 * 60 * 5);
+		// Carbon refining spans two consecutive valid charcoal charges (400 seconds total).
+		process(registry, forge, "forge/pure_carbon_dust",
+			List.of(pf("carbon_dust"), mc("charcoal", 2)),
+			List.of(pf("fireclay_forge_controller"), anyPf(1, "flint_firestarter", "bone_firestarter", "wood_firestarter")),
+			List.of(pf("pure_carbon_dust")), 400 * 20);
 	}
 
 	/** Explicit 2x2 JSONs. Use a real grid view, not a generic new-features category. */
@@ -1250,9 +1375,20 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		grid(registry, personal, "leather_sheet_from_tanned", 2, true,
 			List.of(pf("tanned_leather"), pf("bone_knife")), pf("leather_sheet"));
 		grid(registry, personal, "leather_straps_from_sheet", 2, true,
-			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 3));
+			List.of(pf("leather_sheet"), pf("bone_knife")), pf("leather_strap", 2), true);
 		grid(registry, personal, "leather_repair_kit", 2, true,
-			List.of(pf("leather_strap"), mc("string"), mc("string")), pf("repair_kit", 2));
+			List.of(pf("leather_strap"), mc("string"), mc("string")), pf("repair_kit"));
+		// 0.31.64 restored first-wood tools in the personal 2x2 grid.
+		grid(registry, personal, "wooden_pickaxe", 2, true,
+			List.of(mc("stick"), mc("string"), pf("leather_strap"), pf("wooden_sheet")), mc("wooden_pickaxe"));
+		grid(registry, personal, "wooden_axe", 2, true,
+			List.of(pf("tannin"), pf("leather_sheet"), mc("stick"), pf("wooden_sheet")), mc("wooden_axe"));
+		grid(registry, personal, "wooden_shovel", 2, true,
+			List.of(mc("oak_planks"), mc("stick"), pf("leather_strap")), mc("wooden_shovel"));
+		grid(registry, personal, "wooden_sword_personal", 2, true,
+			List.of(pf("wooden_sheet"), pf("wooden_sheet"), mc("stick")), mc("wooden_sword"));
+		grid(registry, personal, "wooden_hoe_personal", 2, true,
+			List.of(pf("wooden_sheet"), pf("wooden_sheet"), mc("stick"), pf("plant_tool_binding")), mc("wooden_hoe"));
 		// Real 2x2 cup recipes (Hardwood Table has higher-output equivalents).
 		grid(registry, personal, "personal_wooden_cups", 2, true,
 			List.of(pf("wooden_sheet"), pf("bone_knife")), pf("wooden_cup", 3), true);
@@ -1319,21 +1455,25 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		if (rawType != null && pfId("hardwood_crafting").equals(Registries.RECIPE_TYPE.getId(rawType))) {
 			RecipeType<CraftingRecipe> hardwoodType = (RecipeType<CraftingRecipe>) rawType;
 			int count = 0;
+			Set<String> unresolved = new java.util.HashSet<>();
 			for (var entry : EmiAgnos.getAllRecipesOfType(registry.getRecipeManager(), hardwoodType)) {
 				Identifier id = entry.id().getValue();
 				if (id == null || !PF.equals(id.getNamespace())) continue;
 				CraftingRecipe wrapped = entry.value();
 				CraftingRecipe delegate = unwrapHardwoodCrafting(wrapped);
-				if (delegate == null) continue;
+				if (delegate == null) { unresolved.add(id.getPath()); continue; }
 
+				// Do not hardcode the pre-0.31.68 Dynamite pattern. The actual
+				// source recipe's 3x3 cells must determine the EMI display: the
+				// planned layout is PFP / PRP / CCC once shipped upstream.
 				boolean shapeless = delegate instanceof ShapelessRecipe;
 				List<EmiIngredient> cells = hardwoodCells(delegate);
-				if (cells.isEmpty()) continue;
+				if (cells.isEmpty()) { unresolved.add(id.getPath()); continue; }
 				ItemStack result = wrapped.getDisplays().isEmpty()
 					? ItemStack.EMPTY : EmiPort.getOutput(wrapped);
 				if (result.isEmpty() && !delegate.getDisplays().isEmpty()) result = EmiPort.getOutput(delegate);
 				EmiStack output = EmiStack.of(result);
-				if (output.isEmpty()) continue;
+				if (output.isEmpty()) { unresolved.add(id.getPath()); continue; }
 				Identifier serializer = Registries.RECIPE_SERIALIZER.getId(wrapped.getSerializer());
 				boolean durable = pfId("hardwood_durable").equals(serializer);
 				grid(registry, hardwood, "hardwood/type/" + id.getPath(), 3, shapeless, cells, output, durable);
@@ -1343,12 +1483,16 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			// server which fails to synchronize custom recipes must be diagnosed.
 			if (count == 0) {
 				dev.emi.emi.runtime.EmiLog.warn("PF-EMI: No synchronized hardwood recipes. Reading bundled ProjectFlint data instead.");
-				count = registerBundledHardwoodRecipes(registry, hardwood);
+				count = registerBundledHardwoodRecipes(registry, hardwood, null);
+			} else if (!unresolved.isEmpty()) {
+				// Do not restore arbitrary server-disabled recipes: supplement only live
+				// custom-wrapped recipes that cannot be decoded as shaped/shapeless.
+				count += registerBundledHardwoodRecipes(registry, hardwood, unresolved);
 			}
 			dev.emi.emi.runtime.EmiLog.info("PF-EMI: Registered " + count + " Hardwood Table recipes");
 		} else {
 			// This also handles older servers or custom recipe synchronization gaps.
-			int bundled = registerBundledHardwoodRecipes(registry, hardwood);
+			int bundled = registerBundledHardwoodRecipes(registry, hardwood, null);
 			dev.emi.emi.runtime.EmiLog.warn("PF-EMI: No synchronized Hardwood recipe type; registered " + bundled + " bundled recipes");
 		}
 		registerOtherProjectFlintCrafting(registry, hardwood);
@@ -1363,7 +1507,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	 * This client-side fallback is intentionally only invoked when the custom
 	 * type supplies no recipes. It cannot account for server datapack removals.
 	 */
-	private static int registerBundledHardwoodRecipes(EmiRegistry registry, EmiRecipeCategory hardwood) {
+	private static int registerBundledHardwoodRecipes(EmiRegistry registry, EmiRecipeCategory hardwood, Set<String> onlyIds) {
 		int added = 0;
 		try {
 			Class<?> loaderApi = Class.forName("net.fabricmc.loader.api.FabricLoader");
@@ -1388,6 +1532,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 								&& !type.equals("projectflint:hardwood_durable")) continue;
 							String filename = file.getFileName().toString();
 							String recipeId = filename.substring(0, filename.length() - 5);
+							if (onlyIds != null && !onlyIds.contains(recipeId)) continue;
 							EmiStack output = bundledOutput(json.get("result"));
 							if (output.isEmpty()) continue;
 							List<EmiIngredient> cells = bundledCells(json, type);
@@ -1520,6 +1665,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			CraftingRecipe recipe = entry.value();
 			Identifier id = EmiPort.getId(recipe);
 			if (id == null || !PF.equals(id.getNamespace()) || REMAPPED_GRID_RECIPES.contains(id.getPath())) continue;
+			if (id.getPath().equals("primitive_wooden_sheet_from_stripped_log")
+				|| id.getPath().equals("personal_pmi_sheets")) continue;
 			// The Tanned Utility Vest is NEVER a crafting-table recipe.
 			if (id.getPath().equals("tanned_utility_vest") || id.getPath().equals("personal_pmi_sheets")) continue;
 			int size;
@@ -1614,6 +1761,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		// v0.31.55 OreMiningRules: ALL Deepslate is inaccessible, including Coal Ore.
 		// Stone-family timings: pickaxes 270 ticks; Hardwood Hammer 240 ticks.
 		EmiIngredient earlyPickaxes = any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"));
+		blockDrop(registry, drops, "stone/crude_hammer_processing",
+			mc("stone"), List.of(anyPf(1, "crude_stone_hammer", "crude_multitool", "flint_multitool", "advanced_flint_multitool")),
+			List.of(loot(pf("rock", 4), "4 Rocks")),
+			List.of("Stone becomes Crushed Stone. Crude Hammer: about 11.7 seconds."));
 		blockDrop(registry, drops, "ore/coal_ore/pickaxe",
 			mc("coal_ore"), List.of(earlyPickaxes),
 			List.of(loot(mc("coal"), "1 Coal; Wooden/Hardwood Pickaxe, 13.5 seconds")),
@@ -1648,6 +1799,14 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(), List.of(),
 			List.of("No current survival tool can break Deepslate or any Deepslate Ore.",
 				"No drops are obtainable, including with higher-tier vanilla Pickaxes."));
+
+		// Upcoming 0.31.68 restriction: no harvest recipe or tool-drop is
+		// presented for natural Dripstone. ProjectFlint itself enforces mining.
+		if (projectFlintAtLeast03168()) {
+			info(registry, drops, "drops/locked_dripstone", "Dripstone",
+				anyMc(1, "dripstone_block", "pointed_dripstone"), true,
+				List.of(), List.of(), List.of("Requires a later mining tier."));
+		}
 
 		// Explicit recoverable decorations; no generic 'wear a Vest' salvage bypass.
 		for (String decoration : List.of("fat_burning_torch", "flint_torch", "nest", "axle")) {

@@ -1,15 +1,15 @@
 [Architectury Transformer DEBUG] 
 [Architectury Transformer DEBUG] ============================
-[Architectury Transformer DEBUG] Transforming from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar
+[Architectury Transformer DEBUG] Transforming from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar
 [Architectury Transformer DEBUG] ============================
 [Architectury Transformer DEBUG] 
-[Architectury Transformer DEBUG] Transforming 5 transformer(s) from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar: 
-[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapMixinVariables@1fb32e04
-[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformExpectPlatform@511a31d9
-[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapInjectables@1ff04538
+[Architectury Transformer DEBUG] Transforming 5 transformer(s) from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar: 
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapMixinVariables@369cc592
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformExpectPlatform@50281230
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.RemapInjectables@792265c9
 [Architectury Transformer DEBUG]  - AddRefmapName(enabled=() -> kotlin.Boolean)
-[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformPlatformOnly@55abd414
-[Architectury Transformer DEBUG] Transforming from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar with 5 transformer(s) on dev.architectury.transformer.handler.SimpleTransformerHandler
+[Architectury Transformer DEBUG]  - dev.architectury.transformer.transformers.TransformPlatformOnly@6dc30732
+[Architectury Transformer DEBUG] Transforming from C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\devlibs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-dev.jar to C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar with 5 transformer(s) on dev.architectury.transformer.handler.SimpleTransformerHandler
 [Architectury Transformer DEBUG] Found class transformer
 [Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeTreeButtonWidget with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/widget/RecipeScreenshotButtonWidget with maxs=true frames=true
@@ -106,7 +106,7 @@
 [Architectury Transformer DEBUG]  - C:\Users\themo\.gradle\caches\modules-2\files-2.1\io.netty\netty-transport-native-kqueue\4.2.7.Final\e5a0feef41410c8a5ae00c6cb4e0c99bd0aded6a\netty-transport-native-kqueue-4.2.7.Final-osx-aarch_64.jar
 [Architectury Transformer DEBUG]  - C:\Users\themo\.gradle\caches\modules-2\files-2.1\net.fabricmc\fabric-loader\0.19.3\354dfaa02d0552e11867f85dff7cdbfaf813ba3e\fabric-loader-0.19.3.jar
 [Architectury Transformer DEBUG]  - C:\Users\themo\Downloads\source code\EMI - Project Flint\.gradle\loom-cache\remapped_mods\remapped\mezz\jei\jei-1.21.11-fabric-4b5d3c0a\27.4.0.22\jei-1.21.11-fabric-4b5d3c0a-27.4.0.22.jar
-[Architectury Transformer] Read classpath in 2.662 s
+[Architectury Transformer] Read classpath in 1.186 s
 [Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$SearchWorker with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/search/EmiSearch$CompiledQuery with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/search/AliasQuery with maxs=true frames=true
@@ -539,11 +539,12 @@
 [Architectury Transformer DEBUG] Writing dev/emi/emi/VanillaPlugin$1 with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/ProjectFlintRecipeIndex with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/ProjectFlintPlugin with maxs=true frames=true
+[Architectury Transformer DEBUG] Writing dev/emi/emi/ProjectFlintPlugin$BlastRoll with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/ProjectFlintMultiblockPlugin with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/EmiUtil$1 with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/EmiRenderHelper$1 with maxs=true frames=true
 [Architectury Transformer DEBUG] Writing dev/emi/emi/EmiPort with maxs=true frames=true
-[Architectury Transformer DEBUG] Closed File Systems for C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.19-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar
-[Architectury Transformer] Transformed jar with 5 transformer(s) in 3.502 s
+[Architectury Transformer DEBUG] Closed File Systems for C:\Users\themo\Downloads\source code\EMI - Project Flint\xplat\build\libs\pf-emi-1.1.23-pf.20-SNAPSHOT+1.21.11+xplat-transformProductionFabric.jar
+[Architectury Transformer] Transformed jar with 5 transformer(s) in 1.561 s
