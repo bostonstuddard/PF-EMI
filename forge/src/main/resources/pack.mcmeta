@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "description": "PF-EMI 26.1.2 Forge",
+    "min_format": [
+      84,
+      0
+    ],
+    "max_format": [
+      84,
+      0
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "emi",
+  "version": "${version}",
+  "name": "PF-EMI",
+  "description": "Project Flint maintained EMI fork; experimental port for Minecraft ${minecraft_version}.",
+  "authors": ["Emi"],
+  "contributors": ["ProjectFlint"],
+  "contact": {"sources": "https://github.com/bostonstuddard/PF-EMI"},
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.emi.emi.platform.fabric.EmiMainFabric"],
+    "client": ["dev.emi.emi.platform.fabric.EmiClientFabric"],
+    "emi": ["dev.emi.emi.VanillaPlugin"]
+  },
+  "mixins": ["emi-fabric-common.mixins.json", "emi-fabric.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": ">=0.145.1",
+    "minecraft": "${minecraft_version}",
+    "java": ">=25"
+  }
+}

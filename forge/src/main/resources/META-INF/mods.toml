@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[64,)"
+license="MIT"
+
+[[mods]]
+modId="emi"
+version="${version}"
+displayName="PF-EMI"
+authors="Emi; PF-EMI contributors"
+description='''EMI recipe viewer, PF-EMI 26.1.2 Forge port'''
+logoFile="icon.png"
+
+[[dependencies.emi]]
+modId="forge"
+mandatory=true
+versionRange="[64.1.5,65)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.emi]]
+modId="minecraft"
+mandatory=true
+versionRange="[26.1.2,26.2)"
+ordering="NONE"
+side="BOTH"
