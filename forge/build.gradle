@@ -1,0 +1,94 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '7.0.40'
+}
+
+group = 'dev.emi'
+version = "${project.mod_version}+${project.minecraft_version}+forge"
+base.archivesName = 'PF-EMI'
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+minecraft {
+    // 26.2 uses Mojang's unobfuscated symbols directly.
+    mappings channel: 'official', version: minecraft_version
+    accessTransformer = true
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            args '--mixin.config=emi-forge26.mixins.json'
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+        register('client')
+        register('server') { args '--nogui' }
+    }
+}
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+    // Only used to compile @Environment annotations still present in the
+    // shared (Fabric/NeoForge-compatible) API. Not shipped in the Forge JAR.
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.blamejared.com/' }
+}
+
+// Compile the 26.2 shared sources directly, rather than reintroducing
+// legacy Yarn/Forge remapping or combining incompatible Gradle plugins.
+sourceSets.main.java {
+    srcDir '../xplat/src/main/java'
+    exclude(
+        'dev/emi/emi/jemi/impl/JemiIngredientConsumer.java',
+        'dev/emi/emi/jemi/impl/JemiRecipeSlotDrawable.java',
+        'dev/emi/emi/mixin/StatusEffectsDisplayMixin.java',
+        'dev/emi/emi/mixin/accessor/BakedModelManagerAccessor.java',
+        'dev/emi/emi/mixin/accessor/DrawContextAccessor.java',
+        'dev/emi/emi/mixin/accessor/GameRendererAccessor.java',
+        'dev/emi/emi/mixin/accessor/ItemRendererAccessor.java',
+        'dev/emi/emi/mixin/accessor/MinecraftClientAccessor.java',
+        'dev/emi/emi/network/RecipeSyncS2CPacket.java',
+        'dev/emi/emi/recipe/EmiTransmuteRecipe.java',
+        'dev/emi/emi/registry/EmiSyncedRecipes.java',
+        'dev/emi/emi/runtime/EmiDrawCompat.java'
+    )
+}
+sourceSets.main.resources {
+    srcDir '../xplat/src/main/resources'
+    exclude('fabric.mod.json', 'architectury.common.json', 'emi.accesswidener', 'emi-fabric.mixins.json',
+            'emi-neoforge.mixins.json', 'emi-forge-common.mixins.json')
+}
+
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
+    // This project's shared EmiStackConvertible interface still uses the two
+    // Fabric-only @Environment/EnvType *annotations*. This dependency is
+    // compile-only, and MUST NOT be shipped with the Forge mod.
+    compileOnly('net.fabricmc:fabric-loader:0.19.5') { transitive = false }
+    // Minecraft 26.2 ships unobfuscated: there are no obfuscation maps
+    // for the Sponge Mixin annotation processor to resolve. Forge loads
+    // the named mixin targets directly from emi-forge26.mixins.json.
+    // JEMI API is compiled against the same official-name JEI API used by xplat on 26.2.
+    compileOnly("mezz.jei:jei-26.2-fabric:${jei_version}") { transitive = false }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+tasks.named('processResources', ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property('portVersion', project.version)
+    filesMatching('META-INF/mods.toml') {
+        expand(version: project.version)
+    }
+}
+
+tasks.named('jar', Jar) {
+    archiveClassifier = ''
+    from(rootProject.file('../LICENSE'))
+    manifest { attributes['MixinConfigs'] = 'emi-forge26.mixins.json' }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

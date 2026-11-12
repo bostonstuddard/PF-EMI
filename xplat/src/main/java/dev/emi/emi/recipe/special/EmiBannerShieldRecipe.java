@@ -1,0 +1,71 @@
+package dev.emi.emi.recipe.special;
+
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
+import dev.emi.emi.EmiPort;
+import dev.emi.emi.api.recipe.EmiPatternCraftingRecipe;
+import dev.emi.emi.api.stack.EmiIngredient;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.GeneratedSlotWidget;
+import dev.emi.emi.api.widget.SlotWidget;
+
+public class EmiBannerShieldRecipe extends EmiPatternCraftingRecipe {
+	public static final List<Item> BANNERS = List.of(
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "white_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "orange_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "magenta_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "light_blue_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "yellow_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "lime_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "pink_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "gray_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "light_gray_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "cyan_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "purple_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "blue_banner")),
+		dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "brown_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "green_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "red_banner")), dev.emi.emi.EmiPort.getItemRegistry().getValue(EmiPort.id("minecraft", "black_banner"))
+	);
+	private static final List<EmiStack> EMI_BANNERS = BANNERS.stream().map(i -> EmiStack.of(i)).collect(Collectors.toList());
+	public static final EmiStack SHIELD = EmiStack.of(Items.SHIELD);
+
+	@SuppressWarnings("unchecked")
+	public EmiBannerShieldRecipe(Identifier id) {
+		super((List<EmiIngredient>) (List<?>) Stream.concat(Stream.of(SHIELD), EMI_BANNERS.stream()).toList(), EmiStack.of(Items.SHIELD), id);
+	}
+
+	@Override
+	public SlotWidget getInputWidget(int slot, int x, int y) {
+		if (slot == 0) {
+			return new SlotWidget(SHIELD, x, y);
+		} else if (slot == 1) {
+			return new GeneratedSlotWidget(r -> getPattern(r, null), unique, x, y);
+		}
+		return new SlotWidget(EmiStack.EMPTY, x, y);
+	}
+
+	@Override
+	public SlotWidget getOutputWidget(int x, int y) {
+		return new GeneratedSlotWidget(r -> getPattern(r, Items.SHIELD), unique, x, y);
+	}
+	
+	public EmiStack getPattern(Random random, Item item) {
+		int base = random.nextInt(BANNERS.size());
+		if (item == null) {
+			item = BANNERS.get(base);
+		}
+		ItemStack stack = new ItemStack(item);
+		int patterns = 1 + Math.max(random.nextInt(5), random.nextInt(3));
+		BannerPatternLayers pattern = BannerPatternLayers.EMPTY;
+		for (int i = 0; i < patterns; i++) {
+			pattern = EmiPort.addRandomBanner(pattern, random);
+		}
+
+		stack.set(DataComponents.BANNER_PATTERNS, pattern);
+		// Match vanilla ShieldDecorationRecipe, which copies the banner's
+		// base color onto the shield result so the displayed stack matches
+		// the actual crafting output.
+		stack.set(DataComponents.BASE_COLOR, DyeColor.byId(base));
+
+		return EmiStack.of(stack);
+	}
+}

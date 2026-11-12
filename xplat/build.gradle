@@ -1,0 +1,110 @@
+apply plugin: "dev.architectury.loom-no-remap"
+
+// Minecraft 26.1.2 is Mojang-named. These orphaned pre-26.x classes were
+// retained by earlier overlay-based ports; none is part of the 26.1.2
+// codebase. Exclude them rather than requiring manual deletions after unzip.
+// This does NOT exclude the current 26.1.2 JEMI bridge or active mixins.
+sourceSets.main.java {
+	exclude(
+		'dev/emi/emi/jemi/impl/JemiIngredientConsumer.java',
+		'dev/emi/emi/jemi/impl/JemiRecipeSlotDrawable.java',
+		'dev/emi/emi/mixin/StatusEffectsDisplayMixin.java',
+		'dev/emi/emi/mixin/accessor/BakedModelManagerAccessor.java',
+		'dev/emi/emi/mixin/accessor/DrawContextAccessor.java',
+		'dev/emi/emi/mixin/accessor/GameRendererAccessor.java',
+		'dev/emi/emi/mixin/accessor/ItemRendererAccessor.java',
+		'dev/emi/emi/mixin/accessor/MinecraftClientAccessor.java',
+		'dev/emi/emi/network/RecipeSyncS2CPacket.java',
+		'dev/emi/emi/recipe/EmiTransmuteRecipe.java',
+		'dev/emi/emi/registry/EmiSyncedRecipes.java',
+		'dev/emi/emi/runtime/EmiDrawCompat.java'
+	)
+}
+
+architectury {
+	common(rootProject.enabled_platforms.split(","))
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/emi.accesswidener")
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+
+	implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+
+	compileOnly("mezz.jei:${rootProject.jei_version}") {
+		transitive = false
+	}
+}
+
+processResources {
+	inputs.property "version", project(":fabric").version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project(":fabric").version
+	}
+}
+
+
+def filteredSourcesJar = tasks.register('filteredSourcesJar', Jar, {
+	archiveClassifier = 'filtered-sources'
+	dependsOn sourcesJar
+	from zipTree(sourcesJar.archiveFile)
+	exclude 'dev/emi/emi/jemi/**'
+})
+
+def apiJar = tasks.register('apiJar', Jar, {
+	archiveClassifier = "api"
+	dependsOn jar
+	from zipTree(jar.archiveFile)
+	include 'fabric.mod.json'
+	include 'emi.mixins.json'
+	include 'emi.accesswidener'
+	include 'dev/emi/emi/api/**'
+	exclude 'dev/emi/emi/api/EmiRecipeHandler**'
+	exclude 'dev/emi/emi/api/stack/FluidEmiStack**'
+	exclude 'dev/emi/emi/api/stack/ItemEmiStack**'
+	exclude 'dev/emi/emi/api/stack/EmptyEmiStack**'
+	exclude 'dev/emi/emi/api/stack/TagEmiIngredient**'
+	exclude 'dev/emi/emi/api/stack/ListEmiIngredient**'
+})
+
+tasks.named("build").configure {
+	dependsOn(filteredSourcesJar, apiJar)
+}
+
+publishing {
+	publications {
+		register('maven', MavenPublication) {
+			artifactId = "${rootProject.name}-xplat-mojmap"
+			version = project.ext.mavenVersion
+			artifact(jar) {
+				builtBy jar
+				classifier = null
+			}
+			artifact(filteredSourcesJar) {
+				builtBy filteredSourcesJar
+				classifier = 'sources'
+			}
+			artifact(apiJar) {
+				builtBy apiJar
+				classifier = 'api'
+			}
+		}
+	}
+	setupRepositories(repositories)
+}
+
+void setupRepositories(RepositoryHandler repositories) {
+	if (project.hasProperty("mavenUrl")) {
+		repositories.maven {
+			url project.mavenUrl
+			credentials {
+				username project.mavenUsername
+				password project.mavenPassword
+			}
+		}
+	}
+}

@@ -1,0 +1,158 @@
+package dev.emi.emi.recipe.special;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.component.Fireworks;
+import com.google.common.collect.Lists;
+
+import dev.emi.emi.api.recipe.EmiPatternCraftingRecipe;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.widget.GeneratedSlotWidget;
+import dev.emi.emi.api.widget.SlotWidget;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntLists;
+
+
+public class EmiFireworkRocketRecipe extends EmiPatternCraftingRecipe {
+	private static final List<DyeItem> DYES = BuiltInRegistries.ITEM.stream()
+		.filter(item -> item instanceof DyeItem)
+		.map(item -> (DyeItem) item)
+		.collect(Collectors.toList());
+
+	public EmiFireworkRocketRecipe(Identifier id) {
+		super(List.of(
+				EmiStack.of(Items.PAPER),
+						EmiStack.of(Items.FIREWORK_STAR),
+						EmiStack.of(Items.GUNPOWDER)),
+				EmiStack.of(Items.FIREWORK_ROCKET), id);
+	}
+
+	@Override
+	public SlotWidget getInputWidget(int slot, int x, int y) {
+		if (slot == 0) {
+			return new SlotWidget(EmiStack.of(Items.PAPER), x, y);
+		} else {
+			final int s = slot - 1;
+			return new GeneratedSlotWidget(r -> {
+				List<EmiStack> items = getItems(r);
+				if (s < items.size()) {
+					return items.get(s);
+				}
+				return EmiStack.EMPTY;
+			}, unique, x, y);
+		}
+	}
+
+	@Override
+	public SlotWidget getOutputWidget(int x, int y) {
+		return new GeneratedSlotWidget(this::getFireworkRocket, unique, x, y);
+	}
+
+	private EmiStack getFireworkRocket(Random random) {
+		ItemStack stack = new ItemStack(Items.FIREWORK_ROCKET);
+		List<FireworkExplosion> explosions = new ArrayList<>();
+
+		List<EmiStack> items = getItems(random);
+		int gunpowder = 0;
+		for (EmiStack item : items) {
+			if (item.getId() == EmiStack.of(Items.FIREWORK_STAR).getId()){
+				explosions.add(item.getOrDefault(DataComponents.FIREWORK_EXPLOSION, FireworkExplosion.DEFAULT));
+			} else if (item.isEqual(EmiStack.of(Items.GUNPOWDER))) {
+				gunpowder++;
+			}
+		}
+
+		stack.set(DataComponents.FIREWORKS, new Fireworks(gunpowder, explosions));
+		return EmiStack.of(stack, 3);
+	}
+
+	private List<EmiStack> getItems(Random random) {
+		List<EmiStack> items = Lists.newArrayList();
+		int amount = random.nextInt(3);
+		for(int i= 0; i<= amount; i++) {
+			items.add(EmiStack.of(Items.GUNPOWDER));
+		}
+		amount = random.nextInt(8-items.size());
+		for(int i= 0; i<= amount; i++) {
+			items.add(getFireworkStar(random));
+		}
+
+		return items;
+	}
+
+	private List<DyeItem> getDyes(Random random, int max) {
+		List<DyeItem> dyes = Lists.newArrayList();
+		int amount = 1 + random.nextInt(max);
+		for (int i = 0; i < amount; i++) {
+			dyes.add(DYES.get(random.nextInt(DYES.size())));
+		}
+		return dyes;
+	}
+
+	private EmiStack getFireworkStar(Random random) {
+		ItemStack stack = new ItemStack(Items.FIREWORK_STAR);
+		int items = 0;
+
+		int amount = random.nextInt(5);
+
+		FireworkExplosion.Shape type = FireworkExplosion.Shape.values()[random.nextInt(FireworkExplosion.Shape.values().length)];
+
+		if (!(amount == 0)) {
+			items++;
+		}
+
+		amount = random.nextInt(4);
+
+		boolean flicker = false, trail = false;
+
+		if (amount == 0) {
+			flicker = true;
+			items++;
+		} else if (amount == 1) {
+			trail = true;
+			items++;
+		} else if (amount == 2){
+			flicker = true;
+			trail = true;
+			items = items + 2;
+		}
+
+		List<DyeItem> dyeItems = getDyes(random, 8 - items);
+		IntList colors = new IntArrayList();
+		for (DyeItem dyeItem : dyeItems) {
+			DyeColor color = dyeItem.components().get(DataComponents.DYE);
+			colors.add((color != null ? color : DyeColor.WHITE).getFireworkColor());
+		}
+
+		amount = random.nextInt(2);
+
+		IntList fadedColors;
+
+		if (amount == 1) {
+			List<DyeItem> dyeItemsFaded = getDyes(random, 8);
+			fadedColors = new IntArrayList();
+			for (DyeItem dyeItem : dyeItemsFaded) {
+				DyeColor fadedColor = dyeItem.components().get(DataComponents.DYE);
+				fadedColors.add((fadedColor != null ? fadedColor : DyeColor.WHITE).getFireworkColor());
+			}
+		} else {
+			fadedColors = IntLists.emptyList();
+		}
+
+		FireworkExplosion component = new FireworkExplosion(type, colors, fadedColors, trail, flicker);
+
+		stack.set(DataComponents.FIREWORK_EXPLOSION, component);
+		return EmiStack.of(stack);
+	}
+}

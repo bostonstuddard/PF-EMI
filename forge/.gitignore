@@ -1,0 +1,8 @@
+/.gradle/
+/build/
+/run/
+/src/main/java/
+/src/main/resources/assets/
+/src/main/resources/data/
+/src/main/resources/*.mixins.json
+/src/main/resources/emi.accesswidener
