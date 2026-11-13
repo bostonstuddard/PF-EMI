@@ -63,10 +63,9 @@ public final class EmiClientRecipeFallback {
         fallbackMap = map;
         EmiLog.warn("Using client-default Minecraft recipes: these may differ from server recipes");
         if (client.player != null) {
-            client.player.displayClientMessage(
+            client.gui.hud.getChat().addClientSystemMessage(
                     Component.literal("[PF-EMI] Server recipes unavailable; showing vanilla recipes for viewing only. These may differ from the server.")
-                            .withStyle(ChatFormatting.YELLOW),
-                    false);
+                            .withStyle(ChatFormatting.YELLOW));
         }
         EmiReloadManager.reload();
     }

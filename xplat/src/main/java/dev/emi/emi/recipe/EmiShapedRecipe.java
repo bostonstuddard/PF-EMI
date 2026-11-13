@@ -96,7 +96,7 @@ public class EmiShapedRecipe extends EmiCraftingRecipe {
 
 			ContextMap context = Minecraft.getInstance().level != null
 				? SlotDisplayContext.fromLevel(Minecraft.getInstance().level)
-				: new ContextMap.Builder().create(SlotDisplayContext.CONTEXT);
+				: ContextMap.EMPTY;
 			List<EmiIngredient> rebuilt = new ArrayList<>(9);
 			for (int y = 0; y < 3; y++) {
 				for (int x = 0; x < 3; x++) {

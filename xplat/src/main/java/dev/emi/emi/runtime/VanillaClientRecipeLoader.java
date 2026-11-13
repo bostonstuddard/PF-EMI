@@ -17,10 +17,9 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
-import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.crafting.Recipe;
@@ -40,8 +39,8 @@ public final class VanillaClientRecipeLoader {
         // Vanilla recipes depend on vanilla item tags. Build a separate
         // serialization lookup using the tags from the vanilla built-in pack,
         // rather than assuming the connected server's tags match vanilla.
-        try (CloseableResourceManager resources = new MultiPackResourceManager(
-                PackType.SERVER_DATA, List.of(ServerPacksSource.createVanillaPackSource()))) {
+        ResourceManager resources = ServerPacksSource.createVanillaPackSource().asResourceManager();
+        try {
             RegistryAccess.Frozen frozen = registryAccess.freeze();
             List<Registry.PendingTags<?>> pendingTags =
                     TagLoader.loadTagsForExistingRegistries(resources, frozen);
@@ -53,11 +52,17 @@ public final class VanillaClientRecipeLoader {
                     resources,
                     FileToIdConverter.registry(Registries.RECIPE),
                     ops,
-                    Recipe.CODEC,
+                    Recipe.DIRECT_CODEC,
                     recipes);
         } catch (Exception | LinkageError e) {
             EmiLog.warn("Unable to parse client-bundled vanilla recipe fallback: " + e);
             return null;
+        } finally {
+            // Vanilla's resource manager can own open pack resources on some
+            // loaders. Close it if it supports the closeable API.
+            if (resources instanceof CloseableResourceManager closeable) {
+                closeable.close();
+            }
         }
 
         List<RecipeHolder<?>> holders = new ArrayList<>(recipes.size());
