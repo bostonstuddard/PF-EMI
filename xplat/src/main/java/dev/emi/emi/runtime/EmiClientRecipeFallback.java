@@ -66,7 +66,7 @@ public final class EmiClientRecipeFallback {
         fallbackMap = loaded;
         EmiLog.warn("PF-EMI: showing bundled vanilla recipes for viewing only (server recipes were not provided)");
         if (mc.player != null) {
-            mc.gui.getChat().addClientSystemMessage(Component.literal(
+            mc.gui.hud.getChat().addClientSystemMessage(Component.literal(
                 "[PF-EMI] Server recipes unavailable; showing vanilla recipes for viewing only. These may differ from the server."
             ).withStyle(ChatFormatting.YELLOW));
         }
