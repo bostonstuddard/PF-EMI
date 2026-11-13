@@ -48,6 +48,9 @@ public final class VanillaClientRecipeLoader {
         FallbackResourceManager resources = new FallbackResourceManager(PackType.SERVER_DATA, "minecraft");
         resources.push(ServerPacksSource.createVanillaPackSource().fullResources());
         try {
+            // Keep an independent vanilla tag snapshot for EMI's browser.
+            // Do not mutate the remote server's registry/tag state.
+            VanillaRecipeTags.load(resources);
             RegistryAccess.Frozen frozen = registryAccess.freeze();
             List<Registry.PendingTags<?>> pendingTags =
                     TagLoader.loadTagsForExistingRegistries(resources, frozen);

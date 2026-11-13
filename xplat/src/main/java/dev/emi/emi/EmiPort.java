@@ -5,6 +5,7 @@ import dev.emi.emi.mixin.accessor.SmithingTransformRecipeAccessor;
 import dev.emi.emi.platform.EmiAgnos;
 import dev.emi.emi.registry.EmiRecipes;
 import dev.emi.emi.runtime.EmiClientRecipeFallback;
+import dev.emi.emi.platform.EmiClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -177,9 +178,12 @@ public final class EmiPort {
 	}
 
 	public static @Nullable RecipeMap getRecipeMap() {
-		// Server recipes are authoritative, even if the server sends an empty map.
+		// On a server without EMI, the browser is a read-only union of bundled
+		// vanilla recipes and any recipes synchronized by the remote server.
+		// The actual server entries override matching vanilla recipe IDs.
 		RecipeMap server = EmiAgnos.getRecipeMap();
-		return server != null ? server : EmiClientRecipeFallback.getFallbackMap();
+		RecipeMap fallback = EmiClientRecipeFallback.getFallbackMap();
+		return fallback != null && !EmiClient.onServer ? fallback : server;
 	}
 
 	public static Comparison compareStrict() {
