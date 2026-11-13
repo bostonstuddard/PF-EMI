@@ -1,13 +1,22 @@
 package dev.emi.emi.recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+
 import com.google.common.collect.Lists;
 
 import dev.emi.emi.EmiPort;
@@ -15,6 +24,8 @@ import dev.emi.emi.EmiUtil;
 import dev.emi.emi.api.recipe.EmiCraftingRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.ListEmiIngredient;
+import dev.emi.emi.registry.EmiTags;
 import dev.emi.emi.runtime.EmiLog;
 
 public class EmiShapedRecipe extends EmiCraftingRecipe {
@@ -25,6 +36,10 @@ public class EmiShapedRecipe extends EmiCraftingRecipe {
 	}
 
 	public static void setRemainders(List<EmiIngredient> input, CraftingRecipe recipe) {
+		// VanillaPlugin also calls this for custom shaped recipes. Its fallback
+		// uses placementInfo().ingredients(), which omits empty pattern slots.
+		// Rebuild from the recipe display before calculating remainders.
+		restoreShapedDisplay(input, recipe);
 		try {
 			TransientCraftingContainer inv = EmiUtil.getCraftingInventory();
 			for (int i = 0; i < input.size(); i++) {
@@ -49,11 +64,101 @@ public class EmiShapedRecipe extends EmiCraftingRecipe {
 							stack.setRemainder(EmiStack.of(remainder));
 						}
 					}
-				}
-				inv.clearContent();
+			}
+			inv.clearContent();
 			}
 		} catch (Exception e) {
 			EmiLog.error("Exception thrown setting remainders for " + EmiPort.getId(recipe), e);
+		}
+	}
+
+	/**
+	 * Reconstruct the real 3x3 pattern for custom shaped recipes (including
+	 * Iron Jetpacks' NormalCraftingRecipe subclass), and use display stacks for
+	 * component-sensitive ingredients such as NeoForge DataComponentIngredient.
+	 *
+	 * Only mutable, already-shaped input lists are rewritten. Shapeless recipes
+	 * use immutable lists and retain their existing behavior.
+	 */
+	private static void restoreShapedDisplay(List<EmiIngredient> input, CraftingRecipe recipe) {
+		if (!(input instanceof ArrayList)) {
+			return;
+		}
+		try {
+			ShapedCraftingRecipeDisplay shaped = recipe.display().stream()
+				.filter(ShapedCraftingRecipeDisplay.class::isInstance)
+				.map(ShapedCraftingRecipeDisplay.class::cast)
+				.filter(d -> d.width() > 0 && d.width() <= 3 && d.height() > 0 && d.height() <= 3)
+				.findFirst().orElse(null);
+			if (shaped == null) {
+				return;
+			}
+
+			int width = shaped.width();
+			int height = shaped.height();
+			PlacementInfo placement = recipe.placementInfo();
+			if (placement.slotsToIngredientIndex().size() != width * height) {
+				return;
+			}
+
+			ContextMap context = Minecraft.getInstance().level != null
+				? SlotDisplayContext.fromLevel(Minecraft.getInstance().level)
+				: new ContextMap.Builder().create(SlotDisplayContext.CONTEXT);
+			List<EmiIngredient> rebuilt = new ArrayList<>(9);
+			for (int y = 0; y < 3; y++) {
+				for (int x = 0; x < 3; x++) {
+					if (x >= width || y >= height) {
+						rebuilt.add(EmiStack.EMPTY);
+						continue;
+					}
+					int slot = x + y * width;
+					int ingredientIndex = placement.slotsToIngredientIndex().getInt(slot);
+					SlotDisplay display = shaped.ingredients().get(slot);
+					if (ingredientIndex == PlacementInfo.EMPTY_SLOT || display instanceof SlotDisplay.Empty) {
+						rebuilt.add(EmiStack.EMPTY);
+						continue;
+					}
+
+					// ShapedRecipe already uses 3x3 padded input, while the fallback
+					// for arbitrary CraftingRecipe uses compressed placement indices.
+					int fallbackIndex = recipe instanceof ShapedRecipe ? x + y * 3 : ingredientIndex;
+					EmiIngredient fallback = fallbackIndex >= 0 && fallbackIndex < input.size()
+						? input.get(fallbackIndex) : EmiStack.EMPTY;
+					rebuilt.add(resolveDisplayIngredient(display, context, fallback));
+				}
+			}
+
+			input.clear();
+			input.addAll(rebuilt);
+		} catch (Exception e) {
+			// Preserve the existing recipe if a mod provides an unsupported display.
+			EmiLog.error("Could not restore shaped recipe display for " + EmiPort.getId(recipe), e);
+		}
+	}
+
+	private static EmiIngredient resolveDisplayIngredient(SlotDisplay display, ContextMap context, EmiIngredient fallback) {
+		// Keep tag ingredients as tags instead of expanding potentially huge lists.
+		if (display instanceof SlotDisplay.TagSlotDisplay) {
+			return fallback;
+		}
+		try {
+			List<EmiStack> alternatives = display.resolveForStacks(context).stream()
+				.filter(stack -> !stack.isEmpty())
+				.map(EmiStack::of)
+				.toList();
+			if (alternatives.isEmpty()) {
+				return fallback;
+			}
+			if (alternatives.size() == 1) {
+				return alternatives.get(0);
+			}
+			// Never collapse several tiers or components into the same item ID.
+			if (alternatives.stream().anyMatch(stack -> !stack.getComponentChanges().isEmpty())) {
+				return new ListEmiIngredient(alternatives, 1);
+			}
+			return EmiTags.getIngredient(net.minecraft.world.item.Item.class, alternatives, 1);
+		} catch (Exception e) {
+			return fallback;
 		}
 	}
 

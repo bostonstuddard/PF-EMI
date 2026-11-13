@@ -12,36 +12,42 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.platform.EmiClient;
+import dev.emi.emi.runtime.EmiClientRecipeFallback;
 import dev.emi.emi.runtime.EmiLog;
 import dev.emi.emi.runtime.EmiReloadManager;
 
 @Mixin(Minecraft.class)
 public class MinecraftClientMixin {
-	@Shadow
-	public ClientLevel level;
+    @Shadow
+    public ClientLevel level;
 
-	// Minecraft 26.2 changed the implementation signature of the resource reload
-	// method. Match it by name and do not make mod loading depend on this
-	// optional hook; loader-specific resource listeners also register above.
-	@Inject(at = @At("RETURN"), method = "reloadResourcePacks", require = 0)
-	private void reloadResources(CallbackInfoReturnable<CompletableFuture<Void>> info) {
-		CompletableFuture<Void> future = info.getReturnValue();
-		if (future != null) {
-			// Return to the Minecraft client thread instead of creating a new
-			// non-daemon thread pool every time resource packs are reloaded.
-			future.thenRun(() -> Minecraft.getInstance().execute(() -> {
-				Minecraft client = Minecraft.getInstance();
-				if (client.level != null && EmiPort.getRecipeMap() != null) {
-					EmiReloadManager.reload();
-				}
-			}));
-		}
-	}
+    @Inject(at = @At("RETURN"), method = "reloadResourcePacks", require = 0)
+    private void reloadResources(CallbackInfoReturnable<CompletableFuture<Void>> info) {
+        CompletableFuture<Void> future = info.getReturnValue();
+        if (future != null) {
+            // A reload may complete on a worker thread. Schedule the state
+            // check on the real game thread; do not create an unmanaged pool.
+            future.thenRun(() -> Minecraft.getInstance().execute(() -> {
+                Minecraft client = Minecraft.getInstance();
+                if (client.level != null && EmiPort.getRecipeMap() != null) {
+                    EmiReloadManager.reload();
+                }
+            }));
+        }
+    }
 
-	@Inject(at = @At("HEAD"), method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V")
-	private void disconnect(CallbackInfo info) {
-		EmiLog.info("Disconnecting from server, EMI data cleared");
-		EmiReloadManager.clear();
-		EmiClient.onServer = false;
-	}
+    /** Tick the fallback on the game client thread. This is not a server hook. */
+    @Inject(at = @At("TAIL"), method = "tick")
+    private void pfemi$clientRecipeFallbackTick(CallbackInfo info) {
+        EmiClientRecipeFallback.tick();
+    }
+
+    @Inject(at = @At("HEAD"), method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V")
+    private void disconnect(CallbackInfo info) {
+        // Drop old fallback before clearing the EMI recipe model.
+        EmiClientRecipeFallback.reset();
+        EmiLog.info("Disconnecting from server, EMI data cleared");
+        EmiReloadManager.clear();
+        EmiClient.onServer = false;
+    }
 }
