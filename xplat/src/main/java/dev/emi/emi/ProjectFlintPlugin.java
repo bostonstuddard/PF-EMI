@@ -53,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.22";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.23";
 
 	private static final String PF = "projectflint";
 
@@ -391,17 +391,20 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, wood, "wood/ground_leather",
 				List.of(any(2, pf("raw_leather"), mc("leather")), pf("sanding_paper")), pf("ground_leather"));
 			simple(registry, wood, "wood/woven_chest_frame",
-				List.of(mc("leather", 3), pf("woven_wood", 6)), pf("woven_chest_frame"));
+				List.of(mc("leather", 2), pf("woven_wood", 4)), pf("woven_chest_frame"));
 			simple(registry, wood, "wood/leather_backpack",
 				List.of(mc("leather", 4), pf("reed_backpack")), pf("leather_backpack"));
 			simple(registry, wood, "wood/backpack_chest",
 				List.of(pf("leather_backpack"), pf("wooden_chest", 2)), pf("leather_backpack_with_chest"));
 			simple(registry, wood, "wood/wattle_window",
-				List.of(pf("wattled_daub_bricks", 2), pf("advanced_kiln_glass")), pf("wattled_daub_window"));
+				List.of(pf("wattled_daub_bricks", 4), pf("advanced_kiln_glass")), pf("wattled_daub_window", 3));
 			simple(registry, wood, "wood/woven_fan",
 				List.of(pf("sugarcane_roll"), pf("plant_tool_binding")), pf("woven_fan", 2));
 			simple(registry, wood, "wood/sanding_paper",
 				List.of(pf("sugarcane_roll", 3), pf("plant_tool_binding")), pf("sanding_paper", 2));
+			// New v0.32.1 later-stage Wattle conversion; early ground assembly is unchanged.
+			simple(registry, wood, "wood/wattle_from_cane",
+				List.of(mc("sugar_cane", 3), pf("branch", 2)), pf("wattle", 4));
 			simple(registry, wood, "wood/tied_wattle",
 				List.of(pf("woven_fan"), pf("wattle")), pf("tied_wattle", 3));
 			simple(registry, wood, "wood/daub",
@@ -417,7 +420,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, wood, "wood/sanding_station",
 				List.of(pf("sanded_wood_slab", 8), mc("leather", 5)), pf("sanding_station"));
 			simple(registry, wood, "wood/water_bearing_pot",
-				List.of(pf("woven_wood", 16), pf("clay_pot")), pf("water_bearing_pot"));
+				List.of(pf("woven_wood", 6), pf("clay_pot")), pf("water_bearing_pot"));
 			simple(registry, wood, "wood/water_pot",
 				List.of(mc("leather", 4), pf("clay_pot")), pf("water_pot"));
 			simple(registry, wood, "wood/bound_wood_processor",
@@ -434,6 +437,12 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(mc("stick", 2)), List.of(flintFile), List.of(pf("aquifer_finder")), 0);
 			simple(registry, wood, "wood/brick_shingles",
 				List.of(mc("bricks"), pf("wooden_board")), pf("brick_shingles", 3));
+			// New Grinder alternatives. The Flint File wears, while the Fan is consumed.
+			process(registry, wood, "wood/grinded_slabs_with_file",
+				List.of(pf("sanded_wood_slab", 3)), List.of(flintFile),
+				List.of(pf("grinded_wood_slab", 2)), 0);
+			simple(registry, wood, "wood/woven_wood_from_slabs",
+				List.of(pf("grinded_wood_slab", 3), pf("woven_fan", 3)), pf("woven_wood", 2));
 			process(registry, wood, "wood/wooden_sheet",
 				List.of(pf("wooden_beam")), List.of(flintFile), List.of(pf("wooden_sheet", 4)), 0);
 			process(registry, wood, "wood/wooden_screw",
@@ -488,8 +497,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 				List.of(pf("wooden_sheet", 8)), List.of(boneKnife), List.of(pf("unfired_brick_mold")), 0);
 			process(registry, wood, "wood/unfired_bricks",
 				List.of(mc("clay_ball", 8)), List.of(pf("unfired_brick_mold")), List.of(pf("unfired_brick", 8)), 0);
-			process(registry, wood, "wood/unfired_clay_bucket_bone_knife",
-				List.of(mc("clay_ball", 3)), List.of(boneKnife), List.of(pf("unfired_clay_bucket")), 0);
+			// Bone Knife + 3 Clay Balls moved exclusively to Hardwood Table in 0.32.1.
+			// Keep the separate Woven Chest Frame recipe below in the Wooden Grinder.
 			simple(registry, wood, "wood/unfired_clay_bucket_frame",
 				List.of(mc("clay_ball", 3), pf("woven_chest_frame")), pf("unfired_clay_bucket"));
 			// Leather armor from the Wooden Grinder has custom 512-use durability.
@@ -590,7 +599,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 
 		if (shelf != null) {
 			simple(registry, shelf, "bookshelf/book",
-				List.of(pf("sugarcane_roll", 8), mc("leather", 2)), mc("book"));
+				List.of(pf("sugarcane_roll", 8), mc("leather")), mc("book"));
 			process(registry, shelf, "bookshelf/writable_book",
 				List.of(mc("book"), mc("black_dye", 2)), List.of(pf("bookshelf")),
 				List.of(mc("writable_book")), 0);
@@ -656,7 +665,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			EmiIngredient parchment = pf("recipe_parchment");
 			stoveRecipe(registry, stove, "sugar", List.of(mc("sugar_cane", 4)), parchment, mc("sugar"));
 			stoveRecipe(registry, stove, "sweet_berry_jam",
-				List.of(mc("sweet_berries", 8), mc("sugar"), pf("wooden_cup", 2)), parchment, pf("sweet_berry_jam", 2));
+				List.of(mc("sweet_berries", 8), mc("sugar"), pf("wooden_cup", 2)), parchment, pf("sweet_berry_jam", 4));
 			stoveRecipe(registry, stove, "sweet_berry_pie",
 				List.of(pf("sweet_berry_jam", 2), mc("sugar"), pf("butter")), parchment, pf("sweet_berry_pie", 2));
 			stoveRecipe(registry, stove, "pumpkin_pie",
@@ -664,7 +673,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			stoveRecipe(registry, stove, "melon_pie",
 				List.of(mc("melon_slice", 8), mc("sugar", 2)), parchment, pf("melon_pie", 2));
 			stoveRecipe(registry, stove, "mutton_pie",
-				List.of(mc("cooked_mutton", 8), mc("sugar", 2)), parchment, pf("mutton_pie", 2));
+				List.of(mc("cooked_mutton", 4), mc("sugar", 2)), parchment, pf("mutton_pie", 3));
 			stoveRecipe(registry, stove, "butter",
 				List.of(pf("wooden_cup_raw_milk", 4), mc("sugar")), parchment, pf("butter"));
 			stoveRecipe(registry, stove, "pumpkin_cake",
@@ -681,7 +690,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 
 			// Source-aligned v0.31.48-b Primitive Oven recipes; parchment is a reusable unlock.
 			stoveRecipe(registry, stove, "strawberry_jam",
-				List.of(pf("strawberry", 12), mc("sugar"), pf("wooden_cup", 2)), parchment, pf("strawberry_jam", 2));
+				List.of(pf("strawberry", 12), mc("sugar"), pf("wooden_cup", 2)), parchment, pf("strawberry_jam", 4));
 			stoveRecipe(registry, stove, "strawberry_pie",
 				List.of(pf("strawberry_jam", 2), pf("strawberry", 2), mc("sugar"), pf("butter")), parchment, pf("strawberry_pie", 2));
 			stoveRecipe(registry, stove, "fat_efficiency",
@@ -780,7 +789,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, target, prefix + "/crushed_block", List.of(pf("crushed_stone_slab", 2)), pf("crushed_stone"));
 			simple(registry, target, prefix + "/mortar_slab", List.of(pf("mortar_bricks")), pf("mortar_brick_slab", 2));
 			simple(registry, target, prefix + "/mortar_block", List.of(pf("mortar_brick_slab", 2)), pf("mortar_bricks"));
-			simple(registry, target, prefix + "/mortar_kiln_base", List.of(pf("mortar_bricks", 32)), pf("mortar_kiln_base"));
+			simple(registry, target, prefix + "/mortar_kiln_base", List.of(pf("mortar_bricks", 24)), pf("mortar_kiln_base"));
 			simple(registry, target, prefix + "/sanding_paper", List.of(pf("sugarcane_roll", 4)), pf("sanding_paper"));
 			simple(registry, target, prefix + "/twig_to_branch", List.of(pf("twig", 4)), pf("branch"));
 			simple(registry, target, prefix + "/branch_to_twigs", List.of(pf("branch")), pf("twig", 2));
@@ -813,7 +822,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			logSlabPair(registry, target, prefix, "cherry", "stripped_cherry_log", "cherry_slab");
 			logSlabPair(registry, target, prefix, "pale_oak", "stripped_pale_oak_log", "pale_oak_slab");
 			simple(registry, target, prefix + "/bamboo_slab", List.of(mc("stripped_bamboo_block")), mc("bamboo_slab", 2));
-			simple(registry, target, prefix + "/bamboo_block", List.of(mc("bamboo_slab", 2)), mc("stripped_bamboo_block"));
 	}
 
 	private static void registerLumberProcessing(EmiRegistry registry) {
@@ -840,11 +848,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		process(registry, lumber, "lumber/boards",
 			List.of(strippedLog, water),
 			List.of(pf("lumber_processor"), pf("flint_plant_cutters")),
-			List.of(pf("wooden_board", 2)), 0);
+			List.of(pf("wooden_board", 2)), 290);
 		process(registry, lumber, "lumber/beams",
 			List.of(strippedLog.copy(), water.copy()),
 			List.of(pf("lumber_processor"), pf("flint_plant_cutters")),
-			List.of(pf("wooden_beam")), 0);
+			List.of(pf("wooden_beam")), 290);
 	}
 
 	private static void registerWell(EmiRegistry registry) {
@@ -1016,7 +1024,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	) {
 		List<EmiIngredient> inputs = new ArrayList<>();
 		inputs.add(pf("burnt_branch", 8));
-		inputs.add(mc("flint", 8));
+		inputs.add(mc("flint", 6));
 		inputs.add(pf("fired_clay", 4));
 		List<EmiIngredient> catalysts = new ArrayList<>();
 		if (consumesMold) inputs.add(pf(mold));
@@ -1046,6 +1054,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(pf("water_bearing_pot_filled")),
 			List.of(pf("water_pot")),
 			List.of(pf("water_bearing_pot")), 0);
+		// A single Clay Water Bucket fills an EMPTY placed Water Pot completely.
+		// A partially filled Pot refuses this interaction; the vessel returns empty.
+		process(registry, placement, "placement/fill_empty_water_pot_clay_bucket",
+			List.of(pf("clay_water_bucket")), List.of(pf("water_pot")),
+			List.of(pf("clay_bucket")), 0);
 
 		// Bone Brush sustained world processing.
 		process(registry, placement, "placement/brush_sand",
@@ -1066,6 +1079,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(),
 			List.of("Use on the top of Grass Block.", "Places a vanilla Sweet Berry Bush."));
 
+		info(registry, placement, "placement/recover_string", "Pick Up Placed String",
+			mc("string"), true, List.of(), List.of(),
+			List.of("Break placed String by hand to pick it back up."));
+
 		// Bone Hoe turns supported wet ProjectFlint soil into farmland and can find Flax Seeds.
 		info(registry, placement, "placement/bone_hoe_farmland",
 			"Bone Hoe: Wet Soil",
@@ -1083,6 +1100,11 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			List.of(mc("white_wool")),
 			List.of(new ProjectFlintLootRecipe.LootOutput(pf("wool", 4), "Drops 3-4 ProjectFlint Wool")),
 			List.of("Use the Bone Brush on a sheep that is ready for shearing."));
+		// The upgraded 512-durability Project Flint Brush obtains 4-5 Wool per sheep.
+		info(registry, placement, "placement/projectflint_brush_sheep", "Project Flint Brush: Sheep",
+			maxDamageItem("brush", 512), true, List.of(mc("white_wool")),
+			List.of(loot(pf("wool", 5), "4–5 Wool per adult sheep")),
+			List.of("Use the 512-durability Brush on a sheep ready for shearing."));
 		// Clay Bucket collects a water SOURCE, then returns empty after pouring.
 		info(registry, placement, "bucket/collect_water", "Clay Bucket: Collect Water",
 			pf("clay_bucket"), true, List.of(mc("water_bucket")),
@@ -2008,7 +2030,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		blockDrop(registry, drops, "stone/wooden_tier",
 			mc("stone"), List.of(any(1, mc("wooden_pickaxe"), pf("hardwood_pickaxe"), pf("hardwood_hammer"))),
 			List.of(loot(mc("cobblestone"), "1 Cobblestone; 13.5-second natural Stone harvest")),
-			List.of("Non-approved tools cannot acquire Stone drops; unauthorized ore breaking takes 45 seconds."));
+			List.of("Unqualified tools and bare hands cannot break ores."));
 
 		// Vanilla blocks whose normal drops are replaced by ProjectFlint progression.
 		blockDrop(registry, drops, "stone_hammer",
@@ -2037,6 +2059,12 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			anyMc(1, "short_grass", "tall_grass"), List.of(plantTools), List.of(
 				new ProjectFlintLootRecipe.LootOutput(pf("crude_plant_string", 3), "Yield depends on tool tier; Tall Grass doubles it")
 			), List.of("Base/Flint/Advanced yields are encoded by the actual tool tier."));
+		blockDrop(registry, drops, "leaves_flint_cutters",
+			anyMc(1, "oak_leaves", "birch_leaves", "spruce_leaves", "jungle_leaves",
+				"acacia_leaves", "dark_oak_leaves", "mangrove_leaves", "cherry_leaves", "pale_oak_leaves"),
+			List.of(pf("flint_plant_cutters")),
+			List.of(loot(pf("branch", 5), "5 Branches each time")),
+			List.of("Saplings (25%), Sticks (10%), and rare Oak apples may also drop."));
 		blockDrop(registry, drops, "leaf_litter",
 			mc("leaf_litter"), List.of(plantTools), List.of(
 				new ProjectFlintLootRecipe.LootOutput(pf("plant_fiber", 6), "Maximum full-layer yield; scales by tool tier/layers")
@@ -2128,7 +2156,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		));
 		mob(registry, mobs, "cow", mc("cow_spawn_egg"), List.of(
 			loot(mc("beef", 3), "Vanilla base range"),
-			loot(pf("raw_leather", 2), "Replaces vanilla Leather"),
+			loot(pf("raw_leather", 2), "At least 1 Raw Leather from adult cows"),
 			loot(pf("animal_bones", 3), "2-3 Animal Bones")
 		));
 		mob(registry, mobs, "squid", mc("squid_spawn_egg"), List.of(
@@ -2161,10 +2189,12 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		));
 		mob(registry, mobs, "black_bear", pf("black_bear_spawn_egg"), List.of(
 			loot(pf("raw_bear_meat", 2), "1-2; cooked if killed on fire"),
+			loot(pf("raw_leather", 3), "2-3 extra Raw Leather from adults"),
 			loot(pf("animal_bones", 3), "2-3 Animal Bones")
 		));
 		mob(registry, mobs, "brown_bear", pf("brown_bear_spawn_egg"), List.of(
 			loot(pf("raw_bear_meat", 2), "1-2; cooked if killed on fire"),
+			loot(pf("raw_leather", 3), "2-3 extra Raw Leather from adults"),
 			loot(pf("animal_bones", 3), "2-3 Animal Bones")
 		));
 		mob(registry, mobs, "turtle", mc("turtle_spawn_egg"), List.of(
@@ -2310,7 +2340,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		String slab
 	) {
 		simple(registry, category, prefix + "/" + id + "_slab", List.of(mc(log)), mc(slab, 2));
-		simple(registry, category, prefix + "/" + id + "_log", List.of(mc(slab, 2)), mc(log));
 	}
 
 	private static EmiRecipeCategory category(
