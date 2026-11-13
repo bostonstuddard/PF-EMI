@@ -2,10 +2,12 @@ package dev.emi.emi.runtime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 
 import dev.emi.emi.EmiSyncedRecipeMaps;
@@ -13,14 +15,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -48,12 +49,27 @@ public final class VanillaClientRecipeLoader {
                     TagLoader.buildUpdatedLookups(frozen, pendingTags);
             HolderLookup.Provider provider = HolderLookup.Provider.create(lookups.stream());
             RegistryOps<JsonElement> ops = provider.createSerializationContext(JsonOps.INSTANCE);
-            SimpleJsonResourceReloadListener.scanDirectory(
-                    resources,
-                    FileToIdConverter.registry(Registries.RECIPE),
-                    ops,
-                    Recipe.DIRECT_CODEC,
-                    recipes);
+            // Minecraft 26.3 removed SimpleJsonResourceReloadListener.scanDirectory.
+            // Enumerate the bundled recipe JSON files directly and decode them
+            // against the same isolated vanilla-tag registry lookup.
+            Map<Identifier, Resource> files = resources.listResources("recipe",
+                    id -> id.getPath().startsWith("recipe/") && id.getPath().endsWith(".json"));
+            for (Map.Entry<Identifier, Resource> entry : files.entrySet()) {
+                Identifier fileId = entry.getKey();
+                String path = fileId.getPath();
+                String recipePath = path.substring("recipe/".length(), path.length() - ".json".length());
+                if (recipePath.isEmpty()) {
+                    continue;
+                }
+                Identifier recipeId = Identifier.fromNamespaceAndPath(fileId.getNamespace(), recipePath);
+                try (java.io.Reader reader = entry.getValue().openAsReader()) {
+                    Recipe.DIRECT_CODEC.parse(ops, JsonParser.parseReader(reader))
+                            .resultOrPartial(message -> EmiLog.warn("Skipping vanilla recipe " + recipeId + ": " + message))
+                            .ifPresent(recipe -> recipes.put(recipeId, recipe));
+                } catch (Exception | LinkageError e) {
+                    EmiLog.warn("Skipping vanilla recipe " + recipeId + ": " + e);
+                }
+            }
         } catch (Exception | LinkageError e) {
             EmiLog.warn("Unable to parse client-bundled vanilla recipe fallback: " + e);
             return null;
