@@ -13,8 +13,9 @@ import net.minecraft.world.item.crafting.RecipeMap;
  * empty map. Fallback state is scoped to a single connection.
  */
 public final class EmiClientRecipeFallback {
-    // Give slow recipe-sync packets a chance to arrive before doing any work.
-    private static final int GRACE_TICKS = 200;
+    // Wait briefly for server sync. If recipes arrive later, they always replace
+    // this client-only display fallback, including intentionally empty maps.
+    private static final int GRACE_TICKS = 60;
     private static volatile RecipeMap fallbackMap;
     private static ClientPacketListener connection;
     private static int ticksWithoutRecipes;

@@ -18,8 +18,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.ServerPacksSource;
-import net.minecraft.server.packs.resources.CloseableResourceManager;
+import net.minecraft.server.packs.resources.FallbackResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.tags.TagLoader;
@@ -40,7 +41,11 @@ public final class VanillaClientRecipeLoader {
         // Vanilla recipes depend on vanilla item tags. Build a separate
         // serialization lookup using the tags from the vanilla built-in pack,
         // rather than assuming the connected server's tags match vanilla.
-        ResourceManager resources = ServerPacksSource.createVanillaPackSource().asResourceManager();
+        // VanillaPackResources.asResourceManager() is CLIENT_RESOURCES-only in
+        // Minecraft 26.3.  Recipes and tags live in SERVER_DATA; constructing
+        // a server-data manager over the built-in vanilla pack is essential.
+        FallbackResourceManager resources = new FallbackResourceManager(PackType.SERVER_DATA, "minecraft");
+        resources.push(ServerPacksSource.createVanillaPackSource().fullResources());
         try {
             RegistryAccess.Frozen frozen = registryAccess.freeze();
             List<Registry.PendingTags<?>> pendingTags =
@@ -54,6 +59,7 @@ public final class VanillaClientRecipeLoader {
             // against the same isolated vanilla-tag registry lookup.
             Map<Identifier, Resource> files = resources.listResources("recipe",
                     id -> id.getPath().startsWith("recipe/") && id.getPath().endsWith(".json"));
+            EmiLog.info("Found " + files.size() + " bundled vanilla recipe JSON files in server-data resources");
             for (Map.Entry<Identifier, Resource> entry : files.entrySet()) {
                 Identifier fileId = entry.getKey();
                 String path = fileId.getPath();
@@ -73,12 +79,6 @@ public final class VanillaClientRecipeLoader {
         } catch (Exception | LinkageError e) {
             EmiLog.warn("Unable to parse client-bundled vanilla recipe fallback: " + e);
             return null;
-        } finally {
-            // Vanilla's resource manager can own open pack resources on some
-            // loaders. Close it if it supports the closeable API.
-            if (resources instanceof CloseableResourceManager closeable) {
-                closeable.close();
-            }
         }
 
         List<RecipeHolder<?>> holders = new ArrayList<>(recipes.size());
