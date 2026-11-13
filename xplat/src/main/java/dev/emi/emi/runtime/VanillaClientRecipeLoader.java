@@ -27,6 +27,7 @@ import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.item.crafting.RecipeType;
 
 /**
  * Parses the vanilla recipe data bundled with the Minecraft client, for display
@@ -85,6 +86,21 @@ public final class VanillaClientRecipeLoader {
         recipes.forEach((id, recipe) -> holders.add(new RecipeHolder<>(
                 ResourceKey.create(Registries.RECIPE, id), recipe)));
         EmiLog.info("Loaded " + holders.size() + " bundled vanilla recipe fallbacks");
-        return holders.isEmpty() ? null : EmiSyncedRecipeMaps.fromHolders(holders);
+        if (holders.isEmpty()) {
+            return null;
+        }
+        RecipeMap map = EmiSyncedRecipeMaps.fromHolders(holders);
+        // Check the full vanilla dataset, not just the crafting grid. If a
+        // category is missing, the log now distinguishes pack/codec omissions
+        // from a later EMI plugin or index problem.
+        EmiLog.info("[EMI] Vanilla serverless recipes by type: crafting=" + map.byType(RecipeType.CRAFTING).size()
+                + ", smelting=" + map.byType(RecipeType.SMELTING).size()
+                + ", blasting=" + map.byType(RecipeType.BLASTING).size()
+                + ", smoking=" + map.byType(RecipeType.SMOKING).size()
+                + ", campfire=" + map.byType(RecipeType.CAMPFIRE_COOKING).size()
+                + ", stonecutting=" + map.byType(RecipeType.STONECUTTING).size()
+                + ", smithing=" + map.byType(RecipeType.SMITHING).size()
+                + ", brewing=" + map.byType(RecipeType.BREWING).size());
+        return map;
     }
 }
