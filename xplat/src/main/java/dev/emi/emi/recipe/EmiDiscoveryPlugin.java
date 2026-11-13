@@ -28,9 +28,6 @@ import net.minecraft.world.item.alchemy.Potion;
  * Built-in 26.3 information pages. Registered by EmiReloadManager after the
  * vanilla plugin on every loader, without depending on the vanilla recipe
  * translation pass completing successfully.
- *
- * This intentionally uses EMI's public plugin/registry APIs, not a second
- * recipe index or loader-specific recipe registration path.
  */
 public final class EmiDiscoveryPlugin implements EmiPlugin {
     @Override
@@ -40,16 +37,16 @@ public final class EmiDiscoveryPlugin implements EmiPlugin {
 
     @Override
     public void register(EmiRegistry registry) {
+        // Recover missing vanilla recipes before discovery pages are added.
+        // If the vanilla plugin aborted during crafting translation, its later
+        // categories and synthetic sections would otherwise remain empty.
+        safely("vanilla recipe categories", () -> EmiVanillaRecipeRecovery.register(registry));
         EmiVanillaDiscovery.registerCategories(registry);
         Set<Item> hiddenItems = Stream.concat(
             EmiTagKey.of(EmiPort.getItemRegistry(), EmiTags.HIDDEN_FROM_RECIPE_VIEWERS).stream(),
             EmiPort.getDisabledItems()
         ).collect(Collectors.toSet());
         EmiLog.info("[EMI Discovery] Starting built-in 26.3 information plugin");
-        // A remote vanilla server can expose a smaller creative-tab index than
-        // singleplayer. Do not hide registered vanilla items merely because
-        // a creative tab omitted them. Only append missing entries while using
-        // the read-only client fallback; server-supplied maps are unaffected.
         safely("vanilla fallback index", () -> ensureCompleteVanillaIndex(registry, hiddenItems));
         safely("status effects", () -> EmiVanillaDiscovery.registerEffects(registry, hiddenItems));
         safely("enchantments", () -> EmiVanillaDiscovery.registerEnchantments(registry, hiddenItems));
@@ -58,37 +55,24 @@ public final class EmiDiscoveryPlugin implements EmiPlugin {
     }
 
     private static void ensureCompleteVanillaIndex(EmiRegistry registry, Set<Item> hiddenItems) {
-        if (!EmiClientRecipeFallback.isUsingFallback()) {
-            return;
-        }
-
-        // Reuse EMI's strict stack comparison so different potion variants
-        // remain distinct while duplicates from creative tabs are avoided.
+        if (!EmiClientRecipeFallback.isUsingFallback()) return;
         Set<EmiStack> indexed = new ObjectOpenCustomHashSet<>(new EmiStackList.StrictHashStrategy());
         indexed.addAll(EmiStackList.stacks);
         int addedItems = 0;
         int addedPotions = 0;
-
         for (Item item : EmiPort.getItemRegistry()) {
-            if (item == Items.AIR || hiddenItems.contains(item)) {
-                continue;
-            }
+            if (item == Items.AIR || hiddenItems.contains(item)) continue;
             EmiStack stack = EmiStack.of(item);
             if (!stack.isEmpty() && "minecraft".equals(stack.getId().getNamespace()) && indexed.add(stack)) {
                 registry.addEmiStack(stack);
                 addedItems++;
             }
         }
-
-        // Items alone are not a complete browser: bottled potions and tipped
-        // arrows represent distinct searchable vanilla item variants.
         for (Holder<Potion> holder : EmiPort.getPotionRegistry().listElements().toList()) {
             Potion potion = holder.value();
             for (Item item : new Item[] { Items.POTION, Items.SPLASH_POTION,
                     Items.LINGERING_POTION, Items.TIPPED_ARROW }) {
-                if (hiddenItems.contains(item)) {
-                    continue;
-                }
+                if (hiddenItems.contains(item)) continue;
                 ItemStack variant = EmiPort.setPotion(new ItemStack(item), potion);
                 EmiStack stack = EmiStack.of(variant);
                 if (!stack.isEmpty() && indexed.add(stack)) {
@@ -106,8 +90,8 @@ public final class EmiDiscoveryPlugin implements EmiPlugin {
         try {
             task.run();
         } catch (RuntimeException | LinkageError e) {
-            EmiReloadLog.warn("[EMI Discovery] Failed to register " + section +
-                "; remaining sections will still be processed", e);
+            EmiReloadLog.warn("[EMI Discovery] Failed to register " + section
+                    + "; remaining sections will still be processed", e);
         }
     }
 }

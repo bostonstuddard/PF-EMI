@@ -14,6 +14,7 @@ import dev.emi.emi.runtime.EmiReloadManager;
 import dev.emi.emi.screen.ConfigScreen;
 import dev.emi.emi.screen.EmiScreenBase;
 import dev.emi.emi.screen.EmiScreenManager;
+import dev.emi.emi.screen.RecipeScreen;
 import dev.emi.emi.screen.StackBatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -33,8 +34,6 @@ import net.minecraftforge.network.PacketDistributor;
 public final class EmiClientForge {
     private EmiClientForge() {}
 
-    // Forge's ScreenEvent.MouseButtonReleased.Pre provides a button number but not
-    // the modifiers from the original click. Retain those for EMI's input API.
     private static final Map<Integer, MouseButtonInfo> pressedButtons = new HashMap<>();
 
     public static void init() {
@@ -54,8 +53,8 @@ public final class EmiClientForge {
         });
         ContainerScreenEvent.Render.Foreground.BUS.addListener(EmiClientForge::renderScreenForeground);
         ScreenEvent.Render.Post.BUS.addListener(EmiClientForge::postRenderScreen);
-        // Forge's 26.1.2 GUI input events avoid the shared MouseMixin and
-        // KeyboardMixin injection targets, which fail under Forge Mixin 0.8.7.
+        // Forge does not use the Fabric/NeoForge input mixins. The events also
+        // have to handle EMI's standalone RecipeScreen, not just inventories.
         ScreenEvent.MouseButtonPressed.Pre.BUS.addListener(EmiClientForge::mousePressed);
         ScreenEvent.MouseButtonReleased.Pre.BUS.addListener(EmiClientForge::mouseReleased);
         ScreenEvent.MouseDragged.Pre.BUS.addListener(EmiClientForge::mouseDragged);
@@ -67,8 +66,12 @@ public final class EmiClientForge {
     }
 
     private static boolean mousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
-        if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
         try {
+            if (event.getScreen() instanceof RecipeScreen recipe) {
+                pressedButtons.put(event.getButton(), event.getInfo().buttonInfo());
+                return recipe.mouseClicked(event.getInfo(), false);
+            }
+            if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
             pressedButtons.put(event.getButton(), event.getInfo().buttonInfo());
             return EmiScreenManager.mouseClicked(event.getInfo());
         } catch (Exception e) {
@@ -79,10 +82,14 @@ public final class EmiClientForge {
 
     private static boolean mouseReleased(ScreenEvent.MouseButtonReleased.Pre event) {
         MouseButtonInfo info = pressedButtons.remove(event.getButton());
-        if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
         try {
             if (info == null) info = new MouseButtonInfo(event.getButton(), 0);
-            return EmiScreenManager.mouseReleased(new MouseButtonEvent(event.getMouseX(), event.getMouseY(), info));
+            MouseButtonEvent mouse = new MouseButtonEvent(event.getMouseX(), event.getMouseY(), info);
+            if (event.getScreen() instanceof RecipeScreen recipe) {
+                return recipe.mouseReleased(mouse);
+            }
+            if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
+            return EmiScreenManager.mouseReleased(mouse);
         } catch (Exception e) {
             EmiLog.error("Error while handling Forge GUI mouse release", e);
             return false;
@@ -118,8 +125,11 @@ public final class EmiClientForge {
     }
 
     private static boolean keyPressed(ScreenEvent.KeyPressed.Pre event) {
-        if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
         try {
+            if (event.getScreen() instanceof RecipeScreen recipe) {
+                return recipe.keyPressed(event.getInfo());
+            }
+            if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) return false;
             return EmiScreenManager.keyPressed(event.getInfo());
         } catch (Exception e) {
             EmiLog.error("Error while handling Forge GUI key press", e);
