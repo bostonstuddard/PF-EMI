@@ -39,6 +39,7 @@ public final class EmiClientRecipeFallback {
 
         // An explicit server map, even an empty one, is authoritative.
         if (EmiAgnos.getRecipeMap() != null) {
+            ticksWithoutRecipes = 0;
             if (fallbackMap != null) {
                 fallbackMap = null;
                 EmiLog.info("Server recipes received; replacing client-default recipe fallback");
@@ -51,6 +52,10 @@ public final class EmiClientRecipeFallback {
         }
         attempted = true;
         RecipeMap map = VanillaClientRecipeLoader.load(client.level.registryAccess());
+        // Server state or connection can change while client recipes decode.
+        if (connection != current || client.level == null || EmiAgnos.getRecipeMap() != null) {
+            return;
+        }
         if (map == null || map.values().isEmpty()) {
             EmiLog.warn("Server sent no usable recipe map and client vanilla fallback could not be loaded");
             return;
@@ -59,7 +64,8 @@ public final class EmiClientRecipeFallback {
         EmiLog.warn("Using client-default Minecraft recipes: these may differ from server recipes");
         if (client.player != null) {
             client.player.displayClientMessage(
-                    Component.translatable("emi.recipe_fallback.notice").withStyle(ChatFormatting.YELLOW),
+                    Component.literal("[PF-EMI] Server recipes unavailable; showing vanilla recipes for viewing only. These may differ from the server.")
+                            .withStyle(ChatFormatting.YELLOW),
                     false);
         }
         EmiReloadManager.reload();

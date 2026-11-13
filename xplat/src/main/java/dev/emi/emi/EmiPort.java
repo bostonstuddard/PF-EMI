@@ -4,6 +4,7 @@ import dev.emi.emi.api.stack.Comparison;
 import dev.emi.emi.mixin.accessor.SmithingTransformRecipeAccessor;
 import dev.emi.emi.platform.EmiAgnos;
 import dev.emi.emi.registry.EmiRecipes;
+import dev.emi.emi.runtime.EmiClientRecipeFallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -176,7 +177,9 @@ public final class EmiPort {
 	}
 
 	public static @Nullable RecipeMap getRecipeMap() {
-		return EmiAgnos.getRecipeMap();
+		// Server recipes are authoritative, even if the server sends an empty map.
+		RecipeMap server = EmiAgnos.getRecipeMap();
+		return server != null ? server : EmiClientRecipeFallback.getFallbackMap();
 	}
 
 	public static Comparison compareStrict() {

@@ -1,14 +1,17 @@
 package dev.emi.emi.api.stack;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -42,7 +45,30 @@ public class ItemEmiStack extends EmiStack implements Batchable {
 	}
 
 	public ItemEmiStack(ItemStack stack, long amount) {
-		this(stack.getItem(), stack.getComponentsPatch(), amount);
+		this(stack.getItem(), componentsRelativeToItem(stack), amount);
+	}
+
+	/**
+	 * EMI reconstructs item stacks using the registered item holder, not the
+	 * source stack's possibly synthetic holder. A custom ingredient can provide
+	 * components on a Holder.direct(item, components) prototype. In that case,
+	 * ItemStack.getComponentsPatch() may be empty despite important components.
+	 */
+	private static DataComponentPatch componentsRelativeToItem(ItemStack stack) {
+		DataComponentMap actual = stack.getComponents();
+		DataComponentMap defaults = stack.getItem().components();
+		DataComponentPatch.Builder patch = DataComponentPatch.builder();
+		for (TypedDataComponent<?> component : actual) {
+			if (!Objects.equals(defaults.get(component.type()), component.value())) {
+				patch.set(component);
+			}
+		}
+		for (DataComponentType<?> type : defaults.keySet()) {
+			if (!actual.has(type)) {
+				patch.remove(type);
+			}
+		}
+		return patch.build();
 	}
 
 	public ItemEmiStack(Item item, DataComponentPatch components, long amount) {

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -79,7 +78,8 @@ public interface EmiIngredient extends EmiRenderable {
 		if (ingredient == null || ingredient.isEmpty()) {
 			return EmiStack.EMPTY;
 		}
-		ItemStack[] stacks = ingredient.items().map(h -> new ItemStack(h.value())).toArray(ItemStack[]::new);
+		// Retain holder-provided components (including tier-specific jetpack IDs).
+		ItemStack[] stacks = ingredient.items().map(ItemStack::new).toArray(ItemStack[]::new);
 		int amount = 1;
 		if (stacks.length != 0) {
 			amount = stacks[0].getCount();
@@ -90,14 +90,28 @@ public interface EmiIngredient extends EmiRenderable {
 				}
 			}
 		}
-		return of(ingredient, amount);
+		return fromItemStacks(stacks, amount);
 	}
 
 	public static EmiIngredient of(Ingredient ingredient, long amount) {
 		if (ingredient == null || ingredient.isEmpty()) {
 			return EmiStack.EMPTY;
 		}
-		return EmiTags.getIngredient(Item.class, ingredient.items().map(Holder::value).map(EmiStack::of).toList(), amount);
+		return fromItemStacks(ingredient.items().map(ItemStack::new).toArray(ItemStack[]::new), amount);
+	}
+
+	private static EmiIngredient fromItemStacks(ItemStack[] stacks, long amount) {
+		List<EmiStack> alternatives = Arrays.stream(stacks)
+			.map(EmiStack::of)
+			.filter(stack -> !stack.isEmpty())
+			.toList();
+		// Tags cannot preserve per-stack components. Avoid collapsing distinct
+		// ingredient tiers into the same item ID when alternatives carry data.
+		if (alternatives.size() > 1 && alternatives.stream()
+				.anyMatch(stack -> !stack.getComponentChanges().isEmpty())) {
+			return new ListEmiIngredient(alternatives, amount);
+		}
+		return EmiTags.getIngredient(Item.class, alternatives, amount);
 	}
 
 	public static EmiIngredient of(List<? extends EmiIngredient> list) {

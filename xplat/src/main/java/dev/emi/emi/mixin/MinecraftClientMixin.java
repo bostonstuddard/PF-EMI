@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.platform.EmiClient;
+import dev.emi.emi.runtime.EmiClientRecipeFallback;
 import dev.emi.emi.runtime.EmiLog;
 import dev.emi.emi.runtime.EmiReloadManager;
 
@@ -38,8 +39,15 @@ public class MinecraftClientMixin {
 		}
 	}
 
+	/** Read-only client recipe fallback is checked once each game tick. */
+	@Inject(at = @At("TAIL"), method = "tick")
+	private void pfemi$clientRecipeFallbackTick(CallbackInfo info) {
+		EmiClientRecipeFallback.tick();
+	}
+
 	@Inject(at = @At("HEAD"), method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V")
 	private void disconnect(CallbackInfo info) {
+		EmiClientRecipeFallback.reset();
 		EmiLog.info("Disconnecting from server, EMI data cleared");
 		EmiReloadManager.clear();
 		EmiClient.onServer = false;
