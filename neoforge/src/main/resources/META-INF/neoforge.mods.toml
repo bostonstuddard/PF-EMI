@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+#issueTrackerURL = ""
+license = "MIT"
+
+[[mixins]]
+config="emi-neoforge-common.mixins.json"
+
+[[mixins]]
+config="emi-neoforge.mixins.json"
+
+[[mods]]
+modId = "emi"
+version = "${version}"
+displayName = "PF-EMI"
+authors = "Emi, ProjectFlint"
+description = '''
+ProjectFlint-maintained EMI fork for Minecraft 1.21.10, based on EMI by Emi.
+'''
+logoFile = "icon.png"
+
+[[dependencies.emi]]
+modId="neoforge"
+type="REQUIRED"
+versionRange="[21.10.64,21.11)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.emi]]
+modId="minecraft"
+type="REQUIRED"
+versionRange="[1.21.10,1.21.11)"
+ordering="NONE"
+side="BOTH"

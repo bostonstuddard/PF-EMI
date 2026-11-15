@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[60,61)"
+license = "MIT"
+
+[[mods]]
+modId = "emi"
+version = "${version}"
+displayName = "PF-EMI"
+authors = "Emi, Project Flint port"
+description = '''
+PF-EMI: Project Flint's EMI recipe/index integration and recipe viewer port.
+'''
+logoFile = "icon.png"
+
+[[dependencies.emi]]
+modId = "forge"
+mandatory = true
+versionRange = "[60.1.9,61)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.emi]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21.10,1.21.11)"
+ordering = "NONE"
+side = "BOTH"
