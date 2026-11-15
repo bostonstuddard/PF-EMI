@@ -1,0 +1,30 @@
+pluginManagement {
+	repositories {
+		maven { url "https://maven.fabricmc.net/" }
+		maven { url "https://maven.architectury.dev/" }
+		maven { url "https://maven.minecraftforge.net/" }
+		gradlePluginPortal()
+	}
+}
+
+def enabledPlatforms = providers.gradleProperty("enabled_platforms")
+	.getOrElse("fabric")
+	.split(",")
+	.collect { it.trim() }
+	.findAll { !it.isEmpty() }
+
+include("xplat")
+if (enabledPlatforms.contains("forge") || enabledPlatforms.contains("neoforge")) {
+	include("xplat:mojmap")
+}
+if (enabledPlatforms.contains("fabric")) {
+	include("fabric")
+}
+if (enabledPlatforms.contains("forge")) {
+	include("forge")
+}
+if (enabledPlatforms.contains("neoforge")) {
+	include("neoforge")
+}
+
+rootProject.name = "pf-emi"
