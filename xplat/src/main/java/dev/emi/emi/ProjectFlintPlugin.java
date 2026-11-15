@@ -53,7 +53,7 @@ import net.minecraft.util.Identifier;
  * resolves by registry id so PF-EMI remains independently buildable.
  */
 public final class ProjectFlintPlugin implements EmiPlugin {
-	public static final String PF_EMI_PATCH_LEVEL = "pf.23";
+	public static final String PF_EMI_PATCH_LEVEL = "pf.24";
 
 	private static final String PF = "projectflint";
 
@@ -89,6 +89,31 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 	// item from having inconsistent workstation categories.
 	private static final List<String> WOOD_VARIANTS = List.of("oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "cherry", "pale_oak");
 	private static final Set<String> REMAPPED_GRID_RECIPES = createRemappedRecipeIds();
+	/** ProjectFlint v0.32.2+ rejects these obsolete recipe IDs at the server.
+	 * Mirror the same retirement policy in EMI; do not merely hide the guide text.
+	 * The named wood variants all use *_stripped_log_from_slabs IDs.
+	 */
+	private static final Set<String> RETIRED_PROJECTFLINT_RECIPE_IDS = Set.of(
+		"loose_dirt_from_slabs", "loose_mud_bricks_from_slabs",
+		"sanded_wood_slabs_from_grinded",
+		"primitive_wooden_sheet_from_stripped_log", "personal_pmi_sheets"
+	);
+
+	private static boolean isRetiredProjectFlintRecipe(Identifier id) {
+		return id != null && PF.equals(id.getNamespace())
+			&& (id.getPath().endsWith("_stripped_log_from_slabs")
+				|| RETIRED_PROJECTFLINT_RECIPE_IDS.contains(id.getPath()));
+	}
+
+	/** Synthetic Clay/Wooden Grinder display paths do not use original JSON IDs.
+	 * Guard their renamed aliases too, so a stale hardcoded display cannot return.
+	 */
+	private static boolean isRetiredGrinderDisplay(String path) {
+		return path.endsWith("/loose_dirt_from_slabs")
+			|| path.endsWith("/loose_mud_block")
+			|| path.endsWith("/sanded_reverse")
+			|| path.endsWith("_stripped_log_from_slabs");
+	}
 	// Populated from the live ProjectFlint JSON crafting registry at recipe reload.
 	private static final Set<String> AUTO_REMAPPED_RECIPES = new java.util.HashSet<>();
 	private static EmiRecipeCategory personalCategory;
@@ -134,9 +159,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			// Hide vanilla-furnace displays for ProjectFlint's primitive meats.
 			// This is VIEWER-ONLY: their native JSON registrations remain in the
 			// ProjectFlint gameplay mod until it retires them explicitly.
-			if (id != null && PF.equals(id.getNamespace())
-				&& (id.getPath().equals("personal_pmi_sheets")
-				|| id.getPath().equals("primitive_wooden_sheet_from_stripped_log"))) return true;
+			// ProjectFlint 0.32.2+ removes these from its recipe manager and
+			// Grinder menus; PF-EMI must also reject lingering native viewer entries.
+			if (isRetiredProjectFlintRecipe(id)) return true;
 			if (id != null && PF.equals(id.getNamespace())
 				&& (recipe.getCategory() == VanillaEmiRecipeCategories.SMELTING
 					|| recipe.getCategory() == VanillaEmiRecipeCategories.SMOKING
@@ -777,12 +802,10 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, target, prefix + "/fireclay_brick_stairs", List.of(pf("fireclay_brick_block")), pf("fireclay_brick_stairs"));
 			simple(registry, target, prefix + "/fireclay_slab_to_block", List.of(pf("fireclay_brick_slab", 2)), pf("fireclay_brick_block"));
 			simple(registry, target, prefix + "/unfired_brick_recycle", List.of(pf("unfired_brick")), pf("unfired_clay_ball", 2));
-			simple(registry, target, prefix + "/loose_dirt_from_slabs", List.of(pf("loose_dirt_slab", 2)), pf("loose_dirt"));
 			simple(registry, target, prefix + "/clay_mortar", List.of(pf("super_heated_clay", 9)), pf("clay_mortar"));
 			simple(registry, target, prefix + "/flint_chips", List.of(mc("flint")), pf("flint_chip", 4));
 			simple(registry, target, prefix + "/flint_from_chips", List.of(pf("flint_chip", 4)), mc("flint"));
 			simple(registry, target, prefix + "/grinded_wood", List.of(pf("sanded_wood_slab", 2)), pf("grinded_wood_slab"));
-			simple(registry, target, prefix + "/sanded_reverse", List.of(pf("grinded_wood_slab")), pf("sanded_wood_slab", 2));
 			simple(registry, target, prefix + "/stone_grindsaw", List.of(pf("crushed_stone", 8)), pf("stone_grindsaw"));
 			simple(registry, target, prefix + "/crushed_stone", List.of(pf("very_refined_stone", 8)), pf("crushed_stone"));
 			simple(registry, target, prefix + "/crushed_slab", List.of(pf("crushed_stone")), pf("crushed_stone_slab", 2));
@@ -799,7 +822,6 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			simple(registry, target, prefix + "/woven_wood", List.of(pf("woven_wood_slab", 2)), pf("woven_wood"));
 			simple(registry, target, prefix + "/woven_slab", List.of(pf("woven_wood")), pf("woven_wood_slab", 2));
 			simple(registry, target, prefix + "/loose_mud_slab", List.of(pf("loose_mud_bricks")), pf("loose_mud_brick_slab", 2));
-			simple(registry, target, prefix + "/loose_mud_block", List.of(pf("loose_mud_brick_slab", 2)), pf("loose_mud_bricks"));
 			simple(registry, target, prefix + "/crude_clay_slab", List.of(pf("crude_clay_block")), pf("crude_clay_slab", 2));
 			simple(registry, target, prefix + "/crude_clay_block", List.of(pf("crude_clay_slab", 2)), pf("crude_clay_block"));
 			simple(registry, target, prefix + "/fired_clay", List.of(pf("crude_clay_block")), pf("fired_clay", 4));
@@ -1500,7 +1522,8 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			Set<String> unresolved = new java.util.HashSet<>();
 			for (var entry : EmiAgnos.getAllRecipesOfType(registry.getRecipeManager(), hardwoodType)) {
 				Identifier id = entry.id().getValue();
-				if (id == null || !PF.equals(id.getNamespace())) continue;
+				if (id == null || !PF.equals(id.getNamespace())
+					|| isRetiredProjectFlintRecipe(id)) continue;
 				CraftingRecipe wrapped = entry.value();
 				CraftingRecipe delegate = unwrapHardwoodCrafting(wrapped);
 				if (delegate == null) { unresolved.add(id.getPath()); continue; }
@@ -1578,6 +1601,7 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 								&& !type.equals("projectflint:hardwood_durable")) continue;
 							String filename = file.getFileName().toString();
 							String recipeId = filename.substring(0, filename.length() - 5);
+							if (isRetiredProjectFlintRecipe(pfId(recipeId))) continue;
 							if (onlyIds != null && !onlyIds.contains(recipeId)) continue;
 							EmiStack output = bundledOutput(json.get("result"));
 							if (output.isEmpty()) continue;
@@ -1711,10 +1735,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 			CraftingRecipe recipe = entry.value();
 			Identifier id = EmiPort.getId(recipe);
 			if (id == null || !PF.equals(id.getNamespace()) || REMAPPED_GRID_RECIPES.contains(id.getPath())) continue;
-			if (id.getPath().equals("primitive_wooden_sheet_from_stripped_log")
-				|| id.getPath().equals("personal_pmi_sheets")) continue;
+			if (isRetiredProjectFlintRecipe(id)) continue;
 			// The Tanned Utility Vest is NEVER a crafting-table recipe.
-			if (id.getPath().equals("tanned_utility_vest") || id.getPath().equals("personal_pmi_sheets")) continue;
+			if (id.getPath().equals("tanned_utility_vest")) continue;
 			int size;
 			boolean shapeless;
 			List<EmiIngredient> cells;
@@ -2375,6 +2398,9 @@ public final class ProjectFlintPlugin implements EmiPlugin {
 		List<EmiIngredient> inputs,
 		EmiStack output
 	) {
+		// Aliases for legacy Grinder conversions must never reappear as
+		// craftable processes, regardless of which station invokes this method.
+		if (isRetiredGrinderDisplay(id)) return;
 		process(registry, category, id, inputs, List.of(), List.of(output), 0);
 	}
 
