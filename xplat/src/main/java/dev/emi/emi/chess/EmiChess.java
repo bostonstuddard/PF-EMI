@@ -7,6 +7,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import dev.emi.emi.EmiPort;
 import dev.emi.emi.api.stack.EmiIngredient;
@@ -101,7 +102,7 @@ public class EmiChess {
 
 				}
 			}
-			if (piece != null && piece.type() == PieceType.KING && button == 1) {
+			if (piece != null && piece.type() == PieceType.KING && button == InputConstants.MOUSE_BUTTON_RIGHT) {
 				if (piece.color() == PieceColor.WHITE || chess.pending != null) {
 					if (chess.generator instanceof NetworkedMoveGenerator nmg) {
 						sendNetwork(chess.opponent, -3, 0, 0);

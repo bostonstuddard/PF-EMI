@@ -990,7 +990,11 @@ public class EmiScreenManager {
 	}
 
 	private static boolean isClickClicky(int button) {
-		return button >= 0 && button < 3;
+		// SDL mouse button IDs are not the old GLFW 0..2 range. Standard
+		// inventory clicks must not include hover-only inventory stacks.
+		return button == InputConstants.MOUSE_BUTTON_LEFT
+			|| button == InputConstants.MOUSE_BUTTON_RIGHT
+			|| button == InputConstants.MOUSE_BUTTON_MIDDLE;
 	}
 
 	public static boolean mouseScrolled(double mouseX, double mouseY, double amount) {
@@ -1144,7 +1148,7 @@ public class EmiScreenManager {
 		if (isDisabled()) {
 			return false;
 		}
-		if (draggedStack.isEmpty() && button == 0) {
+		if (draggedStack.isEmpty() && button == InputConstants.MOUSE_BUTTON_LEFT) {
 			if (client.gui.screen() instanceof AbstractContainerScreen<?> handled) {
 				if (!handled.getMenu().getCarried().isEmpty()) {
 					return false;

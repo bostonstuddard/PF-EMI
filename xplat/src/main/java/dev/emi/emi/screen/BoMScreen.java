@@ -438,7 +438,7 @@ public class BoMScreen extends Screen {
 		int mx = (int) ((mouseX - width / 2) / scale - offX);
 		int my = (int) ((mouseY - height / 2) / scale - offY);
 		if (hover != null) {
-			if (button == 1 && hover.node != null && hover.node.recipe != null) {
+			if (button == InputConstants.MOUSE_BUTTON_RIGHT && hover.node != null && hover.node.recipe != null) {
 				if (EmiInput.isShiftDown()) {
 					BoM.tree.addResolution(hover.node.ingredient, null);
 				} else if (!(hover.node.recipe instanceof EmiResolutionRecipe)) {
@@ -452,13 +452,13 @@ public class BoMScreen extends Screen {
 				return true;
 			}
 			if (hover.stack != null) {
-				if (EmiInput.isShiftDown() && button == 0) {
+				if (EmiInput.isShiftDown() && button == InputConstants.MOUSE_BUTTON_LEFT) {
 					if (getAutoResolutions(hover, BoM.tree::addResolution)) {
 						recalculateTree();
 					}
 					return true;
 				} else {
-					if (button == 0) {
+					if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 						EmiApi.displayRecipes(hover.stack);
 						RecipeScreen.resolve = hover.stack;
 						Minecraft client = Minecraft.getInstance();
@@ -527,7 +527,7 @@ public class BoMScreen extends Screen {
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
 		int button = event.button();
-		if (button == 0 || button == 2) {
+		if (button == InputConstants.MOUSE_BUTTON_LEFT || button == InputConstants.MOUSE_BUTTON_MIDDLE) {
 			float scale = getScale();
 			offX += deltaX / scale;
 			offY += deltaY / scale;

@@ -388,7 +388,7 @@ public class ConfigScreen extends Screen {
 			if (child instanceof ConfigJumpButton btn && btn.isMouseOver(event.x(), event.y())) {
 				if (btn.mouseClicked(event, doubleClick)) {
 					this.setFocused(btn);
-					if (event.button() == 0) {
+					if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 						this.setDragging(true);
 					}
 					return true;

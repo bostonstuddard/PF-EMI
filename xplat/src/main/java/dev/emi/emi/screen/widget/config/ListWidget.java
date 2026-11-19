@@ -24,6 +24,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.emi.emi.EmiPort;
 
 public class ListWidget extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
@@ -226,7 +227,7 @@ public class ListWidget extends AbstractContainerEventHandler implements Rendera
 	}
 
 	protected void updateScrollingState(MouseButtonEvent event) {
-		this.scrolling = event.button() == 0 && event.x() >= (double)this.getScrollbarPositionX() && event.x() < (double)(this.getScrollbarPositionX() + 6);
+		this.scrolling = event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.x() >= (double)this.getScrollbarPositionX() && event.x() < (double)(this.getScrollbarPositionX() + 6);
 	}
 
 	protected int getScrollbarPositionX() {
@@ -287,7 +288,7 @@ public class ListWidget extends AbstractContainerEventHandler implements Rendera
 		if (super.mouseDragged(event, deltaX, deltaY)) {
 			return true;
 		}
-		if (event.button() != 0 || !this.scrolling) {
+		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT || !this.scrolling) {
 			return false;
 		}
 		if (event.y() < (double)this.top) {

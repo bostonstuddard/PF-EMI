@@ -508,7 +508,7 @@ public class RecipeScreen extends Screen {
 			if (group != null) {
 				int ox = ((int) mouseX) - group.x();
 				int oy = ((int) mouseY) - group.y();
-				if (!slot.getBounds().contains(ox, oy) && button == 0) {
+			if (!slot.getBounds().contains(ox, oy) && button == InputConstants.MOUSE_BUTTON_LEFT) {
 					EmiIngredient stack = slot.getStack();
 					if (slot.getRecipe() != null) {
 						stack = new EmiFavorite(stack, slot.getRecipe());

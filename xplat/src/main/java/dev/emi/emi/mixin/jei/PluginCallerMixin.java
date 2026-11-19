@@ -22,11 +22,12 @@ import net.minecraft.resources.Identifier;
 public class PluginCallerMixin {
 	@Unique
 	private static final Set<Identifier> SKIPPED = Sets.newHashSet(
-		EmiPort.id("jei", "minecraft"), EmiPort.id("jei", "gui"), EmiPort.id("jei", "fabric_gui"), EmiPort.id("jei", "forge_gui"), EmiPort.id("jei", "neoforge_gui")
+		EmiPort.id("jei", "minecraft"), EmiPort.id("jei", "gui"), EmiPort.id("jei", "fabric_gui"),
+		EmiPort.id("jei", "forge_gui"), EmiPort.id("jei", "neoforge_gui"), EmiPort.id("jei", "internal")
 	);
 	@Unique
 	private static final Set<String> SKIPPED_MODS = JemiUtil.getHandledMods();
-	
+
 	@Redirect(at = @At(value = "INVOKE", target = "java/util/function/Consumer.accept(Ljava/lang/Object;)V"),
 		method = "callOnPlugins", remap = false)
 	private static void callOnPlugins(Consumer<IModPlugin> target, Object value, String title, List<IModPlugin> plugins, Consumer<IModPlugin> func) {

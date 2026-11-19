@@ -187,21 +187,22 @@ public class EmiSearchWidget extends EditBox {
 			EmiPort.focus(this, false);
 			return false;
 		} else {
-			boolean b = super.mouseClicked(event, button == 1 ? false : doubleClick);
+			boolean b = super.mouseClicked(event, button == InputConstants.MOUSE_BUTTON_RIGHT ? false : doubleClick);
 			if (isMouseOver(mouseX, mouseY)) {
 				EmiPort.focus(this, true);
 			}
 			if (this.isFocused()) {
-				if (button == 0) {
+				if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 					if (System.currentTimeMillis() - lastClick < 500) {
 						highlight = !highlight;
 						lastClick = 0;
 					} else {
 						lastClick = System.currentTimeMillis();
 					}
-				} else if (button == 1) {
+				} else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
 					this.setValue("");
 					EmiPort.focus(this, true);
+					return true;
 				}
 			}
 			return b;
